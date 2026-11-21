@@ -149,6 +149,15 @@
   .macro i{display:block}
   .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;margin-top:6px;color:#c3cacd}
   .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}
+  .abbox{display:grid;grid-template-columns:1fr;gap:10px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px}
+  .abhint{font-size:11.5px;color:var(--mut);text-transform:none;letter-spacing:0;font-weight:500}
+  #f_goal button,#f_tempo button{font-size:13px;padding:9px 2px}
+  .rc.ab{border-color:#1f5a7a;background:linear-gradient(135deg,#10222e,#171a1c 75%)}
+  .abfc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .abfc div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}
+  .abfc small{display:block;font-size:11px;color:var(--mut)} .rc .abfc b{font-size:20px;display:block;color:#7fd4ff} .abfc span{font-size:11.5px}
+  .abgoal{margin-top:10px;background:var(--bg);border:1px solid #2f6a8a;border-radius:12px;padding:10px;font-size:13.5px} .rc .abgoal b{font-size:13.5px;display:inline;color:#7fd4ff}
+  .abreal{margin-top:10px;border-radius:12px;padding:10px;font-size:13px;background:#2a1a12;border:1px solid #5a3420} .abreal.ok{background:#14301c;border-color:#2f7a3e} .rc .abreal b{font-size:13px;display:inline}
   .warn{background:#2a1a12;border:1px solid #5a3420;color:#ffc9ad;border-radius:12px;padding:10px 12px;font-size:13px;margin-top:10px}
   .savebtn{width:100%;margin-top:16px;padding:14px;border-radius:13px;background:var(--acc);color:#111;font-weight:700;font-size:16px}
   .muted{color:var(--mut);font-size:12.5px;margin-top:12px}
@@ -339,7 +348,7 @@
   .topbar2{position:sticky;top:0;z-index:8;background:rgba(13,15,16,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
   .tb-in{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
   .tb-l{display:flex;align-items:center;gap:10px;min-width:0}
-  .tb-logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--acc),#7bd61a);display:grid;place-items:center;font-size:20px;flex:none;box-shadow:0 4px 14px rgba(198,255,61,.25)}
+  .tb-logo{width:40px;height:40px;border-radius:11px;object-fit:cover;flex:none;box-shadow:0 4px 14px rgba(255,40,40,.3)}
   .topbar2 h1{font-family:Oswald,sans-serif;font-size:22px;letter-spacing:.5px;text-transform:uppercase;line-height:1}
   .topbar2 h1 span{color:var(--acc)}
   .topbar2 small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}
@@ -428,7 +437,7 @@
 </head>
 <body>
 <div id="gate"><form class="box" id="gateForm" autocomplete="off">
-  <div style="font-size:54px">🔒</div>
+  <img src="icon-512.png" alt="Muskel-Coach" style="width:150px;height:150px;border-radius:32px;box-shadow:0 10px 40px rgba(255,40,40,.35)">
   <h2>Muskel<span>·</span>Coach</h2>
   <p>Diese App ist geschützt.<br>Bitte Zugangs-Kennwort eingeben.</p>
   <input id="gatePw" type="password" inputmode="numeric" placeholder="•••••" aria-label="Kennwort">
@@ -437,7 +446,7 @@
 </form></div>
 <header class="topbar2">
   <div class="tb-in">
-    <div class="tb-l"><div class="tb-logo">💪</div><div><h1>Muskel<span>·</span>Coach</h1><small id="tbSub">Start</small></div></div>
+    <div class="tb-l"><img class="tb-logo" src="icon-192.png" alt=""><div><h1>Muskel<span>·</span>Coach</h1><small id="tbSub">Start</small></div></div>
     <button class="tb-av" id="openProfile" aria-label="Profil">👤</button>
   </div>
 </header>
@@ -499,7 +508,11 @@
         <option value="1.725">6–7× Training</option>
         <option value="1.9">Täglich hart / körperlicher Job</option>
       </select></label>
-      <div class="lbl full">Ziel<div class="seg" id="f_goal"><button data-v="aufbau">Muskelaufbau</button><button data-v="halten">Halten</button><button data-v="def">Definieren</button></div></div>
+      <div class="lbl full">Ziel<div class="seg" id="f_goal"><button data-v="aufbau">Muskelaufbau</button><button data-v="halten">Halten</button><button data-v="def">Definieren</button><button data-v="ab">Abnehmen</button></div></div>
+      <div class="full abbox" id="abBox" style="display:none">
+        <div class="lbl">Tempo<div class="seg" id="f_tempo"><button data-v="0.25">0,25 kg</button><button data-v="0.5">0,5 kg</button><button data-v="0.75">0,75 kg</button><button data-v="1">1 kg</button></div><span class="abhint">pro Woche · 0,5 kg ist ideal, um Muskeln zu erhalten</span></div>
+        <label>Zielgewicht (kg, optional)<input id="f_zw" type="number" inputmode="decimal" step="0.1" min="35" max="250" placeholder="z. B. 75"></label>
+      </div>
     </div>
 
     <div class="block" id="results"></div>
@@ -1680,7 +1693,7 @@ function progressHTML(id){
 }
 
 /* ============ Profil & Bedarfsrechner ============ */
-let prof={name:'',sex:'m',age:'',h:'',w:'',act:'1.55',goal:'aufbau'};
+let prof={name:'',sex:'m',age:'',h:'',w:'',act:'1.55',goal:'aufbau',tempo:'0.5',zw:''};
 try{ Object.assign(prof, JSON.parse(localStorage.getItem('mc_prof')||'{}')); }catch(e){}
 const fmt=(n,d=0)=>Number(n).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
 
@@ -1689,36 +1702,57 @@ function calc(p){
   if(!(w>=35&&w<=250&&h>=120&&h<=230&&a>=14&&a<=99)) return null;
   const bmr = 10*w + 6.25*h - 5*a + (p.sex==='w'?-161:5);
   const tdee = bmr*act;
-  const adj = p.goal==='aufbau'?300 : p.goal==='def'?-400 : 0;
-  const kcal = Math.round((tdee+adj)/10)*10;
-  const pPerKg = p.goal==='aufbau'?2.0 : p.goal==='def'?2.2 : 1.6;
-  const prot = Math.round(w*pPerKg);
-  const fat = Math.round(w*0.9);
+  const ab = p.goal==='ab', tempo = Math.min(1,Math.max(0.25,parseFloat(p.tempo)||0.5));
+  let adj = p.goal==='aufbau'?300 : p.goal==='def'?-400 : ab ? -Math.round(tempo*7700/7/10)*10 : 0;
+  let kcal = Math.round((tdee+adj)/10)*10, capped=false;
+  const kmin = p.sex==='w'?1200:1500;
+  if(ab && kcal<kmin){ kcal=kmin; adj=kcal-Math.round(tdee); capped=true; }
+  const zw = parseFloat(String(p.zw||'').replace(',','.'));
+  const pPerKg = p.goal==='aufbau'?2.0 : p.goal==='def'?2.2 : ab?2.0 : 1.6;
+  const protBase = ab && zw>=35 && zw<w ? zw : w;      // beim Abnehmen: Eiweiß am Zielgewicht ausrichten
+  const prot = Math.round(protBase*pPerKg);
+  const fat = Math.round(w*(ab?0.8:0.9));
   const carbs = Math.max(0, Math.round((kcal - prot*4 - fat*9)/4));
   const creaRaw = w/10;
   const crea = Math.round(creaRaw*2)/2;
   const water = Math.round((w*0.035 + 0.5)*10)/10;
   const bmi = w/((h/100)**2);
   return {w,a,bmr:Math.round(bmr),tdee:Math.round(tdee),adj,kcal,pPerKg,prot,protMin:Math.round(w*1.6),protMax:Math.round(w*2.2),fat,carbs,creaRaw,crea,load:Math.round(w*0.3),water,bmi,
-          gain: p.goal==='aufbau'?[Math.round(w*0.005*10)/10, Math.round(w*0.015*10)/10]:null};
+          gain: p.goal==='aufbau'?[Math.round(w*0.005*10)/10, Math.round(w*0.015*10)/10]:null,
+          loss: ab?{tempo, def:-adj, perWeek:-adj*7/7700, capped, zw:zw>=35&&zw<w?zw:null}:null};
 }
 
 function readForm(){
-  prof.name=$('f_name').value.trim(); prof.age=$('f_age').value; prof.h=$('f_h').value; prof.w=$('f_w').value; prof.act=$('f_act').value;
+  prof.zw=$('f_zw').value; prof.name=$('f_name').value.trim(); prof.age=$('f_age').value; prof.h=$('f_h').value; prof.w=$('f_w').value; prof.act=$('f_act').value;
 }
 function fillForm(){
   $('f_name').value=prof.name||''; $('f_age').value=prof.age||''; $('f_h').value=prof.h||''; $('f_w').value=prof.w||''; $('f_act').value=prof.act||'1.55';
   document.querySelectorAll('#f_sex button').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.sex));
   document.querySelectorAll('#f_goal button').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.goal));
+  $('abBox').style.display=prof.goal==='ab'?'':'none'; $('f_zw').value=prof.zw||'';
+  document.querySelectorAll('#f_tempo button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(parseFloat(prof.tempo)||0.5)));
 }
+function lossCard(r){ const L=r.loss, pw=L.perWeek, now=new Date();
+  const fc=wk=>`<div><small>in ${wk} Wochen</small><b>−${fmt(pw*wk,1)} kg</b><span>≈ ${fmt(r.w-pw*wk,1)} kg</span></div>`;
+  let goal=''; if(L.zw){ const wks=Math.ceil((r.w-L.zw)/pw), d=addD(now,wks*7); goal=`<div class="abgoal">🎯 Ziel <b>${fmt(L.zw,1)} kg</b> (−${fmt(r.w-L.zw,1)} kg): in ca. <b>${wks} Wochen</b> – etwa <b>${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}</b></div>`; }
+  // echter Verlauf aus „Körper & Maße“
+  let real=''; try{ const ws=(typeof BODY!=='undefined'?BODY:[]).filter(b=>b.w&&b.date>=ymd(addD(now,-35))); if(ws.length>=2){ const a=ws[0], b=ws[ws.length-1], days=(parseD(b.date)-parseD(a.date))/864e5;
+    if(days>=6){ const rw=(a.w-b.w)/days*7; const ok=rw>=pw*0.6&&rw<=pw*1.5;
+      real=`<div class="abreal ${ok?'ok':''}">📉 Tatsächlich laut Waage: <b>${rw>=0?'−':'+'}${fmt(Math.abs(rw),2)} kg/Woche</b> – ${rw<=0?'die Waage steht – nimm ca. 150 kcal weniger oder bewege dich mehr.':rw<pw*0.6?'etwas langsamer als geplant. Dranbleiben – Schwankungen durch Wasser sind normal.':rw>pw*1.5?'schneller als geplant – iss ruhig etwas mehr, damit du keine Muskeln verlierst.':'genau im Plan, super! 💪'}</div>`; } } }catch(e){}
+  return `<div class="rc big ab"><small>Dein Abnehm-Plan</small>
+    <b style="font-size:26px">−${fmt(L.def)} kcal pro Tag</b>
+    <span>${fmt(L.def)} kcal × 7 Tage = ${fmt(L.def*7)} kcal pro Woche. 1 kg Körperfett ≈ 7.700 kcal → <b style="font-size:inherit;display:inline;color:var(--acc)">ca. ${fmt(pw,2).replace(/0$/,'')} kg pro Woche</b>.</span>
+    <div class="abfc">${fc(4)}${fc(8)}${fc(12)}</div>${goal}${real}
+    ${L.capped?`<div class="warn">Für ${fmt(L.tempo,2).replace(/0$/,'')} kg/Woche müsstest du unter ${prof.sex==='w'?'1.200':'1.500'} kcal essen – das ist zu wenig. Die App rechnet deshalb mit ${fmt(r.kcal)} kcal (≈ ${fmt(pw,2)} kg/Woche).</div>`:''}
+    <ul class="pts ok" style="margin-top:10px"><li>Eiweiß hoch halten (${r.prot} g) und weiter Krafttraining machen – so verlierst du Fett statt Muskeln.</li><li>Einmal pro Woche wiegen (gleicher Tag, morgens, nüchtern) und im Reiter „Fortschritt“ eintragen – die App passt die Kalorien automatisch an dein neues Gewicht an.</li><li>Die ersten 1–2 Wochen geht es oft schneller (Wasser), danach pendelt es sich ein.</li></ul></div>`; }
 function renderResults(){
   const r=calc(prof);
   if(!r){ $('results').innerHTML='<div class="rc"><span>Trag Alter, Größe und Gewicht ein – die Werte erscheinen sofort.</span></div>'; return; }
-  const goalTxt = prof.goal==='aufbau'?'Muskelaufbau (+300 kcal Überschuss)':prof.goal==='def'?'Definieren (−400 kcal Defizit)':'Gewicht halten';
+  const goalTxt = prof.goal==='aufbau'?'Muskelaufbau (+300 kcal Überschuss)':prof.goal==='def'?'Definieren (−400 kcal Defizit)':prof.goal==='ab'?`Abnehmen (−${fmt(r.loss.def)} kcal Defizit · ca. ${fmt(r.loss.perWeek,2).replace(/0$/,'')} kg/Woche)`:'Gewicht halten';
   const pk=r.prot*4, fk=r.fat*9, ck=r.carbs*4, tot=pk+fk+ck||1;
   let warn='';
   if(r.a<18) warn+='<div class="warn">⚠️ Unter 18: Kreatin und eine gezielte Kalorien-Planung bitte nur nach Rücksprache mit Arzt oder Eltern.</div>';
-  if(prof.goal==='def' && r.kcal < r.bmr) warn+='<div class="warn">Hinweis: Die Zielkalorien liegen unter deinem Grundumsatz – das Defizit lieber etwas kleiner halten.</div>';
+  if((prof.goal==='def'||prof.goal==='ab') && r.kcal < r.bmr && !(r.loss&&r.loss.capped)) warn+='<div class="warn">Hinweis: Die Zielkalorien liegen unter deinem Grundumsatz – das Defizit lieber etwas kleiner halten.</div>';
   $('results').innerHTML=`
     <h4>${prof.name?'Tagesbedarf für '+esc(prof.name):'Dein Tagesbedarf'}</h4>
     <div class="res">
@@ -1732,6 +1766,7 @@ function renderResults(){
       <div class="rc"><small>Gesamtumsatz</small><b>${fmt(r.tdee)}</b><span>kcal inkl. Alltag &amp; Training</span></div>
       <div class="rc"><small>Wasser / Tag</small><b>${fmt(r.water,1)} l</b><span>mit Kreatin eher etwas mehr</span></div>
       <div class="rc"><small>BMI</small><b>${fmt(r.bmi,1)}</b><span>bei viel Muskelmasse nur bedingt aussagekräftig</span></div>
+      ${r.loss?lossCard(r):''}
       ${r.gain?`<div class="rc big" style="background:var(--card);border-color:var(--line)"><small>Realistische Zunahme beim Aufbau</small><b style="font-size:26px">${fmt(r.gain[0],1)}–${fmt(r.gain[1],1)} kg / Monat</b><span>Nimmst du mehr zu, eher etwas weniger essen. Steht die Waage 3 Wochen still, ~150 kcal mehr.</span></div>`:''}
     </div>
     <div class="block"><h4>Kreatin richtig einnehmen</h4>
@@ -1799,6 +1834,8 @@ function closeProfile(){ renderSummary(); setView('home'); }
 function saveProf(){ try{localStorage.setItem('mc_prof',JSON.stringify(prof))}catch(e){} }
 ['f_name','f_age','f_h','f_w','f_act'].forEach(id=>$(id).addEventListener('input',()=>{readForm(); renderResults(); saveProf();}));
 $('f_sex').onclick=e=>{const b=e.target.closest('button'); if(!b)return; prof.sex=b.dataset.v; fillForm(); renderResults(); saveProf();};
+$('f_tempo').onclick=e=>{const b=e.target.closest('button'); if(!b)return; prof.tempo=b.dataset.v; fillForm(); renderResults(); saveProf();};
+$('f_zw').addEventListener('input',()=>{readForm(); renderResults(); saveProf();});
 $('f_goal').onclick=e=>{const b=e.target.closest('button'); if(!b)return; prof.goal=b.dataset.v; fillForm(); renderResults(); saveProf();};
 $('psave').onclick=()=>{readForm(); saveProf(); toast2('Gespeichert ✓'); closeProfile();};
 $('openProfile').onclick=openProfile;
@@ -1906,7 +1943,7 @@ function renderProg(){
   const st=badgeStats(), un=unlockedBadges();
   const bw=BODY.filter(b=>b.w), last=BODY[BODY.length-1]||{};
   const MEAS=[['w','Gewicht','kg'],['bauch','Bauch','cm'],['brust','Brust','cm'],['arm','Oberarm','cm'],['bein','Oberschenkel','cm']];
-  const diffTxt=k=>{ const xs=BODY.filter(b=>b[k]); if(xs.length<2) return ''; const d=xs[xs.length-1][k]-xs[0][k]; return `<em style="color:${(k==='bauch'?-d:d)>=0?'#7dff9c':'#ff9a6e'}">${d>=0?'+':''}${fd1(d)}</em>`; };
+  const diffTxt=k=>{ const xs=BODY.filter(b=>b[k]); if(xs.length<2) return ''; const d=xs[xs.length-1][k]-xs[0][k]; return `<em style="color:${(k==='bauch'||(k==='w'&&['ab','def'].includes(prof.goal))?-d:d)>=0?'#7dff9c':'#ff9a6e'}">${d>=0?'+':''}${fd1(d)}</em>`; };
   $('vProg').innerHTML=`
   <h3 class="vh first">📊 Statistik</h3>
   <div class="stats3" style="margin-top:0"><div><b>${LOG.length}</b><small>Trainings</small></div><div><b>${vol>=1000?fd1(vol/1000)+' t':Math.round(vol)+' kg'}</b><small>bewegt gesamt</small></div><div><b>${st.streak} 🔥</b><small>Wochen-Serie</small></div></div>
