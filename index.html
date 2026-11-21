@@ -149,6 +149,19 @@
   .macro i{display:block}
   .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;margin-top:6px;color:#c3cacd}
   .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}
+  .stepin{display:flex;align-items:center;gap:8px} .stepin input{flex:1} .stepin span{text-transform:none;color:var(--mut);font-weight:500}
+  .stepchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .stepchips button{padding:7px 10px;border-radius:9px;background:var(--card);border:1px solid var(--line);color:var(--txt);font-size:13px;font-weight:600;text-transform:none;letter-spacing:0}
+  .stepchips button.on{background:var(--acc);color:#111;border-color:var(--acc)}
+  .rc.parts{background:var(--card);border-color:var(--line)}
+  .bdr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+  .bdr:first-of-type{border-top:0} .bdr span{min-width:0} .bdr small{display:block;font-size:11.5px;color:var(--mut);text-transform:none;letter-spacing:0;font-weight:400;margin:1px 0 0}
+  .rc .bdr b{font-size:15px;white-space:nowrap;font-family:Inter,sans-serif}
+  .bdr.bsum{border-top:2px solid var(--mut);font-weight:700} .rc .bdr.bsum b{font-size:18px}
+  .bdr.bgoal span,.rc .bdr.bgoal b{color:var(--acc)} .rc .bdr.bgoal b{font-size:22px}
+  .steptab{margin-top:10px} .steptab>div{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:6px}
+  .steptab span{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:5px 2px;text-align:center;font-size:11px;color:var(--mut)}
+  .steptab span.on{border-color:var(--acc);color:var(--acc)} .rc .steptab b{display:block;font-size:12.5px;color:var(--txt);font-family:Inter,sans-serif}
   .abbox{display:grid;grid-template-columns:1fr;gap:10px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px}
   .abhint{font-size:11.5px;color:var(--mut);text-transform:none;letter-spacing:0;font-weight:500}
   #f_goal button,#f_tempo button{font-size:13px;padding:9px 2px}
@@ -501,13 +514,17 @@
       <label>Alter (Jahre)<input id="f_age" type="number" inputmode="numeric" min="14" max="99" placeholder="z. B. 35"></label>
       <label>Größe (cm)<input id="f_h" type="number" inputmode="numeric" min="120" max="230" placeholder="z. B. 180"></label>
       <label>Gewicht (kg)<input id="f_w" type="number" inputmode="decimal" step="0.1" min="35" max="250" placeholder="z. B. 80"></label>
-      <label>Training pro Woche<select id="f_act">
-        <option value="1.2">Kaum Sport, Bürojob</option>
-        <option value="1.375">1–3× Training</option>
-        <option value="1.55" selected>3–5× Training</option>
-        <option value="1.725">6–7× Training</option>
-        <option value="1.9">Täglich hart / körperlicher Job</option>
+      <label>Arbeit<select id="f_job">
+        <option value="sitz">Sitzend (Büro, Fahrer)</option>
+        <option value="steh">Stehend / viel unterwegs</option>
+        <option value="schwer">Körperlich schwer (Bau, Lager)</option>
+        <option value="keine">Keine Arbeit / Rente</option>
       </select></label>
+      <div class="lbl full">Schritte pro Tag (Durchschnitt, inkl. Arbeit)
+        <div class="stepin"><input id="f_steps" type="number" inputmode="numeric" min="0" max="40000" step="500" placeholder="z. B. 6000"><span>Schritte</span></div>
+        <div class="stepchips" id="f_stepchips"><button data-s="2000">2.000</button><button data-s="4000">4.000</button><button data-s="6000">6.000</button><button data-s="8000">8.000</button><button data-s="10000">10.000</button><button data-s="12000">12.000</button><button data-s="15000">15.000</button></div>
+        <span class="abhint">Tipp: Den Wert zeigt dir dein Handy (iPhone: Health-App, Android: Google Fit / Samsung Health) – nimm den Wochendurchschnitt.</span>
+      </div>
       <div class="lbl full">Ziel<div class="seg" id="f_goal"><button data-v="aufbau">Muskelaufbau</button><button data-v="halten">Halten</button><button data-v="def">Definieren</button><button data-v="ab">Abnehmen</button></div></div>
       <div class="full abbox" id="abBox" style="display:none">
         <div class="lbl">Tempo<div class="seg" id="f_tempo"><button data-v="0.25">0,25 kg</button><button data-v="0.5">0,5 kg</button><button data-v="0.75">0,75 kg</button><button data-v="1">1 kg</button></div><span class="abhint">pro Woche · 0,5 kg ist ideal, um Muskeln zu erhalten</span></div>
@@ -517,7 +534,7 @@
 
     <div class="block" id="results"></div>
     <button class="savebtn" id="psave">Speichern</button>
-    <p class="muted">So wird gerechnet: Grundumsatz nach Mifflin-St Jeor × Aktivitätsfaktor = Gesamtumsatz. Für Muskelaufbau kommen +300 kcal dazu, zum Definieren werden 400 kcal abgezogen. Eiweiß: 2,0 g pro kg beim Aufbau (empfohlen 1,6–2,2 g). Kreatin: 1 g pro 10 kg Körpergewicht (übliche Standardmenge sind 3–5 g). Der Trainingsverbrauch ist im Gesamtumsatz über „Training pro Woche“ schon enthalten – die Kalorien aus dem Kalorien-Rechner also nicht zusätzlich essen. Das sind Richtwerte, keine ärztliche oder Ernährungsberatung. Bei Nieren- oder anderen Erkrankungen vorher mit dem Arzt sprechen.</p>
+    <p class="muted">So wird gerechnet: Grundumsatz nach Mifflin-St Jeor (Alter, Größe, Gewicht, Geschlecht). Gesamtumsatz = Grundumsatz × 1,2 für den Alltag + deine Schritte (Schrittlänge ≈ 41,5 % der Körpergröße, Gehen ≈ 0,55 kcal pro kg und km) + Arbeit + dein Krafttraining laut Plan. Für Muskelaufbau kommen +300 kcal dazu, zum Definieren werden 400 kcal abgezogen, beim Abnehmen das gewählte Defizit (1 kg Fett ≈ 7.700 kcal). Eiweiß: 2,0 g pro kg beim Aufbau (empfohlen 1,6–2,2 g). Kreatin: 1 g pro 10 kg Körpergewicht (übliche Standardmenge sind 3–5 g). Schritte und Training sind im Gesamtumsatz schon enthalten – die Kalorien aus dem Kalorien-Rechner also nicht zusätzlich essen. Das sind Richtwerte, keine ärztliche oder Ernährungsberatung. Bei Nieren- oder anderen Erkrankungen vorher mit dem Arzt sprechen.</p>
   </div>
     <div id="setBox"></div>
   </section>
@@ -1693,15 +1710,28 @@ function progressHTML(id){
 }
 
 /* ============ Profil & Bedarfsrechner ============ */
-let prof={name:'',sex:'m',age:'',h:'',w:'',act:'1.55',goal:'aufbau',tempo:'0.5',zw:''};
+let prof={name:'',sex:'m',age:'',h:'',w:'',act:'1.55',goal:'aufbau',tempo:'0.5',zw:'',steps:'',job:'sitz'};
 try{ Object.assign(prof, JSON.parse(localStorage.getItem('mc_prof')||'{}')); }catch(e){}
 const fmt=(n,d=0)=>Number(n).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
 
 function calc(p){
-  const w=parseFloat(String(p.w).replace(',','.')), h=parseFloat(p.h), a=parseFloat(p.age), act=parseFloat(p.act);
+  const w=parseFloat(String(p.w).replace(',','.')), h=parseFloat(p.h), a=parseFloat(p.age);
   if(!(w>=35&&w<=250&&h>=120&&h<=230&&a>=14&&a<=99)) return null;
   const bmr = 10*w + 6.25*h - 5*a + (p.sex==='w'?-161:5);
-  const tdee = bmr*act;
+  /* Gesamtumsatz aus Bausteinen:
+     1) Grundumsatz × 1,2 = Schlafen, Sitzen, Essen verdauen, ca. 2.500 Schritte Grundbewegung
+     2) Schritte darüber: Schrittlänge ≈ 0,415 × Größe; Gehen kostet netto ≈ 0,55 kcal pro kg und km
+     3) Arbeit (stehend/schwer) an 5 von 7 Tagen
+     4) Krafttraining laut Plan (netto, ohne den Grundumsatz in dieser Zeit), auf die Woche verteilt */
+  const steps = Math.max(0, parseFloat(p.steps)>=0 && p.steps!=='' ? parseFloat(p.steps) : 5000);
+  const stride = 0.415*h/100, km = Math.max(0,steps-2500)*stride/1000;
+  const base = bmr*1.2, stepK = w*km*0.55;
+  const JOB={sitz:0,steh:0.12,schwer:0.30,keine:0}, job=p.job in JOB?p.job:'sitz';
+  const jobK = bmr*JOB[job]*5/7;
+  let trainK=0, perWeek=0;
+  try{ perWeek=SCHED.wd.length; const days=plan.days.length||1, avg=plan.days.reduce((s,d)=>s+kcalDay(d),0)/days; trainK=avg*0.75*perWeek/7; }catch(e){}
+  const tdee = base+stepK+jobK+trainK;
+  const per1000 = w*stride*0.55;
   const ab = p.goal==='ab', tempo = Math.min(1,Math.max(0.25,parseFloat(p.tempo)||0.5));
   let adj = p.goal==='aufbau'?300 : p.goal==='def'?-400 : ab ? -Math.round(tempo*7700/7/10)*10 : 0;
   let kcal = Math.round((tdee+adj)/10)*10, capped=false;
@@ -1717,21 +1747,32 @@ function calc(p){
   const crea = Math.round(creaRaw*2)/2;
   const water = Math.round((w*0.035 + 0.5)*10)/10;
   const bmi = w/((h/100)**2);
-  return {w,a,bmr:Math.round(bmr),tdee:Math.round(tdee),adj,kcal,pPerKg,prot,protMin:Math.round(w*1.6),protMax:Math.round(w*2.2),fat,carbs,creaRaw,crea,load:Math.round(w*0.3),water,bmi,
+  return {w,a,bmr:Math.round(bmr),tdee:Math.round(tdee),parts:{base:Math.round(base),steps,stepK:Math.round(stepK),km:Math.round(km*10)/10,job,jobK:Math.round(jobK),trainK:Math.round(trainK),perWeek,per1000:Math.round(per1000),stepT:n=>Math.round(base+w*Math.max(0,n-2500)*stride/1000*0.55+jobK+trainK)},adj,kcal,pPerKg,prot,protMin:Math.round(w*1.6),protMax:Math.round(w*2.2),fat,carbs,creaRaw,crea,load:Math.round(w*0.3),water,bmi,
           gain: p.goal==='aufbau'?[Math.round(w*0.005*10)/10, Math.round(w*0.015*10)/10]:null,
           loss: ab?{tempo, def:-adj, perWeek:-adj*7/7700, capped, zw:zw>=35&&zw<w?zw:null}:null};
 }
 
 function readForm(){
-  prof.zw=$('f_zw').value; prof.name=$('f_name').value.trim(); prof.age=$('f_age').value; prof.h=$('f_h').value; prof.w=$('f_w').value; prof.act=$('f_act').value;
+  prof.zw=$('f_zw').value; prof.name=$('f_name').value.trim(); prof.age=$('f_age').value; prof.h=$('f_h').value; prof.w=$('f_w').value; prof.job=$('f_job').value; prof.steps=$('f_steps').value;
 }
 function fillForm(){
-  $('f_name').value=prof.name||''; $('f_age').value=prof.age||''; $('f_h').value=prof.h||''; $('f_w').value=prof.w||''; $('f_act').value=prof.act||'1.55';
+  $('f_name').value=prof.name||''; $('f_age').value=prof.age||''; $('f_h').value=prof.h||''; $('f_w').value=prof.w||''; $('f_job').value=prof.job||'sitz'; $('f_steps').value=prof.steps||''; document.querySelectorAll('#f_stepchips button').forEach(b=>b.classList.toggle('on',String(prof.steps)===b.dataset.s));
   document.querySelectorAll('#f_sex button').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.sex));
   document.querySelectorAll('#f_goal button').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.goal));
   $('abBox').style.display=prof.goal==='ab'?'':'none'; $('f_zw').value=prof.zw||'';
   document.querySelectorAll('#f_tempo button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(parseFloat(prof.tempo)||0.5)));
 }
+function partsCard(r){ const P=r.parts, JN={sitz:'sitzend',steh:'stehend / viel unterwegs',schwer:'körperlich schwer',keine:'keine'};
+  const row=(l,v,sub)=>`<div class="bdr"><span>${l}${sub?`<small>${sub}</small>`:''}</span><b>${v}</b></div>`;
+  return `<div class="rc big parts"><small>So setzt sich dein Bedarf zusammen</small>
+    ${row('Grundumsatz × 1,2',fmt(P.base)+' kcal',`Körper in Ruhe ${fmt(r.bmr)} kcal + Alltag (Essen, Sitzen, ~2.500 Schritte)`)}
+    ${row(`🚶 ${fmt(P.steps)} Schritte`,'+ '+fmt(P.stepK)+' kcal',P.steps>2500?`${fmt(P.km,1)} km zusätzlich gegangen · ca. ${P.per1000} kcal pro 1.000 Schritte`:'nicht mehr als die Grundbewegung')}
+    ${row('💼 Arbeit: '+JN[P.job],'+ '+fmt(P.jobK)+' kcal',P.jobK?'an 5 Tagen, auf die Woche verteilt':'')}
+    ${row(`🏋️ Krafttraining ${P.perWeek}× pro Woche`,'+ '+fmt(P.trainK)+' kcal','laut deinem Plan, auf alle 7 Tage verteilt')}
+    <div class="bdr bsum"><span>= Gesamtumsatz</span><b>${fmt(r.tdee)} kcal</b></div>
+    <div class="bdr"><span>${r.adj>0?'+ Überschuss Muskelaufbau':r.adj<0?'− Defizit':'± Ziel halten'}</span><b>${r.adj>0?'+ ':r.adj<0?'− ':''}${fmt(Math.abs(r.adj))} kcal</b></div>
+    <div class="bdr bsum bgoal"><span>= Dein Tagesziel</span><b>${fmt(r.kcal)} kcal</b></div>
+    <div class="steptab"><small>Gesamtumsatz bei anderen Schrittzahlen:</small><div>${[2000,4000,6000,8000,10000,12000].map(n=>`<span class="${Math.abs(n-P.steps)<1000?'on':''}">${fmt(n/1000)}k<b>${fmt(P.stepT(n))}</b></span>`).join('')}</div></div></div>`; }
 function lossCard(r){ const L=r.loss, pw=L.perWeek, now=new Date();
   const fc=wk=>`<div><small>in ${wk} Wochen</small><b>−${fmt(pw*wk,1)} kg</b><span>≈ ${fmt(r.w-pw*wk,1)} kg</span></div>`;
   let goal=''; if(L.zw){ const wks=Math.ceil((r.w-L.zw)/pw), d=addD(now,wks*7); goal=`<div class="abgoal">🎯 Ziel <b>${fmt(L.zw,1)} kg</b> (−${fmt(r.w-L.zw,1)} kg): in ca. <b>${wks} Wochen</b> – etwa <b>${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}</b></div>`; }
@@ -1760,6 +1801,7 @@ function renderResults(){
         <div class="macro"><i style="width:${pk/tot*100}%;background:var(--acc)"></i><i style="width:${ck/tot*100}%;background:#4fb3ff"></i><i style="width:${fk/tot*100}%;background:var(--acc2)"></i></div>
         <div class="legend"><span><i style="background:var(--acc)"></i>Eiweiß ${r.prot} g</span><span><i style="background:#4fb3ff"></i>Kohlenhydrate ${r.carbs} g</span><span><i style="background:var(--acc2)"></i>Fett ${r.fat} g</span></div>
       </div>
+      ${partsCard(r)}
       <div class="rc"><small>Eiweiß / Tag</small><b>${r.prot} g</b><span>${fmt(r.pPerKg,1)} g pro kg · Spanne ${r.protMin}–${r.protMax} g</span></div>
       <div class="rc"><small>Kreatin / Tag</small><b>${fmt(r.crea,1)} g</b><span>1 g pro 10 kg · täglich, auch an Ruhetagen</span></div>
       <div class="rc"><small>Grundumsatz</small><b>${fmt(r.bmr)}</b><span>kcal in völliger Ruhe</span></div>
@@ -1832,7 +1874,8 @@ function renderSummaryOld(){
 function openProfile(){ setView('prof'); }
 function closeProfile(){ renderSummary(); setView('home'); }
 function saveProf(){ try{localStorage.setItem('mc_prof',JSON.stringify(prof))}catch(e){} }
-['f_name','f_age','f_h','f_w','f_act'].forEach(id=>$(id).addEventListener('input',()=>{readForm(); renderResults(); saveProf();}));
+$('f_stepchips').onclick=e=>{const b=e.target.closest('button'); if(!b)return; prof.steps=b.dataset.s; fillForm(); renderResults(); saveProf();};
+['f_name','f_age','f_h','f_w','f_job','f_steps'].forEach(id=>$(id).addEventListener('input',()=>{readForm(); renderResults(); saveProf();}));
 $('f_sex').onclick=e=>{const b=e.target.closest('button'); if(!b)return; prof.sex=b.dataset.v; fillForm(); renderResults(); saveProf();};
 $('f_tempo').onclick=e=>{const b=e.target.closest('button'); if(!b)return; prof.tempo=b.dataset.v; fillForm(); renderResults(); saveProf();};
 $('f_zw').addEventListener('input',()=>{readForm(); renderResults(); saveProf();});
