@@ -1307,7 +1307,7 @@ function setView(v){
   for(const k in VIEWMAP){ const el=$(VIEWMAP[k]); if(el) el.style.display=k===v?'':'none'; }
   document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   $('tbSub').textContent=VIEWNAME[v];
-  if(v==='plan') renderPlan(); else if(v==='cal') renderCal(); else if(v==='prof'){ fillForm(); renderResults(); renderSettings(); } else if(v==='prog') renderProg(); else if(v==='home') renderSummary(); else { renderChips(); renderGrid(); }
+  if(v==='plan') renderPlan(); else if(v==='cal') renderCal(); else if(v==='prof'){ for(const f of [fillForm,renderResults,renderSettings]){ try{ f(); }catch(e){ console.warn(f.name,e); } } } else if(v==='prog') renderProg(); else if(v==='home') renderSummary(); else { renderChips(); renderGrid(); }
   try{localStorage.setItem('mc_tab',v)}catch(e){}
   if(changed) window.scrollTo({top:0});
 }
@@ -2292,7 +2292,7 @@ const COACH_LOOKS=[
  ['Man Bun','Haarknoten · Vollbart',{hair:'man-bun',beard:'full',skin:'light',hairCol:[0.22,0.13,0.06]}]];
 function curLookIdx(){ try{ return +(localStorage.getItem('mc_look')||0); }catch(e){ return 0; } }
 function applyLook(i,save){ const l=COACH_LOOKS[i]||COACH_LOOKS[0]; G3.setLook(l[2]); if(save){ try{localStorage.setItem('mc_look',String(i))}catch(e){} G3.resetThumbs(); start3DThumbs(); } }
-applyLook(curLookIdx(),false);
+try{ applyLook(curLookIdx(),false); }catch(e){ console.warn('Look',e); }
 function start3DThumbs(){ if(!G3.init()) return; G3.thumbs(EX,()=>{ try{ renderGrid(); if(view==='plan') renderPlan(); }catch(e){} }); }
 
 /* =====================================================================
@@ -2533,7 +2533,7 @@ function liveHelpers(it,ex){ if(!it||it.id==='laufband') return ''; const cur=it
 function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3) return ''; if(bak&&ymd(addD(new Date(),-14))<=bak) return '';
   return `<button class="nag" id="nagBak">💾 <span><b>${bak?'Letzte Sicherung ist über 2 Wochen alt':'Deine Daten sind noch nicht gesichert'}</b><small>Jetzt Backup erstellen, damit nichts verloren geht ›</small></span></button>`; }
 
-setTimeout(start3DThumbs,400);
+setTimeout(()=>{ try{ start3DThumbs(); }catch(e){ console.warn('3D',e); } },400);
 renderSummary(); renderChips(); renderGrid(); (function(){let t='home';try{t=localStorage.getItem('mc_tab')||'home'}catch(e){} setView(t);})(); route(); heroLoop(); initShare();
 $('tback').onclick=closeLive; $('resume').onclick=openLive;
 $('restPlus').onclick=()=>{ if(restEnd){ restEnd+=15000; restTotal+=15; tickLive(); } };
