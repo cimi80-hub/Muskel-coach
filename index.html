@@ -100,6 +100,7 @@
   #anim.is3d{padding-top:0}
   .lvfig canvas.g3d{height:100%;aspect-ratio:auto;max-height:none}
   img.th3d{width:100%;height:100%;object-fit:cover;display:block}
+  .newtag{font-size:10px;font-weight:800;background:var(--acc);color:#111;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:2px}
   .lookgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .lookgrid button{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
   .lookgrid button b{display:block;font-size:13.5px} .lookgrid button small{display:block;font-size:11px;color:var(--mut)}
@@ -1147,6 +1148,164 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const gname=k=>(GROUPS.find(g=>g[0]===k)||[,k])[1];
 
 const GVIEW={brust:'f',schultern:'f',nacken:'b',bauch:'f',bizeps:'f',trizeps:'b',ruecken:'b',beine:'f',po:'b',cardio:'f',alle:'f'};
+
+/* ===== Zusätzliche Bewegungen ===== */
+(function(){
+  const LYING={hd:[48,117],sh:[64,122],hp:[122,124],kn:[148,112],ft:[160,184],to:[172,184]};
+  const FLOOR={hd:[36,172],sh:[54,174],hp:[104,178]};
+  const BENT={hd:[152,72],sh:[138,82],hp:[90,112],kn:[110,146],ft:[98,184],to:[110,184]};
+  const SEAT={hp:[90,128],kn:[126,128],ft:[128,184],to:[140,184],sh:[98,82],hd:[104,65]};
+  const lowCables=[[60,182],[140,182]];
+  Object.assign(T,{
+    flyS:{view:'s',statics:benchFlat,A:P(S,Object.assign({},LYING,{el:[66,96],ha:[66,70],lw:[24,20]})),B:P(S,Object.assign({},LYING,{el:[70,120],ha:[64,124],lw:[58,66]}))},
+    pullover:{view:'s',statics:benchFlat,A:P(S,Object.assign({},LYING,{el:[64,96],ha:[62,72],lw:[10,4]})),B:P(S,Object.assign({},LYING,{el:[42,110],ha:[22,108],lw:[10,4]}))},
+    flyLowF:{view:'f',cables:[[8,176],[192,176]],statics:tower(0)+tower(190),A:P(F,arms([72,96],[56,120])),B:P(F,arms([86,72],[96,58]))},
+    bike:{view:'s',segs:LUNGE,
+      A:P(S,{hd:[48,139],sh:[63,149],el:[78,160],ha:[67,152],hp:[104,178],kn:[112,142],ft:[134,150],to:[142,146],kn2:[138,168],ft2:[172,170],to2:[178,164]}),
+      B:P(S,{hd:[50,141],sh:[64,150],el:[78,160],ha:[67,152],hp:[104,178],kn:[138,168],ft:[172,170],to:[178,164],kn2:[112,142],ft2:[134,150],to2:[142,146]})},
+    lyleg:{view:'s',A:P(S,Object.assign({},FLOOR,{el:[78,180],ha:[96,181],kn:[138,179],ft:[172,180],to:[178,172]})),
+      B:P(S,Object.assign({},FLOOR,{el:[78,180],ha:[96,181],kn:[112,146],ft:[118,112],to:[128,108]}))},
+    revcrunch:{view:'s',A:P(S,Object.assign({},FLOOR,{el:[78,180],ha:[96,181],kn:[124,148],ft:[150,168],to:[160,166]})),
+      B:P(S,Object.assign({},FLOOR,{el:[78,180],ha:[96,181],hp:[100,170],kn:[86,130],ft:[110,118],to:[118,110]}))},
+    rollout:{view:'s',A:P(S,{hd:[140,96],sh:[128,110],el:[134,136],ha:[138,162],hp:[100,140],kn:[96,182],ft:[66,184],to:[60,182]}),
+      B:P(S,{hd:[174,138],sh:[160,148],el:[176,158],ha:[188,166],hp:[112,160],kn:[96,182],ft:[66,184],to:[60,182]})},
+    woodF:{view:'f',cableMid:[190,16],statics:tower(190),
+      A:P(F,{elL:[112,56],haL:[138,40],elR:[132,52],haR:[146,36]}),B:P(F,{elL:[74,100],haL:[56,128],elR:[94,104],haR:[64,132]})},
+    latCableF:Object.assign({},T.latF,{cables:lowCables}),
+    frontCable:Object.assign({},T.frontS,{cable:[96,184]}),
+    uprowCable:Object.assign({},T.uprowF,{cableMid:[100,184]}),
+    skull:{view:'s',statics:benchFlat,A:P(S,Object.assign({},LYING,{el:[68,92],ha:[66,66]})),B:P(S,Object.assign({},LYING,{el:[68,92],ha:[50,104]}))},
+    kickback:{view:'s',A:P(S,Object.assign({},BENT,{el:[116,98],ha:[118,124]})),B:P(S,Object.assign({},BENT,{el:[116,98],ha:[90,92]}))},
+    ohCable:Object.assign({},T.overhead,{cable:[70,184]}),
+    preacher:{view:'s',statics:'<path d="M104 92L130 118" stroke="#3b4249" stroke-width="8" stroke-linecap="round"/><path d="M120 112V184" stroke="#3b4249" stroke-width="5"/><rect x="62" y="128" width="40" height="7" rx="3" fill="#3b4249"/><path d="M82 135V184" stroke="#3b4249" stroke-width="5"/>',
+      A:P(S,{hp:[80,128],sh:[94,82],hd:[102,66],kn:[118,130],ft:[120,184],to:[132,184],el:[124,106],ha:[146,128]}),
+      B:P(S,{hp:[80,128],sh:[94,82],hd:[102,66],kn:[118,130],ft:[120,184],to:[132,184],el:[124,106],ha:[116,78]})},
+    inclCurl:{view:'s',statics:benchIncl,A:P(S,{hd:[64,88],sh:[76,104],hp:[116,134],kn:[146,124],ft:[156,184],to:[168,184],el:[76,130],ha:[78,156]}),
+      B:P(S,{hd:[64,88],sh:[76,104],hp:[116,134],kn:[146,124],ft:[156,184],to:[168,184],el:[78,130],ha:[94,106]})},
+    wrist:{view:'s',statics:benchSeat,A:P(S,Object.assign({},SEAT,{el:[108,122],ha:[134,130]})),B:P(S,Object.assign({},SEAT,{el:[108,122],ha:[133,116]}))},
+    farmer:{view:'s',segs:LUNGE,
+      A:P(S,{hd:[100,40],sh:[100,58],hp:[100,108],el:[100,84],ha:[101,108],kn:[110,142],ft:[118,172],to:[130,174],kn2:[94,142],ft2:[84,170],to2:[94,176]}),
+      B:P(S,{hd:[100,40],sh:[100,58],hp:[100,108],el:[100,84],ha:[101,108],kn:[94,142],ft:[84,170],to:[94,176],kn2:[110,142],ft2:[118,172],to2:[130,174]})},
+    wroller:{view:'s',A:P(S,{el:[126,62],ha:[152,60]}),B:P(S,{el:[126,63],ha:[151,66]})},
+    hangB:Object.assign({},T.pullupB,{B:T.pullupB.A,hold:true})
+  });
+})();
+GROUPS.push(['unterarme','Unterarme']);
+Object.assign(GVIEW,{unterarme:'f'}); Object.assign(HLG,{unterarme:['forearm']});
+Object.assign(CAT,{'kh-bankdruecken':'mid','kh-fliegende':'iso','kabel-crossover-unten':'iso','kh-pullover':'iso','schraegbank-lh':'big',
+  'fahrrad-crunch':'core','beinheben-liegend':'core','reverse-crunch':'core','bauchroller':'core','kabel-holzhacker':'core',
+  'arnold-press':'mid','seitheben-kabel':'iso','frontheben-kabel':'iso','vorgebeugtes-seitheben':'iso','lh-schulterdruecken':'big','aufrechtes-rudern-kabel':'mid',
+  'skullcrusher':'iso','kh-kickbacks':'iso','trizeps-ueberkopf-seil':'iso','trizepsdruecken-einarmig':'iso','enges-bankdruecken':'mid',
+  'scottcurls':'iso','schraegbank-curls':'iso','seil-hammercurls':'iso','zottman-curls':'iso',
+  'handgelenk-curls':'iso','reverse-handgelenk-curls':'iso','reverse-curls':'iso','farmers-walk':'mid','handgelenk-roller':'iso','dead-hang':'core'});
+Object.assign(HLX,{'kh-bankdruecken':['chest','tricep','delt'],'kh-fliegende':['chest'],'kabel-crossover-unten':['chest','delt'],'kh-pullover':['chest','lat'],'schraegbank-lh':['chest','delt'],
+  'fahrrad-crunch':['abs','oblique'],'beinheben-liegend':['abs'],'reverse-crunch':['abs'],'bauchroller':['abs','lat'],'kabel-holzhacker':['oblique','abs'],
+  'arnold-press':['delt','tricep'],'seitheben-kabel':['delt'],'frontheben-kabel':['delt'],'vorgebeugtes-seitheben':['delt','back'],'lh-schulterdruecken':['delt','tricep'],'aufrechtes-rudern-kabel':['delt','trap'],
+  'skullcrusher':['tricep'],'kh-kickbacks':['tricep'],'trizeps-ueberkopf-seil':['tricep'],'trizepsdruecken-einarmig':['tricep'],'enges-bankdruecken':['tricep','chest'],
+  'scottcurls':['bicep'],'schraegbank-curls':['bicep'],'seil-hammercurls':['bicep','forearm'],'zottman-curls':['bicep','forearm'],
+  'handgelenk-curls':['forearm'],'reverse-handgelenk-curls':['forearm'],'reverse-curls':['forearm','bicep'],'farmers-walk':['forearm','trap','abs'],'handgelenk-roller':['forearm','delt'],'dead-hang':['forearm','lat']});
+const X=(id,name,g,anim,prop,prim,sec,equip,lvl,sets,steps,tips,err)=>({id,name,g,anim,prop,prim,sec,equip,lvl,sets,steps,tips,err,neu:true});
+EX.push(
+ // ---- Brust ----
+ X('kh-bankdruecken','Kurzhantel-Bankdrücken',['brust','trizeps'],'bench','db','Große Brustmuskeln','Trizeps, vordere Schulter','Kurzhanteln, Flachbank','Anfänger','3–4 × 8–12',
+  ['Mit den Hanteln auf den Oberschenkeln hinsetzen und zurücklegen, Hanteln auf Brusthöhe.','Schulterblätter zusammen, Füße fest am Boden.','Hanteln nach oben drücken, oben leicht zueinander führen.','Langsam bis auf Brusthöhe absenken.'],
+  ['Größere Bewegung als mit der Langhantel – gut für die Dehnung.','Ellbogen ca. 45° vom Körper.'],['Hanteln oben zusammenschlagen.','Ellbogen ganz seitlich abspreizen.']),
+ X('kh-fliegende','Kurzhantel-Fliegende (flach)',['brust'],'flyS','db','Große Brustmuskeln (innen & außen)','Vordere Schulter','Kurzhanteln, Flachbank','Anfänger','3 × 10–12',
+  ['Auf die Flachbank legen, Hanteln über der Brust, Handflächen zueinander.','Ellbogen leicht gebeugt fixieren.','Arme in einem großen Bogen seitlich absenken, bis du die Dehnung in der Brust spürst.','Im gleichen Bogen wieder nach oben „umarmen“.'],
+  ['Leichtes Gewicht – es geht um die Dehnung, nicht ums Drücken.','Wie beim Umarmen eines großen Baums.'],['Arme durchstrecken (Belastung fürs Ellbogengelenk).','Zu tief absenken.']),
+ X('kabel-crossover-unten','Kabel-Crossover von unten',['brust','schultern'],'flyLowF','handle','Obere Brust','Vordere Schulter','Kabelzug (beide Rollen unten)','Fortgeschritten','3 × 12–15',
+  ['Beide Rollen ganz unten einstellen, Griffe fassen, in die Mitte stellen.','Arme leicht gebeugt neben dem Körper.','Griffe schräg nach oben vor der Brust zusammenführen.','Oben kurz anspannen, langsam zurück.'],
+  ['Trifft besonders die obere Brust.','Oberkörper aufrecht, Brust raus.'],['Mit dem Rücken mitziehen.','Ellbogen stark beugen (dann wird es ein Drücken).']),
+ X('kh-pullover','Kurzhantel-Pullover',['brust','ruecken'],'pullover','db','Brust & Latissimus','Trizeps, Sägezahnmuskel','Eine Kurzhantel, Flachbank','Fortgeschritten','3 × 10–12',
+  ['Auf die Bank legen, eine Hantel mit beiden Händen über der Brust halten.','Arme fast gestreckt lassen.','Hantel in einem Bogen hinter den Kopf absenken, bis die Oberarme neben den Ohren sind.','Im gleichen Bogen zurück über die Brust.'],
+  ['Langsam und mit Gefühl – große Dehnung.','Bauch anspannen, kein starkes Hohlkreuz.'],['Zu schweres Gewicht.','Ellbogen beugen und es zu Trizepsdrücken machen.']),
+ X('schraegbank-lh','Schrägbankdrücken (Langhantel)',['brust','schultern'],'incline','bar','Obere Brust','Vordere Schulter, Trizeps','Langhantel, Schrägbank','Fortgeschritten','3–4 × 6–10',
+  ['Bank auf 30–45° stellen, Stange etwas breiter als schulterbreit greifen.','Stange aus der Ablage heben, über die obere Brust bringen.','Kontrolliert zur oberen Brust absenken.','Kraftvoll nach oben drücken.'],
+  ['Mit Partner/Sicherung trainieren.','Füße fest auf dem Boden.'],['Bank zu steil.','Stange vom Brustkorb abprallen lassen.']),
+ // ---- Bauch ----
+ X('fahrrad-crunch','Fahrrad-Crunch',['bauch'],'bike','','Gerader & schräger Bauchmuskel','Hüftbeuger','Matte','Anfänger','3 × 20 (10 je Seite)',
+  ['Auf den Rücken legen, Hände an die Schläfen, Schultern leicht angehoben.','Ein Knie zur Brust ziehen, das andere Bein strecken.','Gegenüberliegenden Ellbogen Richtung Knie drehen.','Seite wechseln wie beim Radfahren.'],
+  ['Langsam und kontrolliert – nicht strampeln.','Unterer Rücken bleibt am Boden.'],['Am Kopf ziehen.','Nur die Ellbogen bewegen statt den Oberkörper zu drehen.']),
+ X('beinheben-liegend','Beinheben liegend',['bauch'],'lyleg','','Unterer Bauch','Hüftbeuger','Matte','Anfänger','3 × 12–15',
+  ['Auf den Rücken legen, Arme neben dem Körper, Handflächen unten.','Beine gestreckt zusammen.','Beine langsam bis ca. 90° anheben.','Langsam absenken, kurz vor dem Boden stoppen.'],
+  ['Unteren Rücken in den Boden drücken.','Zu schwer? Knie leicht beugen.'],['Hohlkreuz beim Absenken.','Beine fallen lassen.']),
+ X('reverse-crunch','Reverse Crunch',['bauch'],'revcrunch','','Unterer Bauch','Hüftbeuger','Matte','Anfänger','3 × 12–15',
+  ['Auf den Rücken legen, Knie 90° gebeugt anheben.','Hände neben dem Körper am Boden.','Becken einrollen und Knie Richtung Brust ziehen, Po hebt leicht ab.','Langsam zurückrollen.'],
+  ['Bewegung kommt aus dem Bauch, nicht aus dem Schwung.','Ausatmen beim Einrollen.'],['Mit Schwung arbeiten.','Kopf und Schultern hochziehen.']),
+ X('bauchroller','Bauchroller (Ab-Wheel)',['bauch'],'rollout','db','Gesamter Bauch','Latissimus, Schultern, unterer Rücken','Bauchroller','Fortgeschritten','3 × 8–12',
+  ['Auf die Knie, Bauchroller mit beiden Händen unter den Schultern.','Bauch fest anspannen, Rücken leicht rund.','Langsam nach vorn rollen, so weit du die Spannung halten kannst.','Mit dem Bauch wieder zurückziehen.'],
+  ['Anfangs nur kurze Strecken rollen.','Po nicht nach oben schieben beim Zurückrollen.'],['Hohlkreuz – belastet den unteren Rücken.','Zu weit rollen.']),
+ X('kabel-holzhacker','Kabel-Holzhacker',['bauch'],'woodF','handle','Schräge Bauchmuskeln','Gerader Bauch, Schultern','Kabelzug (Rolle oben), Griff/Seil','Fortgeschritten','3 × 12 je Seite',
+  ['Seitlich zum Kabelzug stellen, Rolle oben, Griff mit beiden Händen.','Füße schulterbreit, Knie leicht gebeugt.','Griff diagonal von oben nach unten zur anderen Hüfte ziehen, Oberkörper dreht mit.','Kontrolliert zurück und Seite wechseln.'],
+  ['Kraft kommt aus der Rumpfdrehung, Arme bleiben fast gestreckt.','Hintere Ferse darf sich mitdrehen.'],['Nur mit den Armen ziehen.','Rundrücken.']),
+ // ---- Schultern ----
+ X('arnold-press','Arnold Press',['schultern','trizeps'],'ohpF','db','Vordere & seitliche Schulter','Trizeps','Kurzhanteln, Bank mit Lehne','Fortgeschritten','3 × 8–12',
+  ['Hanteln vor der Brust halten, Handflächen zeigen zu dir.','Beim Hochdrücken die Hände nach außen drehen.','Oben zeigen die Handflächen nach vorn.','Beim Absenken wieder zurückdrehen.'],
+  ['Große Bewegung – trifft alle Schulterbereiche.','Sitzend mit Lehne ist es rückenschonender.'],['Zu schweres Gewicht.','Hohlkreuz beim Drücken.']),
+ X('seitheben-kabel','Seitheben am Kabel',['schultern'],'latCableF','handle','Seitliche Schulter','Trapez','Kabelzug (Rolle unten), Griffe','Anfänger','3 × 12–15',
+  ['Rollen unten, Griffe fassen, aufrecht stehen.','Arme leicht gebeugt neben dem Körper.','Arme seitlich bis Schulterhöhe heben.','Langsam absenken – das Kabel hält die Spannung.'],
+  ['Konstante Spannung über die ganze Bewegung.','Auch einarmig sehr effektiv.'],['Schultern hochziehen.','Mit dem Körper schwingen.']),
+ X('frontheben-kabel','Frontheben am Kabel',['schultern'],'frontCable','handle','Vordere Schulter','Obere Brust','Kabelzug (Rolle unten), Griff oder Seil','Anfänger','3 × 12',
+  ['Mit dem Rücken zum Kabelzug stehen, Griff zwischen den Beinen.','Arm(e) fast gestreckt.','Griff nach vorn bis auf Schulterhöhe heben.','Langsam zurückführen.'],
+  ['Nicht höher als Schulterhöhe.','Bauch fest.'],['Schwung aus dem Rücken.','Arme ganz durchstrecken.']),
+ X('vorgebeugtes-seitheben','Vorgebeugtes Seitheben (Kurzhantel)',['schultern','ruecken'],'revflyB','db','Hintere Schulter','Oberer Rücken, Trapez','Kurzhanteln','Anfänger','3 × 12–15',
+  ['Oberkörper mit geradem Rücken weit nach vorn beugen.','Hanteln hängen unter der Brust, Arme leicht gebeugt.','Arme seitlich nach oben führen, Schulterblätter zusammen.','Langsam absenken.'],
+  ['Kleines Gewicht – die hintere Schulter ist schwach.','Kopf in Verlängerung der Wirbelsäule.'],['Aufrichten mit Schwung.','Rundrücken.']),
+ X('lh-schulterdruecken','Schulterdrücken stehend (Langhantel)',['schultern','trizeps'],'ohpF','bar','Vordere & seitliche Schulter','Trizeps, Rumpf','Langhantel','Fortgeschritten','3–4 × 6–10',
+  ['Stange auf Schulterhöhe vor dem Körper, schulterbreit greifen.','Bauch und Po fest anspannen.','Stange gerade über den Kopf drücken, Kopf leicht zurück.','Kontrolliert zur Schulter absenken.'],
+  ['Klassische Kraftübung für breite Schultern.','Unterarme senkrecht unter der Stange.'],['Starkes Hohlkreuz.','Mit den Beinen Schwung holen.']),
+ X('aufrechtes-rudern-kabel','Aufrechtes Rudern am Kabel',['schultern','nacken'],'uprowCable','handle','Seitliche Schulter, Trapez','Bizeps','Kabelzug (Rolle unten), Stange/Seil','Anfänger','3 × 12',
+  ['Rolle unten, Stange oder Seil fassen, aufrecht stehen.','Griff nah am Körper nach oben ziehen.','Ellbogen führen, bis etwa Brusthöhe.','Langsam absenken.'],
+  ['Nicht höher als Brust ziehen – schont die Schulter.','Etwas breiter greifen ist angenehmer.'],['Zu hoch ziehen.','Schwung holen.']),
+ // ---- Trizeps ----
+ X('skullcrusher','Skull Crusher (French Press)',['trizeps'],'skull','bar','Trizeps (langer Kopf)','','SZ-Stange oder Langhantel, Flachbank','Fortgeschritten','3 × 8–12',
+  ['Auf die Bank legen, Stange mit gestreckten Armen über der Brust.','Oberarme bleiben senkrecht und fest.','Nur die Unterarme beugen, Stange Richtung Stirn/hinter den Kopf.','Wieder nach oben strecken.'],
+  ['SZ-Stange schont die Handgelenke.','Langsam ablassen – Stirn schützen!'],['Ellbogen gehen weit auseinander.','Oberarme bewegen sich mit.']),
+ X('kh-kickbacks','Kurzhantel-Kickbacks',['trizeps'],'kickback','db','Trizeps','','Kurzhantel(n), evtl. Bank','Anfänger','3 × 12 je Arm',
+  ['Oberkörper nach vorn beugen, Rücken gerade, evtl. auf Bank abstützen.','Oberarm parallel zum Körper fixieren.','Unterarm nach hinten strecken, bis der Arm gerade ist.','Kurz halten, langsam zurück.'],
+  ['Oben den Trizeps fest anspannen.','Lieber leichter und sauber.'],['Oberarm schwingt mit.','Mit Schwung arbeiten.']),
+ X('trizeps-ueberkopf-seil','Trizepsdrücken über Kopf am Seil',['trizeps'],'ohCable','handle','Trizeps (langer Kopf)','','Kabelzug, Seil','Anfänger','3 × 12',
+  ['Rolle unten, Seil fassen, mit dem Rücken zum Kabelzug stellen.','Seil hinter den Kopf führen, Ellbogen zeigen nach oben.','Arme über dem Kopf strecken.','Langsam wieder hinter den Kopf.'],
+  ['Großer Dehnreiz für den Trizeps.','Ein Fuß vor dem anderen für Stabilität.'],['Ellbogen weit auseinander.','Hohlkreuz.']),
+ X('trizepsdruecken-einarmig','Trizepsdrücken einarmig am Kabel',['trizeps'],'pushdown','handle','Trizeps','','Kabelzug (Rolle oben), Einhandgriff','Anfänger','3 × 12 je Arm',
+  ['Rolle oben, Einhandgriff fassen.','Ellbogen eng am Körper.','Griff nach unten drücken, bis der Arm gestreckt ist.','Langsam zurück bis Brusthöhe.'],
+  ['Gut, um Seitenunterschiede auszugleichen.','Auch im Untergriff möglich.'],['Ellbogen wandert nach vorn.','Oberkörper drückt mit.']),
+ X('enges-bankdruecken','Enges Bankdrücken',['trizeps','brust'],'bench','bar','Trizeps','Innere Brust, vordere Schulter','Langhantel, Flachbank','Fortgeschritten','3 × 6–10',
+  ['Auf die Bank legen, Stange etwa schulterbreit greifen.','Ellbogen beim Absenken nah am Körper.','Stange zur unteren Brust absenken.','Kraftvoll hochdrücken.'],
+  ['Eine der besten Übungen für Trizeps-Masse.','Nicht zu eng greifen – schont die Handgelenke.'],['Ellbogen weit seitlich.','Zu enger Griff.']),
+ // ---- Bizeps ----
+ X('scottcurls','Scott-Curls (Preacher Curls)',['bizeps'],'preacher','bar','Bizeps (unterer Teil)','Unterarme','SZ-Stange oder Kurzhantel, Scottbank','Anfänger','3 × 10–12',
+  ['Auf die Scottbank setzen, Oberarme flach auf das Polster.','Stange im Untergriff, Arme fast gestreckt.','Stange nach oben beugen.','Langsam ablassen, nicht ganz durchstrecken.'],
+  ['Kein Schwung möglich – sehr gezielt.','Unten kontrolliert, das schützt die Sehne.'],['Ellbogen hebt vom Polster ab.','Unten fallen lassen.']),
+ X('schraegbank-curls','Schrägbank-Curls',['bizeps'],'inclCurl','db','Bizeps (langer Kopf)','Unterarme','Kurzhanteln, Schrägbank','Fortgeschritten','3 × 10–12',
+  ['Bank auf ca. 45–60°, zurücklehnen, Arme hängen nach unten.','Handflächen zeigen nach vorn.','Hanteln nach oben beugen, Oberarme bleiben hinten.','Langsam ablassen bis zur vollen Dehnung.'],
+  ['Durch die Dehnung sehr effektiv.','Leichter beginnen als bei normalen Curls.'],['Schultern nach vorn schieben.','Halbe Bewegung.']),
+ X('seil-hammercurls','Hammer-Curls am Seil',['bizeps','unterarme'],'cablecurl','handle','Bizeps, Oberarmmuskel','Unterarme','Kabelzug (Rolle unten), Seil','Anfänger','3 × 12',
+  ['Rolle unten, Seil mit neutralem Griff (Daumen oben).','Ellbogen am Körper.','Seil nach oben beugen, Enden oben leicht auseinander.','Langsam ablassen.'],
+  ['Konstante Spannung durch das Kabel.','Gut für dicke Oberarme.'],['Ellbogen nach vorn.','Oberkörper lehnt zurück.']),
+ X('zottman-curls','Zottman-Curls',['bizeps','unterarme'],'curl','db','Bizeps & Unterarme','Oberarmmuskel','Kurzhanteln','Fortgeschritten','3 × 10',
+  ['Hanteln im Untergriff hochbeugen wie beim Curl.','Oben die Hände drehen (Handrücken nach oben).','Im Obergriff langsam absenken.','Unten zurückdrehen.'],
+  ['Trainiert Bizeps und Unterarm in einer Übung.','Absenken langsam (3 Sek.).'],['Zu schweres Gewicht beim Absenken.','Schwung.']),
+ // ---- Unterarme & Handgelenk ----
+ X('handgelenk-curls','Handgelenk-Curls',['unterarme'],'wrist','db','Unterarm-Beuger','Griffkraft','Kurzhantel(n), Bank','Anfänger','3 × 15–20',
+  ['Hinsetzen, Unterarme auf die Oberschenkel, Handgelenke über die Knie.','Hantel im Untergriff (Handfläche oben).','Nur das Handgelenk nach oben beugen.','Langsam absenken, Hantel darf in die Finger rollen.'],
+  ['Hohe Wiederholungen, leichtes Gewicht.','Stärkt Griff und Handgelenke.'],['Unterarme heben vom Oberschenkel ab.','Zu schwer – das belastet die Sehnen.']),
+ X('reverse-handgelenk-curls','Reverse Handgelenk-Curls',['unterarme'],'wrist','db','Unterarm-Strecker','Handgelenk-Stabilität','Kurzhantel(n), Bank','Anfänger','3 × 15',
+  ['Wie Handgelenk-Curls, aber Hantel im Obergriff (Handrücken oben).','Unterarme auf den Oberschenkeln.','Handrücken nach oben ziehen.','Langsam absenken.'],
+  ['Sehr leichtes Gewicht nehmen.','Gut gegen Ellbogen-/Handgelenksschmerzen durch Ausgleich.'],['Zu schwer.','Ruckartige Bewegungen.']),
+ X('reverse-curls','Reverse Curls (Obergriff)',['unterarme','bizeps'],'curl','bar','Unterarme, Oberarmspeichenmuskel','Bizeps','SZ-Stange oder Langhantel','Anfänger','3 × 10–12',
+  ['Stange im Obergriff schulterbreit halten.','Ellbogen am Körper.','Stange nach oben beugen, Handrücken bleiben oben.','Langsam absenken.'],
+  ['SZ-Stange schont die Handgelenke.','Weniger Gewicht als bei normalen Curls.'],['Handgelenke knicken ab.','Schwung.']),
+ X('farmers-walk','Farmer’s Walk (Hanteln tragen)',['unterarme','nacken'],'farmer','db','Griffkraft, Unterarme','Trapez, Rumpf, Beine','Schwere Kurzhanteln','Anfänger','3 × 30–40 m',
+  ['Zwei schwere Hanteln greifen, aufrecht hinstellen.','Schultern unten und hinten, Bauch fest.','Mit kurzen, schnellen Schritten gehen.','Am Ziel kontrolliert absetzen.'],
+  ['Einfach, aber extrem effektiv für den Griff.','Blick nach vorn.'],['Schultern hängen nach vorn.','Hanteln pendeln lassen.']),
+ X('handgelenk-roller','Handgelenk-Roller',['unterarme'],'wroller','handle','Unterarm-Beuger & -Strecker','Vordere Schulter (halten)','Handgelenk-Roller (Stab mit Seil und Gewicht)','Anfänger','3 × 2–3 Durchgänge',
+  ['Roller mit gestreckten Armen vor dem Körper halten.','Durch Drehen der Handgelenke das Seil aufwickeln.','Gewicht ganz nach oben drehen.','Langsam wieder abwickeln.'],
+  ['Brennt stark – Pausen sind normal.','Auch rückwärts drehen für die Strecker.'],['Arme sinken ab.','Zu schweres Gewicht.']),
+ X('dead-hang','Hängen an der Stange (Dead Hang)',['unterarme','ruecken'],'hangB','','Griffkraft, Unterarme','Latissimus, Schultern','Klimmzugstange','Anfänger','3 × 20–45 Sek.',
+  ['Stange schulterbreit im Obergriff greifen.','Arme gestreckt, ruhig hängen.','Schultern leicht nach unten ziehen.','Zeit halten, dann kontrolliert loslassen.'],
+  ['Super für Griff und Schulter-Beweglichkeit.','Gute Vorbereitung für Klimmzüge.'],['Schwingen.','Nur mit den Fingerspitzen halten.'])
+);
 const THUMB={};
 const thumb=k=>THUMB[k]||(THUMB[k]=figure({anim:GVIEW[k]==='b'?'standB':'standF',prop:'',hl:k==='alle'?['chest','abs','delt','bicep','quad']:HLG[k]},0).replace('viewBox="0 0 200 200"','viewBox="50 26 100 166"'));
 function renderChips(){
@@ -1161,7 +1320,7 @@ function renderGrid(){
   $('grid').innerHTML = items.length ? items.map(e=>`
     <button class="card" data-id="${e.id}">
       <span class="fig">${figure(e,0.65)}</span>
-      <span class="meta"><h3>${esc(e.name)} ${favs.includes(e.id)?'<span class="fav">★</span>':''}</h3><div class="sub">${esc(e.prim)}</div></span>
+      <span class="meta"><h3>${esc(e.name)} ${favs.includes(e.id)?'<span class="fav">★</span>':''}${e.neu?'<span class="newtag">NEU</span>':''}</h3><div class="sub">${esc(e.prim)}</div></span>
     </button>`).join('') : `<div class="empty">${group==='favs'?'Noch nichts gemerkt – öffne eine Übung und tippe auf „☆ Merken“.':'Keine Übung gefunden.'}</div>`;
 }
 
@@ -2017,7 +2176,7 @@ function joints(tp,ex,p){
     const P3=(k,lat)=>p[k]?[lat,Y(p[k][1]),(p[k][0]-100)*K]:null;
     const wide=ex.prop==='bar'||tp.barAt?0.3:0.2;
     J.H=P3('hp',0);J.S=P3('sh',0);J.hd=P3('hd',0);J.f=[0,0,1];
-    for(const [s,sg] of [['R',-1],['L',1]]){J['sh'+s]=P3('sh',0.19*sg);J['el'+s]=P3('el',(wide>0.2?0.3:0.22)*sg);J['ha'+s]=P3('ha',wide*sg);}
+    for(const [s,sg] of [['R',-1],['L',1]]){J['sh'+s]=P3('sh',0.19*sg);J['el'+s]=P3('el',(p.lw?p.lw[0]*K:(wide>0.2?0.3:0.22))*sg);J['ha'+s]=P3('ha',(p.lw?p.lw[1]*K:wide)*sg);}
     J.hpR=P3('hp',-0.095);J.hpL=P3('hp',0.095);
     const k2=p.kn2?'kn2':'kn',f2=p.kn2?'ft2':'ft',t2=p.kn2?'to2':'to';
     J.knR=P3('kn',-0.1);J.ftR=P3('ft',-0.11);J.toR=P3('to',-0.12);J.knL=P3(k2,0.1);J.ftL=P3(f2,0.11);J.toL=P3(t2,0.12);
