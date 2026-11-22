@@ -612,6 +612,12 @@
   <section class="view" id="vProf" style="display:none">
     <h3 class="vh first">Profil &amp; Tagesbedarf</h3>
     <div class="pcard">
+    <div class="avrow">
+      <button type="button" class="avpick" id="avPick" aria-label="Profilbild wählen"><span id="avImg">👤</span><i>📷</i></button>
+      <div class="avtxt"><b>Profilbild</b><small id="avHint">Antippen und ein Foto auswählen</small>
+        <button type="button" class="avdel" id="avDel" hidden>Bild entfernen</button></div>
+      <input type="file" id="avFile" accept="image/*" hidden>
+    </div>
     
     <div class="form">
       <label class="full">Name<input id="f_name" type="text" placeholder="Dein Name" autocomplete="off"></label>
@@ -3020,7 +3026,7 @@ function gcalUrl(rt){ const w=SCHED.wd.length?SCHED.wd:[0], d=nextDateFor(w[0]),
 async function deliverFile(blob,name,title){
   try{ const file=new File([blob],name,{type:blob.type}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title}); return true; } }catch(e){ if(e&&e.name==='AbortError') return false; }
   const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},4000); return true; }
-const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts','mc_dev_codes'];
+const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_avatar','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts','mc_dev_codes'];
 async function makeBackup(){ const data={}; BAK_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) data[k]=v; });
   const photos=await photoAll(); const obj={app:'muskel-coach',v:1,date:new Date().toISOString(),data,photos};
   const ok=await deliverFile(new Blob([JSON.stringify(obj)],{type:'application/json'}),'muskel-coach-backup-'+ymd(new Date())+'.json','Muskel-Coach Backup');
@@ -3326,6 +3332,50 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
     try{ if('serviceWorker' in navigator) navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{}).finally(()=>setTimeout(go,350)); else setTimeout(go,350); }
     catch(err){ setTimeout(go,350); } },{passive:true});
   document.addEventListener('touchcancel',()=>{ if(y0!==null){ y0=null; hide(); } },{passive:true});
+})();
+</script>
+<style>
+.avrow{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.avpick{position:relative;width:84px;height:84px;border-radius:50%;flex:none;background:var(--card2);border:2px solid var(--acc);
+ display:flex;align-items:center;justify-content:center;font-size:38px;padding:0}
+.avpick #avImg{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.avpick img,.tb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.avpick i{position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:var(--acc);color:#111;
+ font-style:normal;font-size:15px;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.avtxt b{display:block;font-size:15px} .avtxt small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}
+.avdel{margin-top:8px;padding:6px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-size:12.5px;color:#ff9a6e}
+.tb-av.hasimg{padding:0;overflow:hidden;border-color:var(--acc)}
+.toast2{z-index:60!important}
+</style>
+<script>
+(function(){
+  const KEY='mc_avatar', $$=id=>document.getElementById(id);
+  const get=()=>{ try{ return localStorage.getItem(KEY)||''; }catch(e){ return ''; } };
+  function paint(){
+    const src=get(), top=$$('openProfile'), big=$$('avImg'), del=$$('avDel'), hint=$$('avHint');
+    if(top){ top.classList.toggle('hasimg',!!src); top.innerHTML=src?'<img alt="Profil" src="'+src+'">':'👤'; }
+    if(big) big.innerHTML=src?'<img alt="" src="'+src+'">':'👤';
+    if(del) del.hidden=!src;
+    if(hint) hint.textContent=src?'Antippen, um das Foto zu ändern':'Antippen und ein Foto auswählen';
+  }
+  function load(file){
+    if(!file||!/^image\//.test(file.type||'image/')) return;
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      const S=320, c=document.createElement('canvas'); c.width=c.height=S;
+      const k=Math.min(img.naturalWidth,img.naturalHeight), sx=(img.naturalWidth-k)/2, sy=(img.naturalHeight-k)/2;
+      c.getContext('2d').drawImage(img,sx,sy,k,k,0,0,S,S); URL.revokeObjectURL(url);
+      const data=c.toDataURL('image/jpeg',0.85);
+      try{ localStorage.setItem(KEY,data); paint(); try{ toast2('Profilbild gespeichert ✓'); }catch(e){} }
+      catch(e){ alert('Das Bild konnte nicht gespeichert werden – der Speicher ist voll.'); }
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(url); alert('Dieses Bild kann nicht geöffnet werden. Bitte ein anderes Foto wählen.'); };
+    img.src=url;
+  }
+  const pick=$$('avPick'), file=$$('avFile'), del=$$('avDel');
+  if(pick&&file){ pick.onclick=()=>{ file.value=''; file.click(); }; file.onchange=()=>load(file.files&&file.files[0]); }
+  if(del) del.onclick=()=>{ if(!confirm('Profilbild entfernen?')) return; try{ localStorage.removeItem(KEY); }catch(e){} paint(); };
+  paint();
 })();
 </script>
 </body>
