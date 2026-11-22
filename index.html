@@ -1910,7 +1910,8 @@ function renderPicker(){
 $('pkchips').onclick=e=>{const b=e.target.closest('.chip'); if(!b)return; pkGroup=b.dataset.g; renderPicker();};
 $('pkq').oninput=e=>{pkQ=e.target.value; renderPicker();};
 $('pklist').onclick=e=>{const b=e.target.closest('.pickrow'); if(!b)return; if(isLocked(exById(b.dataset.id))) return upsell(exById(b.dataset.id).name); const arr=plan.days[day].items, k=arr.findIndex(x=>x.id===b.dataset.id);
-  if(k>=0) arr.splice(k,1); else addToDay(b.dataset.id,day); savePlan(); renderPicker();};
+  if(k>=0) arr.splice(k,1); else addToDay(b.dataset.id,day); savePlan();
+  const inn=plan.days[day].items.some(x=>x.id===b.dataset.id), pl=b.querySelector('.plus'); if(pl){ pl.classList.toggle('done',inn); pl.textContent=inn?'✓':'+'; } else renderPicker(); };
 $('pkback').onclick=()=>{ $('pick').classList.remove('open'); document.body.style.overflow=''; renderPlan(); };
 
 /* ============ Kalender & Tagebuch ============ */
@@ -2902,7 +2903,7 @@ return {resetThumbs:()=>{thVer++; for(const k in TH) delete TH[k];},setLook,setC
 
 /* ---- Einbindung: Vorschaubilder & Animation ---- */
 const _figure2d=figure;
-figure=function(ex,ph){ if(ex&&ex.id&&G3.TH[ex.id]) return `<img class="th3d" src="${G3.TH[ex.id]}" alt="" loading="lazy">`; return _figure2d(ex,ph); };
+figure=function(ex,ph){ if(ex&&ex.id&&G3.TH[ex.id]) return `<img class="th3d" src="${G3.TH[ex.id]}" alt="" loading="lazy" decoding="async">`; return _figure2d(ex,ph); };
 const COACH_LOOKS=[
  ['Classic','Tolle · Vollbart',{hair:'quiff',beard:'full',skin:'tan'}],
  ['Clean Pro','Zurückgegelt · rasiert',{hair:'slick',beard:'none',skin:'light',shorts:[0.03,0.06,0.16]}],
@@ -3510,5 +3511,15 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
   paint(); setInterval(paint,3000);
 })();
 </script>
+<style>
+/* Flüssiges Scrollen: Zeilen außerhalb des Bildschirms werden nicht gezeichnet */
+.pickrow{content-visibility:auto;contain-intrinsic-size:auto 62px}
+.card{content-visibility:auto;contain-intrinsic-size:auto 260px}
+.sheet{overscroll-behavior:contain}
+.sheet .topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#0d0f10!important}
+.pickrow .mini img.th3d{width:100%;height:100%;object-fit:cover}
+/* Angebots-Button und Demo-Hinweis verdecken in geöffneten Fenstern die Liste */
+body:has(.sheet.open) #chatFab, body:has(.sheet.open) .demopill{display:none!important}
+</style>
 </body>
 </html>
