@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Muskel-Coach">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="icon-512.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-512.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=3">
 <title>Muskel-Coach – Übungen mit Vorführung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -555,7 +555,7 @@
 </head>
 <body>
 <div id="gate"><form class="box" id="gateForm" autocomplete="off">
-  <img src="icon-512.png" alt="Muskel-Coach" style="width:150px;height:150px;border-radius:32px;box-shadow:0 10px 40px rgba(255,40,40,.35)">
+  <img src="icon-512.png?v=3" alt="Muskel-Coach" style="width:150px;height:150px;border-radius:32px;box-shadow:0 10px 40px rgba(255,40,40,.35)">
   <h2>Muskel<span>·</span>Coach</h2>
   <p>Diese App ist geschützt.<br>Bitte Zugangs-Kennwort eingeben.</p>
   <input id="gatePw" type="password" inputmode="numeric" placeholder="•••••" aria-label="Kennwort">
@@ -564,7 +564,7 @@
 </form></div>
 <header class="topbar2">
   <div class="tb-in">
-    <div class="tb-l"><img class="tb-logo" src="icon-192.png" alt=""><div class="tbtxt"><h1>Muskel<span>·</span>Coach</h1><div class="tbsubrow"><small id="tbSub">Start</small><button type="button" id="saleBadge" hidden></button></div></div></div>
+    <div class="tb-l"><img class="tb-logo" src="icon-192.png?v=3" alt=""><div class="tbtxt"><h1>Muskel<span>·</span>Coach</h1><div class="tbsubrow"><small id="tbSub">Start</small><button type="button" id="saleBadge" hidden></button></div></div></div>
     <div class="tb-r"><button type="button" class="tb-contact" onclick="openChat()" aria-label="Kontakt Dr. Muskel Coach"><small>Kontakt</small><b>Dr. Muskel Coach</b></button><button class="tb-av tb-chat" id="openChat" aria-label="Chat mit Dr. Muskel Coach" onclick="openChat()">💬</button><button class="tb-av" id="openProfile" aria-label="Profil">👤</button></div>
   </div>
 </header>
@@ -3133,7 +3133,7 @@ function installHTML(){
     body=`<p>Öffne diesen Link auf deinem <b>Handy</b> – dort kannst du Muskel-Coach als App auf den Startbildschirm legen. Am Computer: im Chrome/Edge-Adressfeld auf das <b>Installieren-Symbol</b> klicken.</p>`;
   }
   return `<div class="instbox"><button class="wnx" id="instX" aria-label="Schließen">✕</button>
-    <div class="insthd"><img src="icon-192.png" alt=""><div><b>Als App installieren</b><small>Muskel-Coach · kostenlos · ohne App Store</small></div></div>
+    <div class="insthd"><img src="icon-192.png?v=3" alt=""><div><b>Als App installieren</b><small>Muskel-Coach · kostenlos · ohne App Store</small></div></div>
     ${body}<button class="later" id="instLater">Später</button></div>`;
 }
 function openInstall(){ let ov=$('instPop'); if(!ov){ ov=document.createElement('div'); ov.id='instPop'; ov.className='instpop'; document.body.appendChild(ov); }
@@ -3142,7 +3142,7 @@ function openInstall(){ let ov=$('instPop'); if(!ov){ ov=document.createElement(
   const b=$('instNow'); if(b) b.onclick=async()=>{ const d=INST.deferred; if(!d) return; d.prompt(); try{ const r=await d.userChoice; if(r&&r.outcome==='accepted'){ try{localStorage.setItem('mc_installed','1')}catch(e){} closeInstall(); } }catch(e){} INST.deferred=null; }; }
 function closeInstall(){ const ov=$('instPop'); if(ov) ov.classList.remove('on'); try{ localStorage.setItem('mc_inst_pop',String(Date.now())); }catch(e){} }
 function renderInstallCard(){ const box=$('instBox'); if(!box) return; if(INST.standalone()){ box.innerHTML=''; return; }
-  box.innerHTML=`<button class="instcard" id="instCard"><img src="icon-192.png" alt=""><div><b>📲 Als App installieren</b><small>${INST.deferred?'Ein Tipp – fertig':'Mit eigenem Icon auf den Startbildschirm'}</small></div><em>›</em></button>`;
+  box.innerHTML=`<button class="instcard" id="instCard"><img src="icon-192.png?v=3" alt=""><div><b>📲 Als App installieren</b><small>${INST.deferred?'Ein Tipp – fertig':'Mit eigenem Icon auf den Startbildschirm'}</small></div><em>›</em></button>`;
   $('instCard').onclick=openInstall; }
 // automatisch anbieten: beim ersten Mal, danach höchstens alle 3 Tage – nur wenn nicht schon als App geöffnet
 (function autoInstall(){ if(INST.standalone()) return;
@@ -3251,7 +3251,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
       : `<p>${why?`🔒 <b>${String(why).replace(/[<>]/g,'')}</b> gehört zur Vollversion.<br>`:'<b style="color:#ff9a6e">Deine 10-Tage-Demo ist vorbei.</b> Du nutzt jetzt die kostenlose Basis-Version.<br>'}Hol dir alles für einmalig ${priceTag()}:</p>`;
     const via=BUY.tawk?'im Chat':'per WhatsApp';
     g.innerHTML=`<form class="box" id="gateForm" autocomplete="off">
-      <img src="icon-512.png" alt="Muskel-Coach" style="width:84px;height:84px;border-radius:20px;box-shadow:0 8px 30px rgba(255,40,40,.35)">
+      <img src="icon-512.png?v=3" alt="Muskel-Coach" style="width:84px;height:84px;border-radius:20px;box-shadow:0 8px 30px rgba(255,40,40,.35)">
       ${head}
       <ul class="profeat">${PRO_FEATURES.map(f=>`<li><i>${f[0]}</i><div><b>${f[1]}</b><small>${f[2]}</small></div></li>`).join('')}</ul>
       <ol class="buysteps"><li><span>1</span><div>Schreib <b>„Vollversion“</b> ${via} an ${BUY.name}</div></li><li><span>2</span><div>Du bekommst die <b>PayPal-Adresse</b> und zahlst <b>${BUY.price}</b></div></li><li><span>3</span><div>Dein <b>persönlicher Freischalt-Code</b> kommt ${via} – einmal eingeben, fertig ✅</div></li></ol>
