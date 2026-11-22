@@ -564,8 +564,8 @@
 </form></div>
 <header class="topbar2">
   <div class="tb-in">
-    <div class="tb-l"><img class="tb-logo" src="icon-192.png" alt=""><div><h1>Muskel<span>·</span>Coach</h1><small id="tbSub">Start</small></div></div>
-    <div class="tb-r"><button class="tb-av tb-chat" id="openChat" aria-label="Chat mit Dr. Muskel Coach" onclick="openChat()">💬</button><button class="tb-av" id="openProfile" aria-label="Profil">👤</button></div>
+    <div class="tb-l"><img class="tb-logo" src="icon-192.png" alt=""><div class="tbtxt"><h1>Muskel<span>·</span>Coach</h1><div class="tbsubrow"><small id="tbSub">Start</small><button type="button" id="saleBadge" hidden></button></div></div></div>
+    <div class="tb-r"><button type="button" class="tb-contact" onclick="openChat()" aria-label="Kontakt Dr. Muskel Coach"><small>Kontakt</small><b>Dr. Muskel Coach</b></button><button class="tb-av tb-chat" id="openChat" aria-label="Chat mit Dr. Muskel Coach" onclick="openChat()">💬</button><button class="tb-av" id="openProfile" aria-label="Profil">👤</button></div>
   </div>
 </header>
 <div class="wrap" id="home">
@@ -740,7 +740,7 @@ const PRO_FEATURES=[['🏋️','Alle 75 Übungen','statt 28 – inkl. Unterarme,
   ['🔥','Grenztest & Profi-Helfer','Maximalkraft testen, Scheiben-Rechner, Aufwärmsätze im Training']];
 const isLocked=e=>!MC.pro&&!!e&&!FREE_EX.includes(e.id);
 function upsell(why){ if(window.MC_GATE) window.MC_GATE.show(MC.trial?'trial':'basic',why); }
-function proTeaser(title){ return `<div class="teaser"><div class="tlock">🔒</div><h3>${title}</h3><p>Diese Funktion gehört zur <b>Vollversion</b> – einmalig nur <b>5 €</b>, danach für immer frei.</p>
+function proTeaser(title){ return `<div class="teaser"><div class="tlock">🔒</div><h3>${title}</h3><p>Diese Funktion gehört zur <b>Vollversion</b> – einmalig nur ${typeof priceTag==="function"?priceTag():"<b>4,99 €</b>"}, danach für immer frei.</p>
   <ul>${PRO_FEATURES.map(f=>`<li><i>${f[0]}</i><div><b>${f[1]}</b><small>${f[2]}</small></div></li>`).join('')}</ul><button class="savebtn" onclick="upsell()">Vollversion holen</button></div>`; }
 /* ============ Figuren-Engine ============ */
 const S = {hd:[100,46],sh:[100,64],el:[101,90],ha:[102,115],hp:[100,115],kn:[101,150],ft:[100,184],to:[113,184]};
@@ -3225,7 +3225,9 @@ updResume();
 <script>
 /* ===== Demo-Countdown, Basis-Version & Freischalten per Code ===== */
 /* tawk: Chat-ID aus tawk.to (Format 'xxxxxxxx/yyyyyyy'), leer = kein Chat */
-const BUY={ price:'5 €', paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/1k81aq8bi', name:'Dr. Muskel Coach' };
+/* Angebot: old = alter Preis (durchgestrichen), sale = Name der Aktion. Angebot beenden: old:'' und sale:'' setzen. */
+const BUY={ price:'4,99 €', old:'9,99 €', sale:'Black Friday', pct:50, paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/1k81aq8bi', name:'Dr. Muskel Coach' };
+function priceTag(){ const b='<b style="color:var(--acc)">'+BUY.price+'</b>'; return BUY.old?'<s style="opacity:.6;font-weight:500">'+BUY.old+'</s> '+b+(BUY.sale?' <span style="color:#ffb347;font-weight:700;white-space:nowrap">('+BUY.sale+' −'+BUY.pct+' %)</span>':''):b; }
 function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||'').replace(/\D/g,''),'_blank'); return; } window.Tawk_API=window.Tawk_API||{}; const T=window.Tawk_API;
   if(T.maximize&&T.__ready){ T.showWidget&&T.showWidget(); T.maximize(); return; }
   T.onLoad=function(){ T.__ready=true; try{ T.setAttributes&&T.setAttributes({app:'Muskel-Coach'},()=>{}); }catch(e){} T.maximize(); };
@@ -3245,8 +3247,8 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
     g.style.display='flex'; document.body.style.overflow='hidden';
     const head = mode==='trial'
       ? `<div class="cd ${left<=2?'hot':''}"><b>${left}</b><span>${left===1?'Tag':'Tage'}<br>Vollversion gratis</span></div><div class="cddots">${dots()}</div>
-         <p>${left<=2?'⏰ <b>Bald vorbei!</b> ':''}Du testest gerade die <b>Vollversion</b>. Danach geht es mit der kostenlosen Basis-Version weiter – oder du behältst alles für einmalig <b style="color:var(--acc)">${BUY.price}</b>.</p>`
-      : `<p>${why?`🔒 <b>${String(why).replace(/[<>]/g,'')}</b> gehört zur Vollversion.<br>`:'<b style="color:#ff9a6e">Deine 10-Tage-Demo ist vorbei.</b> Du nutzt jetzt die kostenlose Basis-Version.<br>'}Hol dir alles für einmalig <b style="color:var(--acc)">${BUY.price}</b>:</p>`;
+         <p>${left<=2?'⏰ <b>Bald vorbei!</b> ':''}Du testest gerade die <b>Vollversion</b>. Danach geht es mit der kostenlosen Basis-Version weiter – oder du behältst alles für einmalig ${priceTag()}.</p>`
+      : `<p>${why?`🔒 <b>${String(why).replace(/[<>]/g,'')}</b> gehört zur Vollversion.<br>`:'<b style="color:#ff9a6e">Deine 10-Tage-Demo ist vorbei.</b> Du nutzt jetzt die kostenlose Basis-Version.<br>'}Hol dir alles für einmalig ${priceTag()}:</p>`;
     const via=BUY.tawk?'im Chat':'per WhatsApp';
     g.innerHTML=`<form class="box" id="gateForm" autocomplete="off">
       <img src="icon-512.png" alt="Muskel-Coach" style="width:84px;height:84px;border-radius:20px;box-shadow:0 8px 30px rgba(255,40,40,.35)">
@@ -3275,7 +3277,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
   function hide(){ g.style.display='none'; document.body.style.overflow=''; try{ localStorage.setItem('mc_trial_pop',new Date().toDateString()); }catch(e){} pill(); }
   function pill(){ let b=document.getElementById('demoPill'); if(!b){ b=document.createElement('button'); b.id='demoPill'; b.className='demopill'; document.body.appendChild(b); }
     b.classList.toggle('hot',MC.trial&&left<=2);
-    b.innerHTML=MC.trial?`🎁 Vollversion-Demo · noch <b>${left} ${left===1?'Tag':'Tage'}</b>`:`🔓 Basis-Version · <b>Vollversion ${BUY.price}</b>`;
+    b.innerHTML=MC.trial?`🎁 Vollversion-Demo · noch <b>${left} ${left===1?'Tag':'Tage'}</b>`:`🔓 Basis-Version · <b>Vollversion ${BUY.price}</b>${BUY.old?' <span style="color:#ffb347">−'+BUY.pct+' %</span>':''}`;
     b.onclick=()=>show(MC.trial?'trial':'basic'); }
   window.MC_GATE={show};
   let popped=''; try{ popped=localStorage.getItem('mc_trial_pop')||''; }catch(e){}
@@ -3292,7 +3294,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
 #chatFab small{display:block;font-weight:600;font-size:11px;margin-top:2px}
 @keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 </style>
-<button id="chatFab" type="button" onclick="openChat()">💬 Vollversion 5 €<small>Schreib mir im Chat!</small></button>
+<button id="chatFab" type="button" onclick="openChat()">💬 Vollversion 4,99 €<small><s>9,99 €</s> · Black Friday −50 %</small></button>
 <script>
 (function(){ const b=document.getElementById('chatFab');
   function check(){ try{ if(MC.unlocked){ b.remove(); clearInterval(t); } }catch(e){} }
@@ -3346,6 +3348,12 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
 .avdel{margin-top:8px;padding:6px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-size:12.5px;color:#ff9a6e}
 .tb-av.hasimg{padding:0;overflow:hidden;border-color:var(--acc)}
 .toast2{z-index:60!important}
+.tb-contact{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;background:none;border:0;padding:0 2px 0 4px;line-height:1.08;text-align:right;max-width:76px}
+.tb-contact small{font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:1px}
+.tb-contact b{font-size:11.5px;color:var(--acc);font-weight:700}
+@media (min-width:420px){.tb-contact{max-width:none}.tb-contact b{font-size:13px;white-space:nowrap}}
+@media (max-width:384px){.tb-contact{max-width:60px;padding-left:2px}.tb-contact b{font-size:10.5px}.tb-contact small{font-size:8.5px;letter-spacing:.4px}.tb-r{gap:6px!important}}
+@media (max-width:340px){.tb-contact{display:none}}
 </style>
 <script>
 (function(){
@@ -3376,6 +3384,39 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
   if(pick&&file){ pick.onclick=()=>{ file.value=''; file.click(); }; file.onchange=()=>load(file.files&&file.files[0]); }
   if(del) del.onclick=()=>{ if(!confirm('Profilbild entfernen?')) return; try{ localStorage.removeItem(KEY); }catch(e){} paint(); };
   paint();
+})();
+</script>
+<style>
+.tbtxt{min-width:0}
+.tbsubrow{display:flex;align-items:center;gap:6px;margin-top:3px;min-width:0}
+.tbsubrow.hasbadge small{display:none}
+.tbsubrow small{margin-top:0!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#saleBadge{flex:none;display:inline-flex;align-items:center;gap:4px;padding:1px 8px 1px 6px;border-radius:999px;font-size:11px;font-weight:700;
+ line-height:1.35;white-space:nowrap;background:linear-gradient(90deg,#2a1206,#3a1a08);border:1px solid #ff8a3d;color:#ffd7b0}
+#saleBadge b{color:var(--acc);font-weight:800}
+#saleBadge .gift{display:inline-block;font-size:13px;transform-origin:50% 80%;animation:giftWiggle 3.2s ease-in-out infinite}
+#saleBadge.pro{background:#1d2a0c;border-color:var(--acc);color:var(--acc)}
+#saleBadge.pro .gift{animation:none}
+@keyframes giftWiggle{0%,62%,100%{transform:rotate(0) scale(1)}66%{transform:rotate(-16deg) scale(1.15)}70%{transform:rotate(14deg) scale(1.15)}
+ 74%{transform:rotate(-12deg) scale(1.1)}78%{transform:rotate(9deg) scale(1.05)}82%{transform:rotate(-4deg)}86%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){#saleBadge .gift{animation:none}}
+</style>
+<script>
+(function(){
+  const b=document.getElementById('saleBadge'); if(!b) return;
+  const row=b.parentNode;
+  function paint(){
+    if(row) row.classList.toggle('hasbadge',!b.hidden);
+    let pro=false; try{ pro=!!MC.unlocked; }catch(e){}
+    if(pro){ b.hidden=false; b.className='pro'; b.innerHTML='<span class="gift">✓</span>Vollversion'; b.onclick=null; row&&row.classList.add('hasbadge'); return; }
+    if(typeof BUY==='undefined'){ b.hidden=true; return; }
+    b.hidden=false; b.className=''; row&&row.classList.add('hasbadge');
+    b.innerHTML=BUY.old? '<span class="gift">🎁</span>'+(BUY.pct?'−'+BUY.pct+' %':BUY.sale)+' · <b>'+BUY.price+'</b>'
+                       : '<span class="gift">🎁</span>Vollversion · <b>'+BUY.price+'</b>';
+    b.setAttribute('aria-label',(BUY.sale?BUY.sale+': ':'')+'Vollversion für '+BUY.price+(BUY.old?' statt '+BUY.old:''));
+    b.onclick=()=>{ try{ if(window.MC_GATE) MC_GATE.show(MC.trial?'trial':'basic'); else upsell(); }catch(e){ try{ upsell(); }catch(x){} } };
+  }
+  paint(); setInterval(paint,3000);
 })();
 </script>
 </body>
