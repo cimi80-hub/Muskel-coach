@@ -3219,12 +3219,13 @@ updResume();
 <script>
 /* ===== Demo-Countdown, Basis-Version & Freischalten per Code ===== */
 /* tawk: Chat-ID aus tawk.to (Format 'xxxxxxxx/yyyyyyy'), leer = kein Chat */
-const BUY={ price:'5 €', paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/default', name:'Cem' };
+const BUY={ price:'5 €', paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/1k81aq8bi', name:'Cem' };
 function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||'').replace(/\D/g,''),'_blank'); return; } window.Tawk_API=window.Tawk_API||{}; const T=window.Tawk_API;
   if(T.maximize&&T.__ready){ T.showWidget&&T.showWidget(); T.maximize(); return; }
   T.onLoad=function(){ T.__ready=true; try{ T.setAttributes&&T.setAttributes({app:'Muskel-Coach'},()=>{}); }catch(e){} T.maximize(); };
   T.onChatMinimized=function(){ try{ T.hideWidget(); }catch(e){} };
-  if(!document.getElementById('tawkJs')){ window.Tawk_LoadStart=new Date(); const sc=document.createElement('script'); sc.id='tawkJs'; sc.async=true; sc.src='https://embed.tawk.to/'+BUY.tawk; sc.charset='UTF-8'; sc.setAttribute('crossorigin','*'); document.body.appendChild(sc); toast2('Chat wird geöffnet …'); } }   // paypal: PayPal.me-Name · whatsapp: Nummer mit Ländervorwahl, z. B. 4917612345678
+  if(!document.getElementById('tawkJs')){ window.Tawk_LoadStart=new Date(); const sc=document.createElement('script'); sc.id='tawkJs'; sc.async=true; sc.src='https://embed.tawk.to/'+BUY.tawk; sc.charset='UTF-8'; sc.setAttribute('crossorigin','*'); sc.onerror=()=>{ sc.remove(); toast2('Chat gerade nicht erreichbar – bitte Internet prüfen'); }; document.body.appendChild(sc); toast2('Chat wird geöffnet …');
+    setTimeout(()=>{ if(!T.__ready&&document.getElementById('tawkJs')){ document.getElementById('tawkJs').remove(); toast2('Chat lädt nicht – bitte später nochmal versuchen'); } },15000); } }   // paypal: PayPal.me-Name · whatsapp: Nummer mit Ländervorwahl, z. B. 4917612345678
 (function(){
   const g=document.getElementById('gate');
   if(MC.unlocked){ g.remove(); return; }
