@@ -143,7 +143,18 @@
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
   .instcard{width:100%;display:flex;gap:12px;align-items:center;text-align:left;margin-top:12px;padding:10px 14px;border-radius:14px;background:linear-gradient(135deg,#1d2410,#171a1c 80%);border:1px solid #5b7a1f}
   .instcard img{width:42px;height:42px;border-radius:10px} .instcard div{flex:1} .instcard b{display:block;font-size:15px} .instcard small{display:block;font-size:12px;color:var(--mut)} .instcard em{font-style:normal;font-size:24px;color:var(--acc)}
+  .sslink{display:block;width:calc(100% - 20px);margin:-4px auto 8px;padding:6px 10px;border-radius:0 0 12px 12px;border:1px dashed var(--line);border-top:0;background:transparent;color:var(--mut);font-size:12px;font-weight:600;text-align:center}
+  .sslink.on{border-color:#ff9a48;color:#ffc58a;background:rgba(255,154,72,.08)}
+  .item.ssA{border-left:3px solid #ff9a48} .item.ssB{border-left:3px solid #ff9a48}
+  .sstag{color:#ffc58a}
+  .lvavg{color:#bcd7ff} .lvavg b{color:#e6f0ff}
+  .avgbox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .avgbox div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px} .avgbox small{display:block;color:var(--mut);font-size:11.5px} .avgbox b{font-size:15px}
+  .grenz .gtbest{margin-top:12px;font-size:15px} .grenz .gtbest b{color:var(--acc);font-size:18px}
+  .gtlist{margin-top:10px} .gtlist div{display:flex;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13px} .gtlist span:first-child{color:var(--mut);width:84px;flex:none} .gtlist span:nth-child(2){flex:1} .gtlist em{font-style:normal;font-weight:700}
+  .optrow{display:flex;gap:12px;align-items:center;justify-content:space-between} .optrow b{display:block;font-size:14.5px} .optrow small{display:block;color:var(--mut);font-size:12px} .optrow input{width:22px;height:22px;accent-color:var(--acc);flex:none}
   .newtag{font-size:10px;font-weight:800;background:var(--acc);color:#111;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:2px}
+  .lookhd{font-size:12.5px;color:var(--mut);font-weight:700;margin:4px 0 6px} .lookgrid+.lookhd{margin-top:12px}
   .lookgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .lookgrid button{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
   .lookgrid button b{display:block;font-size:13.5px} .lookgrid button small{display:block;font-size:11px;color:var(--mut)}
@@ -672,9 +683,9 @@ const MC=(function(){ const H='1o8nfmawtnm', TRIAL=10, D=864e5;
 const FREE_EX=['laufband','bankdruecken','schraegbank-kh','butterfly-kabel','liegestuetze','schulterdruecken-kh','schulterpresse-maschine','seitheben','face-pulls','shrugs',
   'crunches','beinheben-haengend','unterarmstuetz','mountain-climbers','kh-curls','hammer-curls','trizepsdruecken-kabel','ueberkopf-trizeps','klimmzuege','latzug',
   'kh-rudern','kabelrudern-sitzend','kniebeuge','ausfallschritte','beinpresse','beinstrecker','beinbeuger','wadenheben'];
-const PRO_FEATURES=[['🏋️','Alle 75 Übungen','statt 28 – inkl. Unterarme, Kabel- & Freihantel-Übungen'],['🧍','3D-Bodybuilder','drehbar von allen Seiten, Muskeln leuchten, 6 Coach-Looks'],
+const PRO_FEATURES=[['🏋️','Alle 75 Übungen','statt 28 – inkl. Unterarme, Kabel- & Freihantel-Übungen'],['🧍','3D-Bodybuilder','drehbar, Muskeln leuchten, 12 Looks – Männer & Frauen'],
   ['🏆','Rekord-Speicher','merkt sich dein schwerstes Gewicht & feiert jeden neuen Rekord'],['📈','Fortschritt','Statistik, Körper & Maße, Fortschrittsfotos, 21 Abzeichen'],
-  ['🧮','Profi-Helfer','Scheiben-Rechner, Maximalkraft, Aufwärmsätze im Training']];
+  ['🔥','Grenztest & Profi-Helfer','Maximalkraft testen, Scheiben-Rechner, Aufwärmsätze im Training']];
 const isLocked=e=>!MC.pro&&!!e&&!FREE_EX.includes(e.id);
 function upsell(why){ if(window.MC_GATE) window.MC_GATE.show(MC.trial?'trial':'basic',why); }
 function proTeaser(title){ return `<div class="teaser"><div class="tlock">🔒</div><h3>${title}</h3><p>Diese Funktion gehört zur <b>Vollversion</b> – einmalig nur <b>5 €</b>, danach für immer frei.</p>
@@ -1386,6 +1397,97 @@ EX.push(
   ['Stange schulterbreit im Obergriff greifen.','Arme gestreckt, ruhig hängen.','Schultern leicht nach unten ziehen.','Zeit halten, dann kontrolliert loslassen.'],
   ['Super für Griff und Schulter-Beweglichkeit.','Gute Vorbereitung für Klimmzüge.'],['Schwingen.','Nur mit den Fingerspitzen halten.'])
 );
+
+/* ===== Maschinen-Übungen (Einsteiger-freundlich) ===== */
+(function(){
+  const MSEAT='<rect x="62" y="66" width="8" height="62" rx="3" fill="#3b4249"/><rect x="62" y="128" width="50" height="7" rx="3" fill="#3b4249"/><path d="M86 135V184" stroke="#3b4249" stroke-width="5"/>';
+  const SEAT={hp:[80,126],sh:[80,74],hd:[82,56],kn:[120,128],ft:[122,184],to:[134,184]};
+  const SF={hd:[100,64],nk:[100,80],shL:[85,84],shR:[115,84],pv:[100,135],hpL:[90,137],hpR:[110,137],knL:[86,150],ftL:[86,184],knR:[114,150],ftR:[114,184]};
+  const SFST='<rect x="70" y="138" width="60" height="8" rx="3" fill="#3b4249"/><path d="M100 146V184" stroke="#3b4249" stroke-width="5"/>';
+  const o=(a,b)=>Object.assign({},a,b);
+  Object.assign(T,{
+    pecdeck:{view:'s',statics:MSEAT,A:P(S,o(SEAT,{el:[82,76],ha:[82,50],lw:[46,44]})),B:P(S,o(SEAT,{el:[104,74],ha:[106,50],lw:[12,8]}))},
+    inclPressM:{view:'s',statics:'<path d="M60 66L72 128" stroke="#3b4249" stroke-width="8" stroke-linecap="round"/><rect x="66" y="128" width="50" height="7" rx="3" fill="#3b4249"/><path d="M90 135V184" stroke="#3b4249" stroke-width="5"/>',
+      A:P(S,{hp:[84,126],sh:[72,76],hd:[70,58],kn:[122,128],ft:[124,184],to:[136,184],el:[62,100],ha:[84,88]}),
+      B:P(S,{hp:[84,126],sh:[72,76],hd:[70,58],kn:[122,128],ft:[124,184],to:[136,184],el:[94,64],ha:[114,48]})},
+    latpullS:{view:'s',cable:[100,0],statics:'<rect x="60" y="146" width="54" height="7" rx="3" fill="#3b4249"/><path d="M86 153V184" stroke="#3b4249" stroke-width="5"/><rect x="112" y="126" width="16" height="8" rx="3" fill="#3b4249"/><path d="M120 134V184" stroke="#3b4249" stroke-width="4"/>',
+      A:P(S,{hp:[86,138],sh:[86,88],hd:[90,70],kn:[122,140],ft:[124,184],to:[136,184],el:[94,58],ha:[100,30],lw:[22,6]}),
+      B:P(S,{hp:[86,138],sh:[84,88],hd:[86,70],kn:[122,140],ft:[124,184],to:[136,184],el:[82,112],ha:[100,92],lw:[22,6]})},
+    rowM:{view:'s',statics:MSEAT.replace('<rect x="62" y="66" width="8" height="62" rx="3" fill="#3b4249"/>','')+'<rect x="110" y="78" width="8" height="44" rx="3" fill="#3b4249"/><path d="M114 122V184" stroke="#3b4249" stroke-width="5"/>',
+      A:P(S,o(SEAT,{sh:[86,74],hd:[90,56],el:[110,86],ha:[136,90]})),B:P(S,o(SEAT,{sh:[84,74],hd:[88,56],el:[62,92],ha:[92,92]}))},
+    backExtM:{view:'s',statics:MSEAT.replace('<rect x="62" y="66" width="8" height="62" rx="3" fill="#3b4249"/>','<rect x="58" y="70" width="8" height="30" rx="3" fill="#3b4249"/>'),
+      A:P(S,o(SEAT,{sh:[110,88],hd:[124,76],el:[118,100],ha:[112,92]})),B:P(S,o(SEAT,{sh:[74,74],hd:[76,56],el:[86,94],ha:[82,86]}))},
+    hyper:{view:'s',statics:'<path d="M78 152L104 126" stroke="#3b4249" stroke-width="8" stroke-linecap="round"/><path d="M36 182L46 172" stroke="#3b4249" stroke-width="8" stroke-linecap="round"/><path d="M46 178L96 140M90 146V184M50 176V184" stroke="#3a4146" stroke-width="4"/>',
+      A:P(S,{ft:[42,174],to:[36,182],kn:[66,154],hp:[94,130],sh:[118,164],hd:[128,176],el:[112,150],ha:[118,156]}),
+      B:P(S,{ft:[42,174],to:[36,182],kn:[66,154],hp:[94,130],sh:[134,98],hd:[148,86],el:[128,112],ha:[124,106]})},
+    latSeatF:{view:'f',statics:SFST,A:P(F,o(SF,arms([80,110],[79,132]))),B:P(F,o(SF,arms([60,86],[38,86])))},
+    abd:{view:'s',statics:MSEAT,A:P(S,o(SEAT,{el:[84,100],ha:[94,124],lwl:[12,12]})),B:P(S,o(SEAT,{el:[84,100],ha:[94,124],lwl:[34,26]}))},
+    add:{view:'s',statics:MSEAT,A:P(S,o(SEAT,{el:[84,100],ha:[94,124],lwl:[34,26]})),B:P(S,o(SEAT,{el:[84,100],ha:[94,124],lwl:[9,10]}))},
+    gluteKick:{view:'s',segs:LUNGE,cableFoot:[18,180],statics:tower(8)+'<path d="M150 60V184M140 96H160" stroke="#3b4249" stroke-width="5"/>',
+      A:P(S,{hp:[100,115],sh:[124,78],hd:[134,64],el:[138,92],ha:[150,96],kn:[100,150],ft:[100,184],to:[113,184],kn2:[106,148],ft2:[100,180],to2:[110,182]}),
+      B:P(S,{hp:[100,115],sh:[124,78],hd:[134,64],el:[138,92],ha:[150,96],kn:[100,150],ft:[100,184],to:[113,184],kn2:[72,134],ft2:[48,122],to2:[42,130]})},
+    legCurlLy:{view:'s',prone:true,pad:true,statics:'<rect x="40" y="132" width="114" height="8" rx="3" fill="#3b4249"/><path d="M54 140V184M140 140V184" stroke="#3b4249" stroke-width="5"/>',
+      A:P(S,{hd:[40,118],sh:[58,122],hp:[110,124],kn:[146,126],ft:[180,128],to:[186,138],el:[50,136],ha:[58,130]}),
+      B:P(S,{hd:[40,118],sh:[58,122],hp:[110,124],kn:[146,126],ft:[150,92],to:[160,86],el:[50,136],ha:[58,130]})}
+  });
+})();
+GROUPS.push(['maschinen','Maschinen']);
+Object.assign(GVIEW,{maschinen:'f'}); Object.assign(HLG,{maschinen:['chest','lat','delt']});
+for(const e of EX) if(['brustpresse','schulterpresse-maschine','reverse-butterfly','latzug','kabelrudern-sitzend','beinpresse','beinstrecker','beinbeuger'].includes(e.id)&&!e.g.includes('maschinen')) e.g.push('maschinen');
+Object.assign(CAT,{'butterfly-maschine':'iso','schraeg-brustpresse-maschine':'mid','dip-maschine':'mid','latzug-eng':'mid','latzug-untergriff':'mid','rudermaschine':'mid','klimmzug-maschine':'mid',
+  'rueckenstrecker-maschine':'iso','hyperextension':'core','seitheben-maschine':'iso','smith-schulterdruecken':'mid','abduktoren-maschine':'iso','adduktoren-maschine':'iso','glute-kickback-kabel':'iso','beinbeuger-liegend':'iso'});
+Object.assign(HLX,{'butterfly-maschine':['chest'],'schraeg-brustpresse-maschine':['chest','delt','tricep'],'dip-maschine':['tricep','chest'],'latzug-eng':['lat','back','bicep'],'latzug-untergriff':['lat','bicep'],
+  'rudermaschine':['back','lat','delt'],'klimmzug-maschine':['lat','bicep'],'rueckenstrecker-maschine':['erector','glute'],'hyperextension':['erector','glute','ham'],'seitheben-maschine':['delt'],
+  'smith-schulterdruecken':['delt','tricep'],'abduktoren-maschine':['glute'],'adduktoren-maschine':['quad'],'glute-kickback-kabel':['glute','ham'],'beinbeuger-liegend':['ham','calf']});
+const EASY='Einsteiger: mit einer niedrigen Gewichtsstufe (1–3) beginnen und erst steigern, wenn 15 saubere Wiederholungen gehen.';
+const MX=(...a)=>Object.assign(X(...a),{neuDate:'2026-11-22'});
+EX.push(
+ MX('butterfly-maschine','Butterfly an der Maschine',['brust','maschinen'],'pecdeck','handle','Große Brustmuskeln (innen)','Vordere Schulter','Butterfly-Maschine','Anfänger','3 × 12–15',
+  ['Sitz so einstellen, dass die Griffe/Polster auf Brusthöhe sind.','Rücken fest an die Lehne, Unterarme an die Polster oder Griffe fassen.','Arme in einem Bogen vor der Brust zusammenführen.','Kurz anspannen, langsam zurück bis zur leichten Dehnung.'],
+  [EASY,'Sehr gelenkschonend – ideal statt Kurzhantel-Fliegende.'],['Zu weit nach hinten öffnen.','Schultern nach vorn rollen.']),
+ MX('schraeg-brustpresse-maschine','Schräg-Brustpresse (Maschine)',['brust','maschinen'],'inclPressM','handle','Obere Brust','Vordere Schulter, Trizeps','Schrägbank-Brustpresse','Anfänger','3 × 10–12',
+  ['Sitz so einstellen, dass die Griffe auf Höhe der oberen Brust sind.','Rücken und Kopf an das Polster.','Griffe schräg nach oben drücken, Arme fast strecken.','Langsam zurück, bis die Brust leicht gedehnt ist.'],
+  [EASY,'Geführte Bewegung – sicher ohne Partner.'],['Rücken vom Polster lösen.','Ellbogen ganz durchdrücken.']),
+ MX('dip-maschine','Dips an der Maschine (unterstützt)',['trizeps','brust','maschinen'],'dip','','Trizeps, untere Brust','Vordere Schulter','Dip-/Klimmzug-Maschine mit Kniepolster','Anfänger','3 × 8–12',
+  ['Gegengewicht einstellen – mehr Gewicht = mehr Hilfe.','Knie auf das Polster, Griffe fassen, Arme gestreckt.','Langsam absenken, bis die Oberarme etwa waagerecht sind.','Kraftvoll hochdrücken.'],
+  ['Viel Unterstützung zu Beginn ist völlig okay – nach und nach reduzieren.','Oberkörper aufrecht = mehr Trizeps.'],['Zu tief absenken.','Schultern hochziehen.']),
+ MX('latzug-eng','Latzug eng (V-Griff)',['ruecken','maschinen'],'latpullS','handle','Latissimus, mittlerer Rücken','Bizeps','Latzugmaschine, V-Griff','Anfänger','3 × 10–12',
+  ['V-Griff einhängen, Oberschenkel unter das Polster.','Leicht zurücklehnen, Brust raus.','Griff zur oberen Brust ziehen, Ellbogen eng nach unten.','Langsam nach oben, bis die Arme gestreckt sind.'],
+  [EASY,'Gut für einen dicken, starken Rücken.'],['Mit dem Oberkörper weit nach hinten reißen.','Schultern hochziehen.']),
+ MX('latzug-untergriff','Latzug im Untergriff',['ruecken','bizeps','maschinen'],'latpullS','handle','Latissimus','Bizeps','Latzugmaschine, gerade Stange','Anfänger','3 × 10–12',
+  ['Stange schulterbreit im Untergriff (Handflächen zu dir).','Oberschenkel fixieren, leicht zurücklehnen.','Stange zur Brust ziehen.','Kontrolliert nach oben.'],
+  [EASY,'Leichter als der breite Latzug – guter Einstieg für Klimmzüge.'],['Mit Schwung ziehen.','Halbe Bewegung.']),
+ MX('rudermaschine','Rudermaschine (Brust gestützt)',['ruecken','maschinen'],'rowM','handle','Mittlerer Rücken, Latissimus','Hintere Schulter, Bizeps','Rudermaschine mit Brustpolster','Anfänger','3 × 10–12',
+  ['Sitz so einstellen, dass die Griffe auf Brusthöhe sind.','Brust fest ans Polster.','Griffe nach hinten ziehen, Schulterblätter zusammen.','Langsam nach vorn, bis die Arme gestreckt sind.'],
+  [EASY,'Das Brustpolster schont den unteren Rücken – ideal für Einsteiger.'],['Brust vom Polster lösen.','Schultern hochziehen.']),
+ MX('klimmzug-maschine','Klimmzüge an der Maschine (unterstützt)',['ruecken','bizeps','maschinen'],'pullupB','','Latissimus','Bizeps, hintere Schulter','Klimmzug-Maschine mit Gegengewicht','Anfänger','3 × 8–10',
+  ['Gegengewicht wählen – mehr Gewicht = mehr Hilfe.','Knie auf das Polster, Griffe weit fassen.','Hochziehen, bis das Kinn über den Griffen ist.','Langsam ablassen.'],
+  ['Perfekter Weg zum ersten echten Klimmzug.','Jede Woche etwas weniger Unterstützung.'],['Schwung holen.','Nur halbe Wiederholungen.']),
+ MX('rueckenstrecker-maschine','Rückenstrecker-Maschine',['ruecken','maschinen'],'backExtM','','Unterer Rücken','Po, Beinbeuger','Rückenstrecker-Maschine','Anfänger','3 × 12–15',
+  ['Sitz einstellen, Polster liegt am oberen Rücken.','Füße fest, Arme vor der Brust verschränkt.','Oberkörper langsam nach hinten strecken.','Kontrolliert nach vorn zurück.'],
+  [EASY,'Stärkt den unteren Rücken – gut gegen Rückenschmerzen.'],['Ruckartig nach hinten werfen.','Zu weit überstrecken.']),
+ MX('hyperextension','Hyperextension (Rückenstrecken)',['ruecken','po','maschinen'],'hyper','','Unterer Rücken','Po, Beinbeuger','45°-Hyperextension-Bank','Anfänger','3 × 12–15',
+  ['Polster knapp unter dem Hüftknochen einstellen, Füße fixieren.','Arme vor der Brust verschränken.','Oberkörper mit geradem Rücken absenken.','Bis zur geraden Linie aufrichten – nicht überstrecken.'],
+  ['Langsam und kontrolliert.','Für mehr Po: Rücken leicht rund, Po fest anspannen.'],['Hohlkreuz oben.','Schwung.']),
+ MX('seitheben-maschine','Seitheben an der Maschine',['schultern','maschinen'],'latSeatF','handle','Seitliche Schulter','Trapez','Seitheben-Maschine','Anfänger','3 × 12–15',
+  ['Sitz so einstellen, dass die Schultern auf Höhe des Drehpunkts sind.','Arme an die Polster legen.','Arme seitlich bis Schulterhöhe heben.','Langsam absenken.'],
+  [EASY,'Geführt – perfekt für schöne, runde Schultern.'],['Schultern hochziehen.','Mit Schwung arbeiten.']),
+ MX('smith-schulterdruecken','Schulterdrücken an der Smith-Maschine',['schultern','trizeps','maschinen'],'ohpSeatF','bar','Vordere & seitliche Schulter','Trizeps','Smith-Maschine, Bank mit Lehne','Anfänger','3 × 10',
+  ['Bank unter die Stange stellen, Lehne fast senkrecht.','Stange etwas breiter als schulterbreit greifen und aushaken.','Stange vom Kinn nach oben drücken.','Langsam bis Kinnhöhe absenken, Haken drehen zum Ablegen.'],
+  [EASY,'Die Führung sorgt für Sicherheit ohne Partner.'],['Stange in den Nacken absenken.','Hohlkreuz.']),
+ MX('abduktoren-maschine','Abduktoren-Maschine (Beine auseinander)',['po','beine','maschinen'],'abd','handle','Seitlicher Po (Gluteus medius)','Hüfte','Abduktoren-Maschine','Anfänger','3 × 15–20',
+  ['Hinsetzen, Polster außen an den Knien.','Rücken an die Lehne, Griffe fassen.','Beine kontrolliert nach außen drücken.','Langsam zurück, Gewicht nicht absetzen.'],
+  [EASY,'Für einen runden, straffen Po – ein Klassiker im Frauentraining.'],['Mit Schwung arbeiten.','Gewichte zurückfallen lassen.']),
+ MX('adduktoren-maschine','Adduktoren-Maschine (Beine zusammen)',['beine','maschinen'],'add','handle','Innenschenkel (Adduktoren)','','Adduktoren-Maschine','Anfänger','3 × 15–20',
+  ['Hinsetzen, Polster innen an den Knien.','Startweite so wählen, dass es angenehm dehnt.','Beine kontrolliert zusammendrücken.','Langsam öffnen.'],
+  [EASY,'Strafft die Innenseite der Oberschenkel.'],['Zu weite Startposition.','Ruckartige Bewegungen.']),
+ MX('glute-kickback-kabel','Po-Kickback am Kabel',['po','maschinen'],'gluteKick','','Großer Po-Muskel','Beinbeuger','Kabelzug (Rolle unten), Fußschlaufe','Anfänger','3 × 12–15 je Bein',
+  ['Fußschlaufe am Knöchel, mit Blick zum Kabelzug stellen.','Oberkörper leicht nach vorn, am Gerät festhalten.','Bein gestreckt nach hinten-oben drücken, Po fest anspannen.','Langsam zurück, Seite wechseln.'],
+  [EASY,'Oben 1 Sekunde halten – da arbeitet der Po am meisten.'],['Ins Hohlkreuz gehen.','Mit Schwung kicken.']),
+ MX('beinbeuger-liegend','Beinbeuger liegend',['beine','po','maschinen'],'legCurlLy','','Hintere Oberschenkel','Waden, Po','Beinbeuger-Maschine (liegend)','Anfänger','3 × 12–15',
+  ['Bäuchlings auf die Maschine legen, Polster über den Fersen.','Griffe vorne festhalten, Hüfte bleibt auf dem Polster.','Fersen Richtung Po ziehen.','Langsam wieder strecken.'],
+  [EASY,'Hüfte unten lassen – dann arbeiten die Beinbeuger richtig.'],['Hüfte hebt ab.','Gewicht fallen lassen.'])
+);
 const THUMB={};
 const thumb=k=>THUMB[k]||(THUMB[k]=figure({anim:GVIEW[k]==='b'?'standB':'standF',prop:'',hl:k==='alle'?['chest','abs','delt','bicep','quad']:HLG[k]},0).replace('viewBox="0 0 200 200"','viewBox="50 26 100 166"'));
 function renderChips(){
@@ -1435,7 +1537,8 @@ function openEx(id, push=true){
         <div class="kcout"><b id="kcOut">–</b><small>kcal</small></div></div>
       <p class="muted" id="kcNote"></p>
     </div>
-    <div class="block"><h4>📈 Dein Fortschritt</h4>${progressHTML(e.id)}</div>
+    <div class="block"><h4>📈 Dein Fortschritt</h4>${progressHTML(e.id)}${(()=>{ const a=avgStats(e.id), a5=avgStats(e.id,5); if(!a) return ''; return `<div class="avgbox"><div><small>Ø Gewicht</small><b>${a.kg?fmtKg(a.kg)+' kg':'–'}</b></div><div><small>Ø Wiederholungen</small><b>${String(Math.round(a.reps*10)/10).replace('.',',')}</b></div><div><small>Ø Volumen / Training</small><b>${Math.round(a.vol).toLocaleString('de-DE')} kg</b></div>${a.n>5&&a5?`<div><small>Ø letzte 5 Trainings</small><b>${a5.kg?fmtKg(a5.kg)+' kg × ':''}${String(Math.round(a5.reps*10)/10).replace('.',',')}</b></div>`:''}</div>`; })()}</div>
+    ${e.id==='laufband'?'':grenzBlock(e)}
     <div class="block"><h4>Trainierte Muskeln</h4>
       <div class="tags"><span class="tag p">Haupt: ${esc(e.prim)}</span><span class="tag">Neben: ${esc(e.sec)}</span></div></div>
     <div class="block"><h4>So geht's</h4><ol class="steps">${e.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>
@@ -1444,7 +1547,7 @@ function openEx(id, push=true){
     <a class="wa full" target="_blank" rel="noopener" href="${waHref('🏋️ Schau dir diese Übung an: '+e.name+'\n'+appUrl()+'#'+e.id)}">${WA_ICON} Übung per WhatsApp teilen</a>
     <a class="yt" href="${yt}" target="_blank" rel="noopener">▶ <span>Echtes Video ansehen<small>öffnet YouTube-Videos zu dieser Übung</small></span></a>
     <button class="sharebtn" id="shareEx">🔗 Übung teilen</button><p class="hint" id="shareMsg"></p>`;
-  updFav(); renderToPlan();
+  updFav(); renderToPlan(); bindGrenz(e);
   if(G3.mount($('anim'),e)){ $('anim').classList.add('is3d'); $('anim').insertAdjacentHTML('afterend',G3.camButtons()); G3.bindButtons($('detail')); }
   $('shareEx').onclick=async()=>{ const url=location.href.split('#')[0]+'#'+e.id;
     try{ if(navigator.share){ await navigator.share({title:e.name+' – Muskel-Coach',text:'Schau dir diese Übung an: '+e.name,url}); return; } }catch(err){ if(err&&err.name==='AbortError') return; }
@@ -1578,7 +1681,7 @@ function renderPlan(){
     ${LIVE?'':'<button class="testbtn" id="testTr">👀 Testlauf – Übungen nur ansehen <small>(wird nicht gespeichert)</small></button>'}
     <div class="daymeta" id="daymeta">${d.items.length} Übungen · ${totalSets} Sätze · ca. ${mins} Min. · <b class="kc">🔥 ca. ${kTxt(kcalDay(d))} kcal</b></div>
     <div id="items">${d.items.map((i,n)=>{const e=exById(i.id); return `
-      <div class="item" data-n="${n}">
+      <div class="item ${i.ss&&n<d.items.length-1?'ssA':''} ${n>0&&d.items[n-1].ss?'ssB':''}" data-n="${n}">
         <button class="mini" data-open="${e.id}">${figure(e,0.65)}</button>
         <div class="body">
           <button class="nm" data-open="${e.id}">${n+1}. ${esc(e.name)} <span>· ${e.g.map(gname).join(', ')}</span></button><span class="kcb" data-kc="${n}">🔥 ${kTxt(kcalItem(i))} kcal</span>${(()=>{const rc=maxKgRec(e.id), lt=lastTop(e.id); if(!rc){ const rr=maxRepRec(e.id); return rr?`<span class="prline">🏆 Rekord <b>${unitR(e.id,rr.reps)}</b> am Stück</span>`:''; } return `<span class="prline">🏆 Rekord <b>${fmtKg(rc.kg)} kg</b>${lt&&(lt.kg!==rc.kg||lt.date!==rc.date)?` · zuletzt ${fmtKg(lt.kg)} kg`:''}</span>`;})()}
@@ -1587,7 +1690,7 @@ function renderPlan(){
             <input data-f="kg" value="${esc(i.kg)}" inputmode="decimal" placeholder="–" aria-label="Gewicht"> kg</div>`}
         </div>
         <div class="ops"><button data-op="up" aria-label="nach oben">▲</button><button data-op="dn" aria-label="nach unten">▼</button><button data-op="rm" class="x" aria-label="entfernen">✕</button></div>
-      </div>`}).join('') || '<div class="empty">Noch keine Übungen an diesem Tag.</div>'}</div>
+      </div>${n<d.items.length-1&&i.id!=='laufband'&&d.items[n+1].id!=='laufband'?`<button class="sslink ${i.ss?'on':''}" data-ss="${n}">${i.ss?'🔗 Supersatz mit der nächsten Übung – ohne Pause hintereinander (antippen zum Lösen)':'＋ 🔗 Als Supersatz mit nächster Übung verbinden'}</button>`:''}`}).join('') || '<div class="empty">Noch keine Übungen an diesem Tag.</div>'}</div>
     <button class="addbtn" id="addEx">＋ Übung hinzufügen</button>
     ${(()=>{const done=LOG.some(l=>l.date===ymd(new Date())&&l.day===day); return `<button class="donebtn ${done?'is':''}" id="doneDay">${done?'✅ Heute erledigt – zum Kalender':'✅ Training heute erledigt'}</button>`})()}
     <div class="planops">
@@ -1617,6 +1720,7 @@ function renderPlan(){
     const kd=document.querySelector('#daymeta .kc'); if(kd) kd.textContent='🔥 ca. '+kTxt(kcalDay(plan.days[day]))+' kcal';};
   $('items').onclick=e=>{
     const o=e.target.closest('[data-open]'); if(o){ openEx(o.dataset.open); return; }
+    const ssb=e.target.closest('[data-ss]'); if(ssb){ const it2=plan.days[day].items[+ssb.dataset.ss]; it2.ss=!it2.ss; savePlan(); renderPlan(); if(it2.ss) toast2('🔗 Supersatz: beide Übungen direkt hintereinander, Pause erst danach'); return; }
     const b=e.target.closest('[data-op]'); if(!b)return;
     const arr=plan.days[day].items, n=+b.closest('.item').dataset.n;
     if(b.dataset.op==='rm') arr.splice(n,1);
@@ -1795,6 +1899,32 @@ function maxRepRec(id){ if(id==='laufband') return null; let b=null;   // Körpe
   for(const l of LOG){ const ss=l.sets&&l.sets[id]; if(!ss) continue;
     for(const x of ss){ const r=parseFloat(x.reps)||0; if(kgNum(x.kg)===0&&r>0&&(!b||r>b.reps)) b={reps:r,date:l.date}; } }
   return b; }
+function avgStats(id,lastN){ if(id==='laufband') return null; let hs=history(id); if(lastN) hs=hs.slice(0,lastN); if(!hs.length) return null;
+  let kgSum=0,kgN=0,rSum=0,rN=0,vol=0; for(const h of hs) for(const x of h.sets){ const k=kgNum(x.kg), r=parseFloat(x.reps)||0; if(k>0){kgSum+=k;kgN++;} if(r>0){rSum+=r;rN++;} vol+=k*r; }
+  return {n:hs.length,sets:hs.reduce((a,h)=>a+h.sets.length,0),kg:kgN?kgSum/kgN:0,reps:rN?rSum/rN:0,vol:vol/hs.length}; }
+function avgLine(id){ const a=avgStats(id); if(!a||(!a.kg&&!a.reps)) return ''; return `Ø ${a.kg?`<b>${fmtKg(a.kg)} kg</b> × `:''}<b>${String(Math.round(a.reps*10)/10).replace('.',',')} ${holdOf(id)?'Sek.':'Wdh.'}</b> <small>(aus ${a.sets} Sätzen · ${a.n} Training${a.n>1?'s':''})</small>`; }
+function optOn(k){ try{ const o=JSON.parse(localStorage.getItem('mc_opts')||'{}'); return o[k]!==false; }catch(e){ return true; } }
+function setOpt(k,v){ try{ const o=JSON.parse(localStorage.getItem('mc_opts')||'{}'); o[k]=v; localStorage.setItem('mc_opts',JSON.stringify(o)); }catch(e){} }
+let TESTS={}; try{ TESTS=JSON.parse(localStorage.getItem('mc_tests')||'{}'); }catch(e){}
+const saveTests=()=>{ try{ localStorage.setItem('mc_tests',JSON.stringify(TESTS)); }catch(e){} };
+function grenzBlock(e){
+  if(!MC.pro) return `<div class="block"><h4>🔥 Grenztest</h4><button class="recempty" style="width:100%;text-align:left" onclick="upsell('Grenztest')">🔒 Teste deine Maximalkraft und sieh, wie viel stärker du wirst – in der Vollversion.</button></div>`;
+  const ts=(TESTS[e.id]||[]).slice().sort((a,b)=>a.date<b.date?1:-1), best=ts.reduce((m,t)=>Math.max(m,t.orm||0),0), bw=!ts.some(t=>t.kg>0)&&ts.length;
+  return `<div class="block grenz" id="grenzBox"><h4>🔥 Grenztest (Maximalkraft)</h4>
+    <p class="muted" style="margin-top:0">Gut aufwärmen, dann ein Gewicht wählen, das du ca. 3–10× schaffst, und so viele <b>saubere</b> Wiederholungen wie möglich machen. Bei schweren Übungen mit Partner/Sicherung!</p>
+    <div class="kcrow"><label>Gewicht (kg)<input id="gtKg" inputmode="decimal" placeholder="z. B. 60"></label><label>Max. Wdh.<input id="gtR" inputmode="numeric" placeholder="z. B. 6"></label></div>
+    <button class="savebtn" id="gtSave">Test speichern</button>
+    ${ts.length?`<div class="gtbest">${best?`🏆 Geschätzte Maximalkraft: <b>${fmtKg(Math.round(best/2.5)*2.5)} kg</b>`:`🏆 Bestwert: <b>${Math.max(...ts.map(t=>t.reps))} Wdh.</b>`}</div>
+      ${best?`<div class="rmt">${[[90,'Kraft · 3–4 Wdh.'],[80,'Aufbau · 8 Wdh.'],[70,'Aufbau · 12 Wdh.'],[60,'Ausdauer · 15+']].map(([p,l])=>`<span>${p}%<b>${fmtKg(Math.round(best*p/100/2.5)*2.5)} kg</b><small>${l}</small></span>`).join('')}</div>`:''}
+      <div class="gtlist">${ts.slice(0,6).map((t,i)=>{ const prev=ts[i+1], d=prev&&t.orm&&prev.orm?Math.round((t.orm/prev.orm-1)*100):null; return `<div><span>${fmtD(parseD(t.date))}</span><span>${t.kg?fmtKg(t.kg)+' kg × ':''}${t.reps} Wdh.</span><b>${t.orm?'≈ '+fmtKg(Math.round(t.orm/2.5)*2.5)+' kg':''}${d!==null?` <em style="color:${d>=0?'#7dff9c':'#ff9a6e'}">${d>=0?'+':''}${d}%</em>`:''}</b></div>`; }).join('')}</div>`:''}
+  </div>`; }
+function bindGrenz(e){ const b=$('gtSave'); if(!b) return; b.onclick=()=>{ const kg=kgNum($('gtKg').value), r=parseInt($('gtR').value);
+  if(!(r>0)){ toast2('Bitte die geschafften Wiederholungen eintragen'); return; }
+  const orm=kg>0?(r===1?kg:kg*(1+r/30)):0, prevBest=(TESTS[e.id]||[]).reduce((m,t)=>Math.max(m,t.orm||0),0);
+  (TESTS[e.id]=TESTS[e.id]||[]).push({date:ymd(new Date()),kg,reps:r,orm}); saveTests();
+  if(orm&&prevBest&&orm>prevBest) celebrate('Neue Maximalkraft! 🔥',`Deine geschätzte Maximalkraft bei ${esc(e.name)}: <b>${fmtKg(Math.round(orm/2.5)*2.5)} kg</b><br><small>Vorher: ${fmtKg(Math.round(prevBest/2.5)*2.5)} kg</small>`);
+  else toast2('Grenztest gespeichert ✓');
+  const box=$('grenzBox'); if(box){ box.outerHTML=grenzBlock(e); bindGrenz(e); } }; }
 function lastTop(id){ const h=history(id)[0]; if(!h||id==='laufband') return null; let t=null;
   for(const x of h.sets){ const k=kgNum(x.kg); if(k>0&&(!t||k>t.kg)) t={kg:k,reps:parseFloat(x.reps)||0,date:h.date}; } return t; }
 function allRecords(){ const ids=[...new Set(LOG.flatMap(l=>Object.keys(l.sets||{})))];
@@ -1824,7 +1954,7 @@ function startLive(dIdx){
       const kg=sg?fmtKg(sg.kg):(prev&&prev.kg)||(it.kg||'');
       const reps=r.list?String(r.list[i]):String(r.lo);
       sets.push({kg:String(kg),reps,done:false}); }
-    return {id:it.id,target:it.reps,sets};
+    return {id:it.id,target:it.reps,sets,ss:!!it.ss};
   })};
   saveLive(); openLive();
 }
@@ -1867,8 +1997,9 @@ function renderLive(){
     <div class="lvchips" id="lvChips">${LIVE.items.map((x,i)=>{const f=x.sets.every(s=>s.done); return `<button data-i="${i}" class="${i===LIVE.idx?'on':''} ${f?'fin':''} ${x.skip&&!f?'skip':''}">${f?'✓':x.skip?'–':i+1}</button>`}).join('')}</div>
     <div class="lvcard">
       <div class="lvfig" id="lvFig">${figure(ex,.5)}</div>
-      <div class="lvname"><small>Übung ${LIVE.idx+1} von ${LIVE.items.length}</small><h3>${esc(ex.name)}</h3>
+      <div class="lvname"><small>Übung ${LIVE.idx+1} von ${LIVE.items.length}${it.ss&&LIVE.items[LIVE.idx+1]?` · <b class="sstag">🔗 Supersatz A</b> → ${esc((exById(LIVE.items[LIVE.idx+1].id)||{}).name||'')}`:(LIVE.idx>0&&LIVE.items[LIVE.idx-1].ss?` · <b class="sstag">🔗 Supersatz B</b>`:'')}</small><h3>${esc(ex.name)}</h3>
         <span class="tag p">🔥 ${esc(ex.prim)}</span> <button class="lvinfo" data-open="${ex.id}">ⓘ Anleitung</button></div>
+      ${!walk&&optOn('avg')&&avgLine(it.id)?`<div class="lvlast lvavg">📊 ${avgLine(it.id)}</div>`:''}
       ${h&&!walk?`<div class="lvlast">Letztes Mal (${fmtD(parseD(h.date))}): <b>${h.sets.map(s=>(parseFloat(s.kg)?s.kg+' kg × ':'')+s.reps+(hold?' s':'')).join(' · ')}</b></div>`:''}
       ${(()=>{ if(walk) return ''; if(!MC.pro) return ''; const rc=maxKgRec(it.id), rr=maxRepRec(it.id); return rc?`<div class="lvrec">🏆 Dein Rekord: <b>${fmtKg(rc.kg)} kg × ${rc.reps}</b> <small>(${fmtD(parseD(rc.date))})</small> – schaffst du mehr?</div>`:rr?`<div class="lvrec">🏆 Dein Rekord: <b>${unitR(it.id,rr.reps)}</b> am Stück <small>(${fmtD(parseD(rr.date))})</small> – schaffst du mehr?</div>`:''; })()}
       ${liveHelpers(it,ex)}
@@ -1895,7 +2026,11 @@ function renderLive(){
     s.done=!s.done; saveLive();
     if(s.done&&!walk){ restTotal=REST_CAT[CAT[it.id]||'iso']; restEnd=Date.now()+restTotal*1000; }
     const wasLast=it.sets.every(x=>x.done);
-    renderLive();
+    let ssMsg='';
+    if(s.done&&!walk){ const nx=it.ss?LIVE.items[LIVE.idx+1]:null, pv=LIVE.idx>0&&LIVE.items[LIVE.idx-1].ss?LIVE.items[LIVE.idx-1]:null;
+      if(nx&&!nx.skip&&nx.sets.some(x=>!x.done)){ restEnd=0; LIVE.idx++; saveLive(); ssMsg='🔗 Supersatz: ohne Pause direkt weiter mit Übung B!'; }
+      else if(pv&&!pv.skip&&pv.sets.some(x=>!x.done)){ LIVE.idx--; saveLive(); ssMsg='🔗 Supersatz geschafft – jetzt Pause, danach wieder Übung A.'; } }
+    renderLive(); if(ssMsg){ $('tsheet').scrollTop=0; setTimeout(()=>{const m=$('lvMsg'); if(m) m.textContent=ssMsg;},0); }
     if(s.done&&!walk&&!LIVE.test&&MC.pro){ const k=kgNum(s.kg), r=parseFloat(s.reps)||0, rc=maxKgRec(it.id), nm=ex.name;
       const sess=it.sets.filter((x,j)=>j!==i&&x.done).reduce((m,x)=>Math.max(m,kgNum(x.kg)),0);
       if(k>0&&rc&&k>rc.kg&&k>sess){ celebrate('Du bist stärker geworden! 💪',`Zum ersten Mal <b>${fmtKg(k)} kg</b> bei ${esc(nm)} geschafft!<br><small>Bisher: ${fmtKg(rc.kg)} kg am ${fmtD(parseD(rc.date))}</small>`); setTimeout(()=>{const m=$('lvMsg'); if(m) m.innerHTML=`🏆 <b>Neuer Rekord: ${fmtKg(k)} kg!</b> Stark – die App hat ihn gespeichert.`;},0); return; }
@@ -2249,10 +2384,10 @@ let SKIN=[0.56,0.30,0.17], SKIN2=[0.48,0.25,0.14], SHORTS=[0.035,0.035,0.04], HA
 let HOT=new Set(), PULSE=0;
 function REGC(){ const hot=new Float32Array(17); for(let i=1;i<17;i++) hot[i]=HOT.has(MUS[i])?1:0;
   const BEARD=HAIR.map((v,i)=>v*1.3+[0.035,0.022,0.015][i]);
-  return [SHORTS,BEARD,[0.46,0.2,0.15],HAIR,hot,[0.95,0.28,0.08],[0.35+0.25*PULSE,0.07,0.0]]; }
+  return [SHORTS,BEARD,LOOK.g==='w'?[0.56,0.26,0.25]:[0.46,0.2,0.15],HAIR,hot,[0.95,0.28,0.08],[0.35+0.25*PULSE,0.07,0.0]]; }
 const SKINS={tan:[0.56,0.30,0.17],light:[0.72,0.47,0.34],olive:[0.5,0.32,0.18],dark:[0.22,0.11,0.06]};
-function setLook(o){ LOOK=Object.assign({hair:'quiff',beard:'full',skin:'tan',hairCol:[0.05,0.035,0.03],shorts:[0.035,0.035,0.04]},o||{});
-  SKIN=SKINS[LOOK.skin]||SKINS.tan; SKIN2=SKIN.map(v=>v*0.86); HAIR=LOOK.hairCol; SHORTS=LOOK.shorts; scene.cache=null; if(MESH) setRegions(MESH.head); }
+function setLook(o){ LOOK=Object.assign({g:'m',legs:'shorts',hair:'quiff',beard:'full',skin:'tan',hairCol:[0.05,0.035,0.03],shorts:[0.035,0.035,0.04]},o||{});
+  SKIN=SKINS[LOOK.skin]||SKINS.tan; SKIN2=SKIN.map(v=>v*0.86); HAIR=LOOK.hairCol; SHORTS=LOOK.shorts; scene.cache=null; for(const k in MESHES){ const m=MESHES[k]; if(m) [m.head,m.th,m.sh].forEach(setRegions); } }
 const mat=(key,base)=>HOT.has(key)?{c:[0.95,0.28,0.08],e:[0.35+0.25*PULSE,0.07,0.0],sp:0.45,sh:40}:{c:base||SKIN,sp:0.38,sh:34};
 
 /* Teil-Matrix: Ursprung o, Basis x,y,z (orthonormal), Skalierung s, lokaler Versatz off */
@@ -2273,11 +2408,11 @@ function joints(tp,ex,p){
   if(v==='s'){
     const P3=(k,lat)=>p[k]?[lat,Y(p[k][1]),(p[k][0]-100)*K]:null;
     const wide=ex.prop==='bar'||tp.barAt?0.3:0.2;
-    J.H=P3('hp',0);J.S=P3('sh',0);J.hd=P3('hd',0);J.f=[0,0,1];
+    J.H=P3('hp',0);J.S=P3('sh',0);J.hd=P3('hd',0);J.f=tp.prone?[0,-1,0]:[0,0,1];
     for(const [s,sg] of [['R',-1],['L',1]]){J['sh'+s]=P3('sh',0.19*sg);J['el'+s]=P3('el',(p.lw?p.lw[0]*K:(wide>0.2?0.3:0.22))*sg);J['ha'+s]=P3('ha',(p.lw?p.lw[1]*K:wide)*sg);}
     J.hpR=P3('hp',-0.095);J.hpL=P3('hp',0.095);
     const k2=p.kn2?'kn2':'kn',f2=p.kn2?'ft2':'ft',t2=p.kn2?'to2':'to';
-    J.knR=P3('kn',-0.1);J.ftR=P3('ft',-0.11);J.toR=P3('to',-0.12);J.knL=P3(k2,0.1);J.ftL=P3(f2,0.11);J.toL=P3(t2,0.12);
+    const lk=p.lwl?p.lwl[0]*K:0.1, lf=p.lwl?p.lwl[1]*K:0.11; J.knR=P3('kn',-lk);J.ftR=P3('ft',-lf);J.toR=P3('to',-lf-0.01);J.knL=P3(k2,lk);J.ftL=P3(f2,lf);J.toL=P3(t2,lf+0.01);
   } else {
     const fz=v==='b'?-1:1, P3=k=>p[k]?[(p[k][0]-100)*K,Y(p[k][1]),0]:null;
     for(const k of ['shL','shR','elL','elR','haL','haR','hpL','hpR','knL','knR','ftL','ftR','hd','nk','pv']) J[k]=P3(k);
@@ -2333,7 +2468,7 @@ function setRegions(m){ if(!m.regFn) return; for(let v=0;v<m.mu.length;v++){ con
 /* Nennlängen der Körperteile (aus der 2D-Grundhaltung) */
 const LN={ua:0.26,fa:0.25,th:0.35,sh:0.34,to:0.5};
 const E_=(c,r,k,mu)=>({t:'e',c,r,k,mu}), RC=(a,b,r1,r2,k,mu)=>({t:'rc',a,b,r1,r2,k,mu});
-let MESH=null;
+let MESH=null, MESHES={};
 function headRegions(p){ const [x,y,z]=p, L=LOOK; let beard=0,lip=0,hair=0,shorts=0;
   // Lippen
   const ly=(y+0.0495)/0.0095, lx=x/0.021; if(z>0.075&&lx*lx+ly*ly<1) lip=1-sstep(0.6,1,Math.sqrt(lx*lx+ly*ly));
@@ -2384,10 +2519,66 @@ function buildMeshes(){
   const mTH=buildMesh(th,[-0.13,-0.1,-0.13],[0.13,Tl+0.07,0.13],0.0075,p=>[sstep(0.4*Tl,0.33*Tl,p[1]),0,0,0]);
   const Sl=LN.sh, sh=[RC([0,0,0],[0,Sl,0],0.055,0.034,0.02), E_([0,0.3*Sl,-0.037],[0.057,0.26*Sl,0.054],0.03,15), E_([0,0.3*Sl,0.03],[0.03,0.25*Sl,0.03],0.02)];
   const mSH=buildMesh(sh,[-0.1,-0.07,-0.1],[0.1,Sl+0.05,0.1],0.0065);
-  MESH={head:mHead,torso:mTorso,ua:mUA,fa:mFA,th:mTH,sh:mSH,hair:{}};
+  MESHES.m=MESH={head:mHead,torso:mTorso,ua:mUA,fa:mFA,th:mTH,sh:mSH,hair:{},g:'m'};
   console.log('Körper-Meshes in',Math.round(performance.now()-t0),'ms');
 }
+
+/* ---------- Frauen-Figur ---------- */
+function headRegionsW(p){ const [x,y,z]=p; let lip=0,hair=0;
+  const ly=(y+0.047)/0.0115, lx=x/0.021; if(z>0.07&&lx*lx+ly*ly<1) lip=1-sstep(0.55,1,Math.sqrt(lx*lx+ly*ly));
+  for(const s of [-1,1]){ // schmal geschwungene Brauen + Lidstrich
+    const bx=(x-0.031*s)/0.019, by=(y-0.034-0.004*(1-bx*bx))/0.0033; if(z>0.06){ const d=bx*bx+by*by; if(d<1) hair=Math.max(hair,1-sstep(0.4,1,d)); }
+    const ex=(x-0.031*s)/0.014, ey=(y-0.0205)/0.0022; if(z>0.07){ const d=ex*ex+ey*ey; if(d<1) hair=Math.max(hair,0.9*(1-sstep(0.4,1,d))); } }
+  const top=sstep(0.02,0.05,y)*(1-sstep(0.06,0.085,z)), back=sstep(-0.01,-0.05,z)*sstep(-0.05,-0.01,y);
+  hair=Math.max(hair,Math.max(top,back)*0.85);
+  return [0,0,lip,hair]; }
+function buildMeshesW(){
+  const t0=performance.now();
+  const head=[E_([0,0.012,-0.006],[0.071,0.093,0.087]), E_([0.036,-0.012,0.044],[0.03,0.03,0.034],0.022), E_([-0.036,-0.012,0.044],[0.03,0.03,0.034],0.022),
+    E_([0,-0.052,0.017],[0.047,0.03,0.05],0.024), E_([0.039,-0.046,-0.006],[0.021,0.027,0.034],0.026), E_([-0.039,-0.046,-0.006],[0.021,0.027,0.034],0.026),
+    E_([0,-0.075,0.05],[0.019,0.017,0.02],0.022), E_([0,0.03,0.07],[0.05,0.009,0.015],0.02),
+    RC([0,0.02,0.081],[0,-0.013,0.094],0.0068,0.0092,0.012), E_([0.009,-0.017,0.088],[0.0072,0.0065,0.007],0.006), E_([-0.009,-0.017,0.088],[0.0072,0.0065,0.007],0.006),
+    E_([0,-0.041,0.083],[0.018,0.0055,0.01],0.006), E_([0,-0.051,0.081],[0.017,0.0075,0.011],0.006),
+    E_([0.073,0.0,-0.008],[0.01,0.022,0.014],0.008), E_([-0.073,0.0,-0.008],[0.01,0.022,0.014],0.008),
+    RC([0,-0.05,-0.02],[0,-0.19,-0.022],0.041,0.047,0.03,16),
+    {t:'e',c:[0.031,0.015,0.086],r:[0.017,0.012,0.012],k:0.008,neg:1},{t:'e',c:[-0.031,0.015,0.086],r:[0.017,0.012,0.012],k:0.008,neg:1}];
+  const mHead=buildMesh(head,[-0.1,-0.2,-0.11],[0.1,0.12,0.12],0.0046,headRegionsW);
+  const tor=[E_([0,0.03,0],[0.175,0.12,0.118]), E_([0.072,-0.01,-0.075],[0.095,0.1,0.088],0.03,8), E_([-0.072,-0.01,-0.075],[0.095,0.1,0.088],0.03,8),
+    E_([0,0.17,0],[0.112,0.11,0.088],0.05), E_([0,0.31,0],[0.135,0.14,0.105],0.05), E_([0,0.42,-0.005],[0.165,0.1,0.1],0.05), E_([0,0.48,-0.02],[0.175,0.055,0.085],0.04),
+    E_([0,0.39,-0.075],[0.12,0.08,0.04],0.04,5), E_([0,0.5,-0.03],[0.1,0.045,0.06],0.04,7)];
+  for(const s of [-1,1]){ tor.push(E_([0.058*s,0.385,0.074],[0.066,0.062,0.06],0.022,1), E_([0.105*s,0.19,0.025],[0.032,0.07,0.05],0.03,3),
+    E_([0.115*s,0.33,-0.03],[0.05,0.12,0.06],0.04,4), E_([0.03*s,0.16,-0.075],[0.024,0.09,0.024],0.02,6));
+    for(const y of [0.14,0.22]) tor.push(E_([0.03*s,y,0.083],[0.026,0.03,0.016],0.014,2)); }
+  const clothT=p=>{ const bottom=sstep(0.11,0.085,p[1]), top=sstep(0.325,0.345,p[1])*(1-sstep(0.455,0.475,p[1])); return [Math.max(bottom,top),0,0,0]; };
+  const mTorso=buildMesh(tor,[-0.25,-0.14,-0.17],[0.25,0.56,0.17],0.0085,clothT);
+  const U=LN.ua, arm=[RC([0,0,0],[0,U,0],0.045,0.036,0.02), E_([0,0.016,-0.005],[0.062,0.07,0.062],0.03,9), E_([0,0.52*U,0.026],[0.038,0.28*U,0.04],0.025,10),
+    E_([0,0.42*U,-0.03],[0.042,0.32*U,0.04],0.025,11), E_([0,U,0],[0.034,0.034,0.034],0.02)];
+  const mUA=buildMesh(arm,[-0.09,-0.07,-0.09],[0.09,U+0.05,0.09],0.0062);
+  const A=LN.fa, fa=[RC([0,0,0],[0,A,0],0.036,0.025,0.02), E_([0,0.27*A,0.004],[0.042,0.28*A,0.038],0.025,12),
+    E_([0,A+0.032,0.004],[0.033,0.044,0.04],0.02), E_([0.025,A+0.012,0.026],[0.011,0.026,0.011],0.012)];
+  const mFA=buildMesh(fa,[-0.07,-0.05,-0.07],[0.07,A+0.09,0.07],0.0055);
+  const Tl=LN.th, th=[RC([0,0,0],[0,Tl,0],0.088,0.05,0.02), E_([0,0.46*Tl,0.04],[0.072,0.38*Tl,0.058],0.03,13), E_([0,0.45*Tl,-0.042],[0.07,0.38*Tl,0.054],0.03,14),
+    E_([0.035,0.2*Tl,-0.01],[0.05,0.2*Tl,0.06],0.03), E_([0,Tl,0.01],[0.047,0.047,0.047],0.025)];
+  const mTH=buildMesh(th,[-0.13,-0.1,-0.13],[0.13,Tl+0.06,0.13],0.0072,p=>[LOOK.legs==='leggings'?1:sstep(0.3*Tl,0.24*Tl,p[1]),0,0,0]);
+  const Sl=LN.sh, sh=[RC([0,0,0],[0,Sl,0],0.048,0.029,0.02), E_([0,0.3*Sl,-0.033],[0.048,0.25*Sl,0.046],0.03,15)];
+  const mSH=buildMesh(sh,[-0.09,-0.07,-0.09],[0.09,Sl+0.05,0.09],0.006,p=>[LOOK.legs==='leggings'?(1-sstep(0.86*Sl,0.9*Sl,p[1])):0,0,0,0]);
+  console.log('Frauen-Meshes in',Math.round(performance.now()-t0),'ms');
+  return {head:mHead,torso:mTorso,ua:mUA,fa:mFA,th:mTH,sh:mSH,hair:{},g:'w'};
+}
+function hairPartsW(style){
+  const cap=[E_([0,0.035,-0.012],[0.08,0.083,0.095]), {t:'e',c:[0,-0.03,0.075],r:[0.068,0.072,0.06],k:0.012,neg:1}, {t:'e',c:[0,-0.095,-0.02],r:[0.1,0.05,0.13],k:0.01,neg:1}];
+  const face={t:'e',c:[0,-0.04,0.08],r:[0.066,0.1,0.065],k:0.012,neg:1};
+  if(style==='ponytail') return [...cap, E_([0,0.04,-0.098],[0.022,0.022,0.022],0.01), RC([0,0.035,-0.105],[0,-0.07,-0.135],0.028,0.02,0.015), RC([0,-0.07,-0.135],[0,-0.16,-0.115],0.02,0.007,0.015)];
+  if(style==='long') return [E_([0,0.035,-0.012],[0.082,0.085,0.096]), E_([0,-0.08,-0.06],[0.088,0.14,0.05],0.04), E_([0.07,-0.06,-0.005],[0.022,0.11,0.045],0.03), E_([-0.07,-0.06,-0.005],[0.022,0.11,0.045],0.03),
+    face, {t:'e',c:[0,-0.25,0],r:[0.2,0.05,0.2],k:0.01,neg:1}];
+  if(style==='bob') return [E_([0,0.03,-0.012],[0.084,0.088,0.098]), E_([0,-0.025,-0.015],[0.09,0.06,0.098],0.03), face, {t:'e',c:[0,-0.13,0],r:[0.2,0.05,0.2],k:0.01,neg:1}];
+  if(style==='bun') return [...cap, E_([0,0.1,-0.045],[0.036,0.034,0.036],0.015)];
+  if(style==='braid'){ const p=[...cap]; [[0,0.0,-0.098,0.024],[0,-0.038,-0.108,0.022],[0,-0.075,-0.11,0.02],[0,-0.11,-0.106,0.018],[0,-0.145,-0.1,0.015],[0,-0.175,-0.094,0.012]].forEach(([x,y,z,r])=>p.push(E_([x,y,z],[r,r*1.15,r],0.008))); return p; }
+  if(style==='pixie') return [E_([0,0.04,-0.008],[0.081,0.08,0.097]), {t:'e',c:[0,-0.03,0.08],r:[0.068,0.07,0.058],k:0.012,neg:1}, {t:'e',c:[0,-0.08,-0.02],r:[0.1,0.05,0.13],k:0.01,neg:1}, E_([0.025,0.062,0.072],[0.05,0.02,0.03],0.02)];
+  return null; }
+
 function hairMesh(style){ if(MESH.hair[style]!==undefined) return MESH.hair[style]; let parts=null;
+  if(MESH.g==='w'){ parts=hairPartsW(style); MESH.hair[style]=parts?buildMesh(parts,[-0.13,-0.27,-0.17],[0.13,0.16,0.13],0.005):null; return MESH.hair[style]; }
   if(style==='quiff') parts=[E_([0,0.07,0.0],[0.078,0.042,0.088]),E_([0,0.088,0.05],[0.056,0.034,0.04],0.03),E_([0,0.06,-0.04],[0.074,0.045,0.06],0.03)];
   if(style==='slick') parts=[E_([0,0.07,-0.012],[0.08,0.045,0.094]),E_([0,0.08,0.04],[0.062,0.028,0.048],0.03)];
   if(style==='curly'){ parts=[E_([0,0.06,-0.01],[0.08,0.055,0.09])]; for(const [x,y,z] of [[0,0.09,0.03],[0.04,0.085,0.01],[-0.04,0.085,0.01],[0.02,0.095,-0.03],[-0.025,0.09,-0.035],[0,0.085,0.06],[0.045,0.075,0.045],[-0.045,0.075,0.045],[0.06,0.06,-0.03],[-0.06,0.06,-0.03]]) parts.push(E_([x,y,z],[0.032,0.028,0.032],0.012)); }
@@ -2395,7 +2586,7 @@ function hairMesh(style){ if(MESH.hair[style]!==undefined) return MESH.hair[styl
   MESH.hair[style]=parts?buildMesh(parts,[-0.12,-0.05,-0.13],[0.12,0.14,0.13],0.005):null; return MESH.hair[style]; }
 
 function body(J){
-  if(!MESH) buildMeshes();
+  const G=LOOK.g==='w'?'w':'m'; if(!MESHES[G]){ if(G==='w') MESHES.w=buildMeshesW(); else buildMeshes(); } MESH=MESHES[G];
   const out=[], up=nrm(sub(J.S,J.H)); let f=sub(J.f,mul(up,dot(J.f,up))); if(len(f)<0.1) f=[0,1,0]; f=nrm(f); const x=crs(up,f), Lt=len(sub(J.S,J.H));
   const skin={c:SKIN,sp:0.34,sh:34};
   out.push(part(MESH.torso,J.H,x,up,f,[1,Lt/0.5,1],[0,0,0],skin));
@@ -2403,8 +2594,8 @@ function body(J){
   const hd=J.hd||add(J.S,mul(up,0.2)), hu=nrm(sub(hd,J.S)), Hf=frame(add(hd,mul(hu,-0.1)),add(hd,mul(hu,0.1)),f);
   out.push(part(MESH.head,hd,Hf.x,Hf.y,Hf.z,[1,1,1],[0,0,0],skin));
   const hm=hairMesh(LOOK.hair); if(hm) out.push(part(hm,hd,Hf.x,Hf.y,Hf.z,[1,1,1],[0,0,0],{c:HAIR,sp:LOOK.hair==='slick'?0.7:0.3,sh:LOOK.hair==='slick'?60:24}));
-  for(const sx of [-1,1]){ out.push(part('s',hd,Hf.x,Hf.y,Hf.z,[0.0105,0.0062,0.005],[0.031*sx,0.0135,0.0815],{c:[0.86,0.83,0.8],sp:0.6,sh:70}));
-    out.push(part('s',hd,Hf.x,Hf.y,Hf.z,[0.0056,0.0056,0.0025],[0.031*sx,0.0135,0.0858],{c:[0.1,0.06,0.035],sp:1.0,sh:120})); }
+  for(const sx of [-1,1]){ out.push(part('s',hd,Hf.x,Hf.y,Hf.z,G==='w'?[0.011,0.0068,0.005]:[0.0105,0.0062,0.005],[0.031*sx,G==='w'?0.015:0.0135,G==='w'?0.08:0.0815],{c:[0.86,0.83,0.8],sp:0.6,sh:70}));
+    out.push(part('s',hd,Hf.x,Hf.y,Hf.z,[0.0056,0.0056,0.0025],[0.031*sx,G==='w'?0.015:0.0135,G==='w'?0.0845:0.0858],{c:[0.1,0.06,0.035],sp:1.0,sh:120})); }
   // Arme
   for(const sd of ['L','R']){ const Sh=J['sh'+sd],El=J['el'+sd],Ha=J['ha'+sd]; if(!Sh||!El||!Ha) continue;
     const Fu=frame(Sh,El,f),Fa=frame(El,Ha,f);
@@ -2478,7 +2669,8 @@ function handProps(tp,ex,J,p){
   if(tp.cable){ const A=AP(tp.cable),c=mix(hL,hR,.5); it.push(rod(A,c,0.005,CABLE,0.6)); it.push(ball(A,0.05,{c:STEEL,sp:0.8,sh:60})); }
   if(tp.cables){ const ps=tp.cables.map(AP).sort((a,b)=>a[0]-b[0]), hs=[hL,hR].sort((a,b)=>a[0]-b[0]); ps.forEach((A,i)=>{it.push(rod(A,hs[i],0.005,CABLE,0.6));it.push(ball(A,0.045,{c:STEEL,sp:0.8}));}); }
   if(tp.cableMid){ const A=AP(tp.cableMid); it.push(rod(A,mix(hL,hR,.5),0.005,CABLE,0.6)); }
-  if(tp.pad){ const kn=J.knR,ft=J.ftR; if(kn&&ft){ const F=frame(kn,ft,J.f); const c=add(add(kn,mul(F.y,F.L*0.85)),mul(F.z,ex.anim==='legcurl'?-0.08:0.08)); it.push(rod(add(c,[-0.2,0,0]),add(c,[0.2,0,0]),0.05,PAD,0.3)); } }
+  if(tp.cableFoot&&J.ftL){ const A=AP(tp.cableFoot); it.push(rod(A,J.ftL,0.005,CABLE,0.6)); it.push(ball(A,0.045,{c:STEEL,sp:0.8})); }
+  if(tp.pad){ const kn=J.knR,ft=J.ftR; if(kn&&ft){ const F=frame(kn,ft,J.f); const c=add(add(kn,mul(F.y,F.L*0.85)),mul(F.z,(ex.anim==='legcurl'||ex.anim==='legCurlLy')?-0.08:0.08)); it.push(rod(add(c,[-0.2,0,0]),add(c,[0.2,0,0]),0.05,PAD,0.3)); } }
   return it;
 }
 
@@ -2546,7 +2738,13 @@ const COACH_LOOKS=[
  ['Street','Buzzcut · 3-Tage-Bart',{hair:'buzz',beard:'stubble',skin:'olive',shorts:[0.45,0.03,0.03]}],
  ['Locken','Locken · Kinnbart',{hair:'curly',beard:'goatee',skin:'tan',shorts:[0.22,0.23,0.25]}],
  ['Glatze & Bart','Glatze · Vollbart',{hair:'bald',beard:'full',skin:'dark',hairCol:[0.03,0.02,0.02],shorts:[0.05,0.09,0.06]}],
- ['Man Bun','Haarknoten · Vollbart',{hair:'man-bun',beard:'full',skin:'light',hairCol:[0.22,0.13,0.06]}]];
+ ['Man Bun','Haarknoten · Vollbart',{hair:'man-bun',beard:'full',skin:'light',hairCol:[0.22,0.13,0.06]}],
+ ['Fitness','Pferdeschwanz · pink',{g:'w',hair:'ponytail',beard:'none',skin:'tan',hairCol:[0.12,0.07,0.04],shorts:[0.75,0.16,0.42]}],
+ ['Blond','Lange Haare · Leggings',{g:'w',hair:'long',beard:'none',skin:'light',hairCol:[0.72,0.55,0.3],shorts:[0.2,0.42,0.7],legs:'leggings'}],
+ ['Bob','Bob · rot',{g:'w',hair:'bob',beard:'none',skin:'olive',hairCol:[0.03,0.025,0.025],shorts:[0.62,0.05,0.08]}],
+ ['Dutt','Dutt · Leggings',{g:'w',hair:'bun',beard:'none',skin:'dark',hairCol:[0.05,0.03,0.02],shorts:[0.45,0.3,0.72],legs:'leggings'}],
+ ['Zopf','Rote Haare · grün',{g:'w',hair:'braid',beard:'none',skin:'light',hairCol:[0.45,0.14,0.05],shorts:[0.08,0.42,0.3]}],
+ ['Pixie','Kurzhaar · schwarz',{g:'w',hair:'pixie',beard:'none',skin:'tan',hairCol:[0.04,0.03,0.03],shorts:[0.06,0.06,0.07],legs:'leggings'}]];
 function curLookIdx(){ try{ return +(localStorage.getItem('mc_look')||0); }catch(e){ return 0; } }
 function applyLook(i,save){ const l=COACH_LOOKS[i]||COACH_LOOKS[0]; G3.setLook(l[2]); if(save){ try{localStorage.setItem('mc_look',String(i))}catch(e){} G3.resetThumbs(); start3DThumbs(); } }
 try{ applyLook(curLookIdx(),false); }catch(e){ console.warn('Look',e); }
@@ -2730,9 +2928,12 @@ function renderSettings(){
   const bak=localStorage.getItem('mc_bak');
   box.innerHTML=`
   <h3 class="vh">🧍 Dein Coach-Look</h3>
-  ${MC.pro?'':'<div class="pcard"><p style="font-size:14px">🔒 3D-Coach mit 6 Looks gibt es in der <b>Vollversion</b>.</p><button class="savebtn" onclick="upsell()">Vollversion holen</button></div><div hidden>'}<div class="pcard"><div class="lookgrid" id="lookGrid">${COACH_LOOKS.map((l,i)=>`<button data-look="${i}" class="${(curLookIdx()===i)?'on':''}"><b>${l[0]}</b><small>${l[1]}</small></button>`).join('')}</div>
+  ${MC.pro?'':'<div class="pcard"><p style="font-size:14px">🔒 3D-Coach mit 12 Looks (Männer & Frauen) gibt es in der <b>Vollversion</b>.</p><button class="savebtn" onclick="upsell()">Vollversion holen</button></div><div hidden>'}<div class="pcard"><div class="lookhd">👨 Männer</div><div class="lookgrid" id="lookGrid">${COACH_LOOKS.map((l,i)=>`${i===6?'</div><div class="lookhd">👩 Frauen</div><div class="lookgrid">':''}<button data-look="${i}" class="${(curLookIdx()===i)?'on':''}"><b>${l[0]}</b><small>${l[1]}</small></button>`).join('')}</div>
     <p class="muted">So sieht deine 3D-Figur in allen Übungen aus.</p></div>${MC.pro?'':'</div>'}
   ${INST.standalone()?'':'<h3 class="vh">📲 App</h3><div class="pcard"><p style="font-size:14px">Leg Muskel-Coach als App auf deinen Startbildschirm – mit eigenem Icon, Vollbild und offline nutzbar.</p><button class="savebtn" onclick="openInstall()">Als App installieren</button></div>'}
+  <h3 class="vh">⚙️ Trainings-Optionen</h3>
+  <div class="pcard"><label class="optrow"><span><b>📊 Durchschnitt im Training</b><small>Ø Gewicht und Ø Wiederholungen bei jeder Übung anzeigen</small></span><input type="checkbox" id="optAvg" ${optOn('avg')?'checked':''}></label>
+    <p class="muted">🔗 <b>Supersätze</b> stellst du im Plan ein: zwischen zwei Übungen auf „Als Supersatz verbinden“ tippen.</p></div>
   <h3 class="vh">⏰ Trainings-Erinnerung</h3>
   <div class="pcard">
     <p style="font-size:14px">Deine Trainingstage: <b>${SCHED.wd.map(i=>WD[i]).join(', ')||'–'}</b> <span class="muted" style="margin:0">(änderbar im Kalender)</span></p>
@@ -2750,7 +2951,8 @@ function renderSettings(){
     <label class="savebtn sec2">📂 Backup laden<input type="file" id="bakIn" accept=".json,application/json" hidden></label>
   </div>`;
   $('remPre').value=rt.pre;
-  $('lookGrid').onclick=e=>{const b=e.target.closest('[data-look]'); if(!b) return; applyLook(+b.dataset.look,true); renderSettings(); toast2('Look übernommen ✓'); };
+  $('optAvg').onchange=e=>{ setOpt('avg',e.target.checked); toast2(e.target.checked?'Durchschnitt wird angezeigt':'Durchschnitt ausgeblendet'); };
+  document.querySelectorAll('.lookgrid').forEach(g=>g.onclick=e=>{const b=e.target.closest('[data-look]'); if(!b) return; applyLook(+b.dataset.look,true); renderSettings(); toast2('Look übernommen ✓'); });
   const saveRt=()=>{ rt={time:$('remTime').value||'17:00',pre:$('remPre').value}; try{localStorage.setItem('mc_rem',JSON.stringify(rt))}catch(e){} $('remG').href=gcalUrl(rt); };
   $('remTime').onchange=saveRt; $('remPre').onchange=saveRt; $('remG').href=gcalUrl(rt);
   $('remIcs').onclick=()=>{ saveRt(); deliverFile(new Blob([icsText(rt)],{type:'text/calendar'}),'muskel-coach-training.ics','Muskel-Coach Trainingstermine'); };
@@ -2770,7 +2972,7 @@ function gcalUrl(rt){ const w=SCHED.wd.length?SCHED.wd:[0], d=nextDateFor(w[0]),
 async function deliverFile(blob,name,title){
   try{ const file=new File([blob],name,{type:blob.type}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title}); return true; } }catch(e){ if(e&&e.name==='AbortError') return false; }
   const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},4000); return true; }
-const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look'];
+const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts'];
 async function makeBackup(){ const data={}; BAK_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) data[k]=v; });
   const photos=await photoAll(); const obj={app:'muskel-coach',v:1,date:new Date().toISOString(),data,photos};
   const ok=await deliverFile(new Blob([JSON.stringify(obj)],{type:'application/json'}),'muskel-coach-backup-'+ymd(new Date())+'.json','Muskel-Coach Backup');
@@ -2796,9 +2998,15 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-22b';
+const APP_VERSION='2026-11-22d';
 const RELEASE='2026-11-22';
 const CHANGES=[
+  ['👩','6 Frauen-Figuren','Im Profil unter „Coach-Look“: Pferdeschwanz, Blond, Bob, Dutt, Zopf, Pixie – mit Sport-BH, Shorts oder Leggings'],
+  ['🔗','Supersätze','Zwei Übungen im Plan verbinden – im Training ohne Pause hintereinander, Pause erst danach'],
+  ['📊','Durchschnittswerte','Ø Gewicht & Ø Wiederholungen im Training und bei jeder Übung (im Profil abschaltbar)'],
+  ['🔥','Grenztest','Maximalkraft testen, Verlauf sehen und passende Trainingsgewichte (60–90 %) bekommen'],
+  ['⚙️','15 neue Maschinen-Übungen','Butterfly, Latzug eng & Untergriff, Rudermaschine, Rückenstrecker, Abduktor/Adduktor, Po-Kickback … – ideal für Einsteiger'],
+  ['🗂️','Neue Gruppe „Maschinen“','Alle geführten Übungen auf einen Blick – mit Tipps zur passenden Gewichtsstufe'],
   ['⏭','Übung überspringen','Gerät belegt oder defekt? Einzelne Übung im Training überspringen – der Rest läuft weiter'],
   ['💾','Abbrechen ohne Verlust','Beim Abbrechen wählen: Bisher Geschafftes speichern oder verwerfen – der Plan bleibt immer erhalten'],
   ['👀','Testlauf','Training nur ansehen und ausprobieren – es wird nichts gespeichert'],
