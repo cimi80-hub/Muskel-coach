@@ -469,6 +469,7 @@
   .topbar2 h1{font-family:Oswald,sans-serif;font-size:22px;letter-spacing:.5px;text-transform:uppercase;line-height:1}
   .topbar2 h1 span{color:var(--acc)}
   .topbar2 small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}
+  .tb-r{display:flex;gap:8px;align-items:center} .tb-chat{background:#1d2a0c;border-color:#4d6b1a}
   .tb-av{width:38px;height:38px;border-radius:50%;background:var(--card2);border:1px solid var(--line);font-size:18px;flex:none}
   .wrap{padding-top:14px !important;padding-bottom:calc(104px + env(safe-area-inset-bottom)) !important}
   .view{animation:vin .22s ease}
@@ -564,7 +565,7 @@
 <header class="topbar2">
   <div class="tb-in">
     <div class="tb-l"><img class="tb-logo" src="icon-192.png" alt=""><div><h1>Muskel<span>·</span>Coach</h1><small id="tbSub">Start</small></div></div>
-    <button class="tb-av" id="openProfile" aria-label="Profil">👤</button>
+    <div class="tb-r"><button class="tb-av tb-chat" id="openChat" aria-label="Chat mit Cem" onclick="openChat()">💬</button><button class="tb-av" id="openProfile" aria-label="Profil">👤</button></div>
   </div>
 </header>
 <div class="wrap" id="home">
@@ -2972,6 +2973,8 @@ function renderSettings(){
   const box=$('setBox'); if(!box) return; let rt={time:'17:00',pre:'30'}; try{Object.assign(rt,JSON.parse(localStorage.getItem('mc_rem')||'{}'))}catch(e){}
   const bak=localStorage.getItem('mc_bak');
   box.innerHTML=`
+  <h3 class="vh">💬 Fragen &amp; Kontakt</h3>
+  <div class="pcard"><p style="font-size:14px;margin-bottom:10px">Fragen zur App, Vollversion kaufen oder Ideen? Schreib ${typeof BUY!=='undefined'?BUY.name:'Cem'} direkt hier im Chat.</p><button class="savebtn" onclick="openChat()">💬 Chat öffnen</button></div>
   <h3 class="vh">🧍 Dein Coach-Look</h3>
   ${MC.pro?'':'<div class="pcard"><p style="font-size:14px">🔒 3D-Coach mit 12 Looks (Männer & Frauen) gibt es in der <b>Vollversion</b>.</p><button class="savebtn" onclick="upsell()">Vollversion holen</button></div><div hidden>'}<div class="pcard"><div class="lookhd">👨 Männer</div><div class="lookgrid" id="lookGrid">${COACH_LOOKS.map((l,i)=>`${i===6?'</div><div class="lookhd">👩 Frauen</div><div class="lookgrid">':''}<button data-look="${i}" class="${(curLookIdx()===i)?'on':''}"><b>${l[0]}</b><small>${l[1]}</small></button>`).join('')}</div>
     <p class="muted">So sieht deine 3D-Figur in allen Übungen aus.</p></div>${MC.pro?'':'</div>'}
@@ -3217,7 +3220,7 @@ updResume();
 /* ===== Demo-Countdown, Basis-Version & Freischalten per Code ===== */
 /* tawk: Chat-ID aus tawk.to (Format 'xxxxxxxx/yyyyyyy'), leer = kein Chat */
 const BUY={ price:'5 €', paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/default', name:'Cem' };
-function openChat(){ window.Tawk_API=window.Tawk_API||{}; const T=window.Tawk_API;
+function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||'').replace(/\D/g,''),'_blank'); return; } window.Tawk_API=window.Tawk_API||{}; const T=window.Tawk_API;
   if(T.maximize&&T.__ready){ T.showWidget&&T.showWidget(); T.maximize(); return; }
   T.onLoad=function(){ T.__ready=true; try{ T.setAttributes&&T.setAttributes({app:'Muskel-Coach'},()=>{}); }catch(e){} T.maximize(); };
   T.onChatMinimized=function(){ try{ T.hideWidget(); }catch(e){} };
