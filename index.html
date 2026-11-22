@@ -487,12 +487,13 @@
   .vh{font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:.8px;font-size:15px;color:var(--mut);margin:22px 2px 10px;font-weight:600}
   .vh.first{margin-top:6px}
   #vHome .hero{margin-top:2px}
-  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .qbtn{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:2px;transition:transform .12s,border-color .15s}
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .qbtn{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 10px;text-align:left;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:9px;row-gap:1px;align-items:center;align-content:center;transition:transform .12s,border-color .15s}
   .qbtn:active{transform:scale(.97);border-color:var(--acc)}
-  .qbtn i{font-style:normal;font-size:24px;margin-bottom:4px}
-  .qbtn b{font-size:15px}
-  .qbtn span{font-size:12px;color:var(--mut)}
+  .qbtn i{font-style:normal;font-size:21px;grid-row:1/3;line-height:1}
+  .qbtn b{font-size:13.5px;line-height:1.2;align-self:end}
+  .qbtn span{align-self:start}
+  .qbtn span{font-size:11px;color:var(--mut);line-height:1.25}
   #vHome .sharecard{margin-top:0}
   .pcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;justify-content:center;gap:2px;background:rgba(20,23,25,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
@@ -575,7 +576,7 @@
 <header class="topbar2">
   <div class="tb-in">
     <div class="tb-l"><img class="tb-logo" src="icon-192.png" alt=""><div><h1>Muskel<span>·</span>Coach</h1><small id="tbSub">Start</small></div></div>
-    <div class="tb-r"><button class="tb-chatpill" id="openChat" aria-label="Chat mit Dr. Muskel Coach" onclick="openChat()"><span class="ci">💬</span><span class="ct"><b>Dr. Muskel Coach</b></span></button></div>
+    <div class="tb-r"><button class="tb-chatpill" id="openChat" aria-label="Chat mit Dr. Muskel Coach" onclick="openChat()"><span class="ci">💬</span><span class="ct"><b>Dr. Muskel Coach</b></span></button><button class="tb-av" id="openProfile" aria-label="Profil">👤</button></div>
   </div>
 </header>
 <div class="wrap" id="home">
