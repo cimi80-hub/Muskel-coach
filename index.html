@@ -881,6 +881,9 @@ const LUNGE = [['hd','sh'],['sh','hp'],['hp','kn2'],['kn2','ft2'],['ft2','to2'],
 const cp = o => JSON.parse(JSON.stringify(o));
 const P = (base,o) => Object.assign(cp(base), o||{});
 const arms = (el,ha) => ({elL:el,haL:ha,elR:[200-el[0],el[1]],haR:[200-ha[0],ha[1]]});
+/* Arme mit Tiefe (3. Wert = wie weit vor dem Körper) + leicht nach vorn geneigter Oberkörper */
+const armsZ = (el,ha) => ({elL:el,haL:ha,elR:[200-el[0],el[1],el[2]||0],haR:[200-ha[0],ha[1],ha[2]||0]});
+const LEAN = {hd:[100,45,12],nk:[100,60,9],shL:[85,64,7],shR:[115,64,7]};
 const shift = (pose,dy,keep=[]) => { const r=cp(pose); for(const k in r) if(!keep.includes(k)) r[k][1]+=dy; return r; };
 
 const benchFlat = '<rect x="44" y="128" width="98" height="7" rx="3" fill="#3b4249"/><path d="M56 135V184M130 135V184" stroke="#3b4249" stroke-width="5"/>';
@@ -900,7 +903,7 @@ const T = {
     A:P(S,{hd:[64,88],sh:[76,104],hp:[116,134],kn:[146,124],ft:[156,184],to:[168,184],el:[92,124],ha:[86,98]}),
     B:P(S,{hd:[64,88],sh:[76,104],hp:[116,134],kn:[146,124],ft:[156,184],to:[168,184],el:[80,78],ha:[82,52]})},
   flyF:{view:'f', cables:[[8,18],[192,18]], statics:tower(0)+tower(190),
-    A:P(F,arms([64,62],[44,58])), B:P(F,arms([82,78],[97,84]))},
+    eqZ:-0.38, A:P(F,Object.assign({},LEAN,armsZ([64,63,3],[44,60,9]))), B:P(F,Object.assign({},LEAN,armsZ([82,78,26],[97,84,44])))},
   pushup:{view:'s',
     A:P(S,{hd:[152,120],sh:[138,128],el:[139,155],ha:[140,183],hp:[90,147],kn:[64,161],ft:[40,177],to:[34,184]}),
     B:P(S,{hd:[152,152],sh:[138,160],el:[116,158],ha:[140,183],hp:[90,170],kn:[64,175],ft:[40,180],to:[34,184]})},
@@ -919,7 +922,7 @@ const T = {
   facepull:{view:'s', cable:[188,60], statics:tower(188),
     A:P(S,{el:[126,64],ha:[150,62]}), B:P(S,{el:[76,58],ha:[98,42]})},
   shrugF:{view:'f', A:P(F), B:P(F,{nk:[100,56],shL:[85,55],shR:[115,55],elL:[81,81],haL:[79,105],elR:[119,81],haR:[121,105]})},
-  uprowF:{view:'f', A:P(F,arms([84,90],[94,112])), B:P(F,arms([64,58],[91,70]))},
+  uprowF:{view:'f', A:P(F,armsZ([84,90,5],[94,112,11])), B:P(F,armsZ([64,58,2],[91,70,13]))},
   neckS:{view:'s', A:P(S,{hd:[94,46]}), B:P(S,{hd:[111,53]})},
   neckF:{view:'f', A:P(F,{hd:[90,47]}), B:P(F,{hd:[110,47]})},
   crunch:{view:'s',
@@ -969,7 +972,7 @@ const T = {
   ohpSeatF:{view:'f', statics:'<rect x="70" y="138" width="60" height="8" rx="3" fill="#3b4249"/><path d="M100 146V184" stroke="#3b4249" stroke-width="5"/>',
     A:P(F,{hd:[100,64],nk:[100,80],shL:[85,84],shR:[115,84],pv:[100,135],hpL:[90,137],hpR:[110,137],knL:[86,150],ftL:[86,184],knR:[114,150],ftR:[114,184],...arms([68,100],[70,76])}),
     B:P(F,{hd:[100,64],nk:[100,80],shL:[85,84],shR:[115,84],pv:[100,135],hpL:[90,137],hpR:[110,137],knL:[86,150],ftL:[86,184],knR:[114,150],ftR:[114,184],...arms([78,58],[82,34])})},
-  revflyF:{view:'f', A:P(F,arms([82,78],[97,74])), B:P(F,arms([62,66],[38,64]))},
+  revflyF:{view:'f', A:P(F,armsZ([82,76,22],[97,72,42])), B:P(F,armsZ([62,66,3],[38,64,4]))},
   cablerow:{view:'s', cable:[188,150], statics:'<rect x="48" y="148" width="62" height="7" rx="3" fill="#3b4249"/><path d="M58 155V184M100 155V184" stroke="#3b4249" stroke-width="5"/><rect x="150" y="140" width="6" height="44" fill="#3b4249"/>'+tower(186),
     A:P(S,{hp:[78,146],sh:[86,96],hd:[92,79],kn:[118,128],ft:[146,152],to:[150,140],el:[110,104],ha:[136,112]}),
     B:P(S,{hp:[78,146],sh:[80,96],hd:[82,78],kn:[118,128],ft:[146,152],to:[150,140],el:[58,108],ha:[84,116]})},
@@ -997,7 +1000,7 @@ T.pullupF.B = shift(T.pullupF.A,-36); Object.assign(T.pullupF.B, arms([64,42],[7
 for(const k of ['pullupF','latpullF','shrugF','revflyF']) T[k.replace(/F$/,'B')]=Object.assign({},T[k],{view:'b'});
 const ease = x => 0.5 - 0.5*Math.cos(Math.PI*x);
 function poseAt(tp, ph){ // ph 0..1 -> Anteil Richtung B
-  const o={}; for(const k in tp.A){ const a=tp.A[k], b=(tp.B[k]||a); o[k]=[a[0]+(b[0]-a[0])*ph, a[1]+(b[1]-a[1])*ph]; } return o;
+  const o={}; for(const k in tp.A){ const a=tp.A[k], b=(tp.B[k]||a); o[k]=[a[0]+(b[0]-a[0])*ph, a[1]+(b[1]-a[1])*ph]; if(a.length>2||b.length>2) o[k].push((a[2]||0)+((b[2]||0)-(a[2]||0))*ph); } return o;
 }
 const L=(p,q,w,c)=>`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
 /* ---- Anatomie-Renderer v2 ---- */
@@ -1436,7 +1439,7 @@ const GVIEW={brust:'f',schultern:'f',nacken:'b',bauch:'f',bizeps:'f',trizeps:'b'
   Object.assign(T,{
     flyS:{view:'s',statics:benchFlat,A:P(S,Object.assign({},LYING,{el:[66,96],ha:[66,70],lw:[24,20]})),B:P(S,Object.assign({},LYING,{el:[70,120],ha:[64,124],lw:[58,66]}))},
     pullover:{view:'s',statics:benchFlat,A:P(S,Object.assign({},LYING,{el:[64,96],ha:[62,72],lw:[10,4]})),B:P(S,Object.assign({},LYING,{el:[42,110],ha:[22,108],lw:[10,4]}))},
-    flyLowF:{view:'f',cables:[[8,176],[192,176]],statics:tower(0)+tower(190),A:P(F,arms([72,96],[56,120])),B:P(F,arms([86,72],[96,58]))},
+    flyLowF:{view:'f',cables:[[8,176],[192,176]],statics:tower(0)+tower(190),eqZ:-0.38,A:P(F,Object.assign({},LEAN,armsZ([72,96,4],[56,118,10]))),B:P(F,Object.assign({},LEAN,armsZ([86,76,24],[96,64,42])))},
     bike:{view:'s',segs:LUNGE,
       A:P(S,{hd:[48,139],sh:[63,149],el:[78,160],ha:[67,152],hp:[104,178],kn:[112,142],ft:[134,150],to:[142,146],kn2:[138,168],ft2:[172,170],to2:[178,164]}),
       B:P(S,{hd:[50,141],sh:[64,150],el:[78,160],ha:[67,152],hp:[104,178],kn:[138,168],ft:[172,170],to:[178,164],kn2:[112,142],ft2:[134,150],to2:[142,146]})},
@@ -2659,7 +2662,7 @@ function joints(tp,ex,p){
     const k2=p.kn2?'kn2':'kn',f2=p.kn2?'ft2':'ft',t2=p.kn2?'to2':'to';
     const lk=p.lwl?p.lwl[0]*K:0.1, lf=p.lwl?p.lwl[1]*K:0.11; J.knR=P3('kn',-lk);J.ftR=P3('ft',-lf);J.toR=P3('to',-lf-0.01);J.knL=P3(k2,lk);J.ftL=P3(f2,lf);J.toL=P3(t2,lf+0.01);
   } else {
-    const fz=v==='b'?-1:1, P3=k=>p[k]?[(p[k][0]-100)*K,Y(p[k][1]),0]:null;
+    const fz=v==='b'?-1:1, P3=k=>p[k]?[(p[k][0]-100)*K,Y(p[k][1]),(p[k][2]||0)*K*fz]:null;
     for(const k of ['shL','shR','elL','elR','haL','haR','hpL','hpR','knL','knR','ftL','ftR','hd','nk','pv']) J[k]=P3(k);
     J.S=mix(J.shL,J.shR,.5);J.H=J.pv||mix(J.hpL,J.hpR,.5);J.f=[0,0,fz];
     J.toL=add(J.ftL,[0,0,0.15*fz]);J.toR=add(J.ftR,[0,0,0.15*fz]);
@@ -2873,7 +2876,7 @@ function parseStatics(str){
 }
 function equipment(tp,ex,JA){
   const items=[], v=tp.view, Yp=y=>(184-y)*K, side=v==='s';
-  const P3=(x,y,lat=0)=>side?[lat,Yp(y),(x-100)*K]:[(x-100)*K,Yp(y),lat];
+  const ez=tp.eqZ||0, P3=(x,y,lat=0)=>side?[lat,Yp(y),(x-100)*K]:[(x-100)*K,Yp(y),lat+ez];
   const handZ=side?(JA.haR?JA.haR[2]:0):0;
   for(const o of parseStatics(tp.statics)){
     const col=COLOR[o.c]||FRAME;
@@ -2899,7 +2902,7 @@ function handProps(tp,ex,J,p){
   const it=[], side=tp.view==='s', lat=side?[1,0,0]:[1,0,0];
   const hL=J.haL,hR=J.haR; if(!hL||!hR) return it;
   const cen=tp.barAt&&p[tp.barAt]?(side?[0,(184-p[tp.barAt][1])*K,(p[tp.barAt][0]-100)*K]:mix(hL,hR,.5)):mix(hL,hR,.5);
-  const Y=y=>(184-y)*K, AP=a=>side?[0,Y(a[1]),(a[0]-100)*K]:[(a[0]-100)*K,Y(a[1]),0];
+  const Y=y=>(184-y)*K, AP=a=>side?[0,Y(a[1]),(a[0]-100)*K]:[(a[0]-100)*K,Y(a[1]),tp.eqZ||0];
   if(ex.prop==='bar'){
     const a=add(cen,[-0.85,0,0]),b=add(cen,[0.85,0,0]); it.push(rod(a,b,0.014,STEEL,0.9));
     for(const sx of [-1,1]){ const c=add(cen,[0.62*sx,0,0]); it.push(rod(add(c,[-0.035,0,0]),add(c,[0.035,0,0]),0.2,PLATE,0.5)); it.push(rod(add(c,[0.04*sx,0,0]),add(c,[0.07*sx,0,0]),0.03,STEEL,0.8)); }
@@ -3263,7 +3266,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-22k';
+const APP_VERSION='2026-11-22l';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎬','Neue 3D-Ansicht','Wie ein Bewegungslabor: Muskel-Karte, Ablauf mit Schieberegler zum Vor- und Zurückspulen, Tempo, Kamera schräg/seitlich/hinten'],
