@@ -100,6 +100,18 @@
   #anim.is3d{padding-top:0}
   .lvfig canvas.g3d{height:100%;aspect-ratio:auto;max-height:none}
   img.th3d{width:100%;height:100%;object-fit:cover;display:block}
+  .wnpop{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px}
+  .wnpop.on{display:flex;animation:vin .25s ease}
+  .wnbox{position:relative;background:var(--card);border:1px solid #3c4d1a;border-radius:20px;padding:18px 16px 16px;width:100%;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .wnx{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:50%;background:var(--card2);font-size:16px;color:var(--mut)}
+  .wnhd{display:flex;gap:10px;align-items:center;padding-right:36px} .wnhd>span{font-size:30px}
+  .wnhd b{display:block;font-family:Oswald,sans-serif;text-transform:uppercase;font-size:22px;color:var(--acc);line-height:1.1} .wnhd small{color:var(--mut);font-size:12.5px}
+  .wnbox ul{list-style:none;margin:14px 0 2px;display:flex;flex-direction:column;gap:10px}
+  .wnbox li{display:flex;gap:10px;align-items:flex-start} .wnbox li i{font-style:normal;font-size:20px;width:26px;text-align:center}
+  .wnbox li b{display:block;font-size:14.5px} .wnbox li small{display:block;color:var(--mut);font-size:12.5px;line-height:1.35}
+  .wnbanner{width:100%;display:flex;gap:12px;align-items:center;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#1d2410,#171a1c 80%);border:1px solid #3c4d1a}
+  .wnbanner>span{font-size:24px} .wnbanner div{flex:1} .wnbanner b{display:block;font-size:14px} .wnbanner small{display:block;font-size:12px;color:var(--mut)}
+  .wnbanner em{font-style:normal;font-size:10.5px;font-weight:800;background:var(--acc);color:#111;border-radius:6px;padding:2px 7px}
   .newtag{font-size:10px;font-weight:800;background:var(--acc);color:#111;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:2px}
   .lookgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .lookgrid button{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
@@ -1320,7 +1332,7 @@ function renderGrid(){
   $('grid').innerHTML = items.length ? items.map(e=>`
     <button class="card" data-id="${e.id}">
       <span class="fig">${figure(e,0.65)}</span>
-      <span class="meta"><h3>${esc(e.name)} ${favs.includes(e.id)?'<span class="fav">★</span>':''}${e.neu?'<span class="newtag">NEU</span>':''}</h3><div class="sub">${esc(e.prim)}</div></span>
+      <span class="meta"><h3>${esc(e.name)} ${favs.includes(e.id)?'<span class="fav">★</span>':''}${isNewEx(e)?'<span class="newtag">NEU</span>':''}</h3><div class="sub">${esc(e.prim)}</div></span>
     </button>`).join('') : `<div class="empty">${group==='favs'?'Noch nichts gemerkt – öffne eine Übung und tippe auf „☆ Merken“.':'Keine Übung gefunden.'}</div>`;
 }
 
@@ -2009,7 +2021,7 @@ function heroLoop(){
   requestAnimationFrame(heroLoop);
 }
 function renderRecords(){
-  const nb=$('nagBox'); if(nb){ nb.innerHTML=backupNag(); const n=$('nagBak'); if(n) n.onclick=()=>{ setView('prof'); setTimeout(()=>{const b=$('bakMake'); if(b) b.scrollIntoView({behavior:'smooth',block:'center'});},120); }; }
+  const nb=$('nagBox'); if(nb){ nb.innerHTML=(typeof newBanner==='function'?newBanner():'')+backupNag(); const wb=$('wnBan'); if(wb) wb.onclick=()=>showWhatsNew(true); const n=$('nagBak'); if(n) n.onclick=()=>{ setView('prof'); setTimeout(()=>{const b=$('bakMake'); if(b) b.scrollIntoView({behavior:'smooth',block:'center'});},120); }; }
   const box=$('recBox'); if(!box) return; const all=allRecords(), wk=ymd(new Date(Date.now()-7*864e5));
   box.innerHTML = all.length ? `<div class="reclist">${all.map(x=>`<button class="recrow" data-rex="${x.id}"><span class="rn">${esc(x.ex.name)}${x.rec.date>=wk?' <em>NEU</em>':''}</span><span class="rk">${x.rec.kg?`${fmtKg(x.rec.kg)} kg <small>× ${x.rec.reps}</small>`:`${x.rec.reps} <small>${holdOf(x.id)?'Sek.':'Wdh.'}</small>`}</span><span class="rd">${fmtD(parseD(x.rec.date))}</span></button>`).join('')}</div>`
     : `<div class="recempty">Noch keine Rekorde. Starte im Plan „▶ Training starten“ und trag deine Kilo ein – die App merkt sich automatisch dein schwerstes Gewicht pro Übung und feiert jeden neuen Rekord mit dir. 🏆</div>`;
@@ -2692,11 +2704,43 @@ function liveHelpers(it,ex){ if(!it||it.id==='laufband') return ''; const cur=it
 function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3) return ''; if(bak&&ymd(addD(new Date(),-14))<=bak) return '';
   return `<button class="nag" id="nagBak">💾 <span><b>${bak?'Letzte Sicherung ist über 2 Wochen alt':'Deine Daten sind noch nicht gesichert'}</b><small>Jetzt Backup erstellen, damit nichts verloren geht ›</small></span></button>`; }
 
+
+/* =====================================================================
+   „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
+   Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
+   ===================================================================== */
+const APP_VERSION='2026-11-22a';
+const RELEASE='2026-11-22';
+const CHANGES=[
+  ['🏋️','31 neue Übungen','Brust, Bauch, Schultern, Trizeps, Bizeps – mit Kurzhantel, Langhantel & Seilzug'],
+  ['✊','Neue Gruppe „Unterarme“','Handgelenk-Curls, Farmer’s Walk, Handgelenk-Roller, Dead Hang u. v. m.'],
+  ['🧍','Menschlichere 3D-Figur','Glatte Haut, echtes Gesicht – und im Profil 6 Coach-Looks zur Auswahl'],
+  ['📋','Deine Pläne bleiben gleich','Neue Übungen kannst du im Plan über „Übung hinzufügen“ einbauen']
+];
+const NEW_DAYS=5;
+const isFresh=(d)=>{ const until=addD(parseD(d||RELEASE),NEW_DAYS); return ymd(new Date())<=ymd(until); };
+const isNewEx=e=>!!(e&&e.neu&&isFresh(e.neuDate||RELEASE));
+function whatsNewHTML(){ const d=parseD(RELEASE);
+  return `<div class="wnbox"><button class="wnx" id="wnX" aria-label="Schließen">✕</button>
+    <div class="wnhd"><span>✨</span><div><b>Neu in Muskel-Coach</b><small>Update vom ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}</small></div></div>
+    <ul>${CHANGES.map(c=>`<li><i>${c[0]}</i><div><b>${esc(c[1])}</b><small>${esc(c[2])}</small></div></li>`).join('')}</ul>
+    <button class="savebtn" id="wnOk">Alles klar 💪</button></div>`; }
+function showWhatsNew(force){ let seen=''; try{ seen=localStorage.getItem('mc_seen_ver')||''; }catch(e){}
+  if(!force&&seen===APP_VERSION) return;
+  let ov=$('wnPop'); if(!ov){ ov=document.createElement('div'); ov.id='wnPop'; ov.className='wnpop'; document.body.appendChild(ov); }
+  ov.innerHTML=whatsNewHTML(); ov.classList.add('on');
+  const close=()=>{ ov.classList.remove('on'); try{ localStorage.setItem('mc_seen_ver',APP_VERSION); }catch(e){} };
+  $('wnX').onclick=close; $('wnOk').onclick=close; ov.onclick=e=>{ if(e.target===ov) close(); }; }
+function newBanner(){ if(!isFresh(RELEASE)) return '';
+  return `<button class="wnbanner" id="wnBan"><span>✨</span><div><b>Neu: ${esc(CHANGES[0][1])}${CHANGES.length>1?` &amp; ${CHANGES.length-1} weitere Neuerung${CHANGES.length>2?'en':''}`:''}</b><small>Tippen für alle Neuigkeiten</small></div><em>NEU</em></button>`; }
+(function waitGate(){ if(document.getElementById('gate')) return setTimeout(waitGate,500); setTimeout(()=>showWhatsNew(false),700); })();
+
 setTimeout(()=>{ try{ start3DThumbs(); }catch(e){ console.warn('3D',e); } },400);
 renderSummary(); renderChips(); renderGrid(); (function(){let t='home';try{t=localStorage.getItem('mc_tab')||'home'}catch(e){} setView(t);})(); route(); heroLoop(); initShare();
 $('tback').onclick=closeLive; $('resume').onclick=openLive;
 $('restPlus').onclick=()=>{ if(restEnd){ restEnd+=15000; restTotal+=15; tickLive(); } };
 $('restSkip').onclick=()=>{ restEnd=0; tickLive(); };
+
 updResume();
 </script>
 <script>
