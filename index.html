@@ -129,6 +129,15 @@
   .wnbox ul{list-style:none;margin:14px 0 2px;display:flex;flex-direction:column;gap:10px}
   .wnbox li{display:flex;gap:10px;align-items:flex-start} .wnbox li i{font-style:normal;font-size:20px;width:26px;text-align:center}
   .wnbox li b{display:block;font-size:14.5px} .wnbox li small{display:block;color:var(--mut);font-size:12.5px;line-height:1.35}
+  /* Was-ist-neu: passt immer auf den Bildschirm */
+  .wnpop.wn{padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+  .wnbox.wnfit{display:flex;flex-direction:column;max-height:calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:14px 14px 12px}
+  .wnfit .wnhd b{font-size:19px} .wnfit .wnhd>span{font-size:24px}
+  .wnfit ul{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:10px -4px 8px;padding:0 4px;gap:var(--wg,9px)}
+  .wnfit li i{font-size:calc(var(--wf,14px) + 3px);width:22px}
+  .wnfit li b{font-size:var(--wf,14px);line-height:1.25} .wnfit li small{font-size:calc(var(--wf,14px) - 2px);display:-webkit-box;-webkit-line-clamp:var(--wl,3);-webkit-box-orient:vertical;overflow:hidden}
+  .wnfit .wnmore{flex:none;background:none;border:0;color:var(--acc);font-weight:700;font-size:13px;padding:2px 0 8px}
+  .wnfit .savebtn{flex:none;margin-top:0}
   .wnbanner{width:100%;display:flex;gap:12px;align-items:center;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#1d2410,#171a1c 80%);border:1px solid #3c4d1a}
   .wnbanner>span{font-size:24px} .wnbanner div{flex:1} .wnbanner b{display:block;font-size:14px} .wnbanner small{display:block;font-size:12px;color:var(--mut)}
   .wnbanner em{font-style:normal;font-size:10.5px;font-weight:800;background:var(--acc);color:#111;border-radius:6px;padding:2px 7px}
@@ -3037,7 +3046,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
 const APP_VERSION='2026-11-22e';
 const RELEASE='2026-11-22';
 const CHANGES=[
-  ['💬','Vollversion per WhatsApp','„Vollversion“ per WhatsApp schreiben → PayPal-Adresse kommt → persönlicher Code, der nur einmal gilt'],
+  ['💬','Vollversion per Chat','Direkt in der App „Vollversion“ schreiben → PayPal-Adresse kommt → persönlicher Code, der nur einmal gilt'],
   ['👩','6 Frauen-Figuren','Im Profil unter „Coach-Look“: Pferdeschwanz, Blond, Bob, Dutt, Zopf, Pixie – mit Sport-BH, Shorts oder Leggings'],
   ['🔗','Supersätze','Zwei Übungen im Plan verbinden – im Training ohne Pause hintereinander, Pause erst danach'],
   ['📊','Durchschnittswerte','Ø Gewicht & Ø Wiederholungen im Training und bei jeder Übung (im Profil abschaltbar)'],
@@ -3055,17 +3064,23 @@ const CHANGES=[
 const NEW_DAYS=5;
 const isFresh=(d)=>{ const until=addD(parseD(d||RELEASE),NEW_DAYS); return ymd(new Date())<=ymd(until); };
 const isNewEx=e=>!!(e&&e.neu&&isFresh(e.neuDate||RELEASE));
-function whatsNewHTML(){ const d=parseD(RELEASE);
-  return `<div class="wnbox"><button class="wnx" id="wnX" aria-label="Schließen">✕</button>
+const WN_SHOW=5; /* so viele Neuigkeiten sieht man sofort, der Rest per „weitere anzeigen“ */
+function whatsNewHTML(all){ const d=parseD(RELEASE); const n=CHANGES.length;
+  const list=all?CHANGES:CHANGES.slice(0,WN_SHOW);
+  /* je mehr Einträge, desto kompakter: Schriftgröße, Abstand, Textzeilen */
+  const k=list.length, f=k<=3?15:k<=5?14:k<=8?13:12.5, gap=k<=5?10:7, lines=k<=3?3:k<=6?2:1;
+  return `<div class="wnbox wnfit" style="--wf:${f}px;--wg:${gap}px;--wl:${lines}"><button class="wnx" id="wnX" aria-label="Schließen">✕</button>
     <div class="wnhd"><span>✨</span><div><b>Neu in Muskel-Coach</b><small>Update vom ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}</small></div></div>
-    <ul>${CHANGES.map(c=>`<li><i>${c[0]}</i><div><b>${esc(c[1])}</b><small>${esc(c[2])}</small></div></li>`).join('')}</ul>
+    <ul>${list.map(c=>`<li><i>${c[0]}</i><div><b>${esc(c[1])}</b><small>${esc(c[2])}</small></div></li>`).join('')}</ul>
+    ${!all&&n>WN_SHOW?`<button class="wnmore" id="wnMore">+ ${n-WN_SHOW} weitere Neuerung${n-WN_SHOW>1?'en':''} anzeigen</button>`:''}
     <button class="savebtn" id="wnOk">Alles klar 💪</button></div>`; }
 function showWhatsNew(force){ let seen=''; try{ seen=localStorage.getItem('mc_seen_ver')||''; }catch(e){}
   if(!force&&seen===APP_VERSION) return;
   let ov=$('wnPop'); if(!ov){ ov=document.createElement('div'); ov.id='wnPop'; ov.className='wnpop'; document.body.appendChild(ov); }
-  ov.innerHTML=whatsNewHTML(); ov.classList.add('on');
+  ov.classList.add('wn');
   const close=()=>{ ov.classList.remove('on'); try{ localStorage.setItem('mc_seen_ver',APP_VERSION); }catch(e){} };
-  $('wnX').onclick=close; $('wnOk').onclick=close; ov.onclick=e=>{ if(e.target===ov) close(); }; }
+  const draw=all=>{ ov.innerHTML=whatsNewHTML(all); $('wnX').onclick=close; $('wnOk').onclick=close; const m=$('wnMore'); if(m) m.onclick=e=>{ e.stopPropagation(); draw(true); }; };
+  draw(false); ov.classList.add('on'); ov.onclick=e=>{ if(e.target===ov) close(); }; }
 function newBanner(){ if(!isFresh(RELEASE)) return '';
   return `<button class="wnbanner" id="wnBan"><span>✨</span><div><b>Neu: ${esc(CHANGES[0][1])}${CHANGES.length>1?` &amp; ${CHANGES.length-1} weitere Neuerung${CHANGES.length>2?'en':''}`:''}</b><small>Tippen für alle Neuigkeiten</small></div><em>NEU</em></button>`; }
 (function waitGate(){ const gg=document.getElementById('gate'); if(gg&&gg.style.display!=='none') return setTimeout(waitGate,500); setTimeout(()=>showWhatsNew(false),700); })();
