@@ -57,8 +57,25 @@
   .card .sub{color:var(--mut);font-size:12.5px;margin-top:3px}
   .fav{color:var(--acc)}
   .empty{color:var(--mut);padding:30px 0;text-align:center}
-  #gate{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 30%,#22300f,#0d0f10 65%);display:flex;align-items:center;justify-content:center;padding:24px}
-  #gate .box{width:100%;max-width:340px;text-align:center}
+  #gate{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 30%,#22300f,#0d0f10 65%);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+  #gate .box p b{font-weight:700}
+  .buyrow{display:flex;flex-direction:column;gap:8px;margin:6px 0 14px}
+  .buy{display:block;padding:13px;border-radius:13px;font-weight:800;text-decoration:none;font-size:15px}
+  .buy.wa{background:#25D366;color:#fff} .buy.pp{background:#ffc439;color:#111}
+  .codelbl{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+  #gate .later{background:none;color:var(--mut);font-weight:600;font-size:14px;margin-top:6px}
+  .demopill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom));z-index:20;padding:7px 14px;border-radius:999px;background:rgba(29,36,16,.95);border:1px solid #5b7a1f;color:#e9ffc2;font-size:12.5px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+  .demopill b{color:var(--acc)} .demopill.hot{background:rgba(58,26,10,.95);border-color:#ff7a45;color:#ffd6c2} .demopill.hot b{color:#ff9a6e}
+  .cd{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0 6px} .cd b{font-family:Oswald,sans-serif;font-size:64px;line-height:1;color:var(--acc)} .cd span{text-align:left;font-size:13px;color:var(--mut);font-weight:600}
+  .cd.hot b{color:#ff7a45}
+  .cddots{display:flex;gap:5px;justify-content:center;margin-bottom:10px} .cddots i{width:18px;height:6px;border-radius:3px;background:#2a3036} .cddots i.on{background:var(--acc)} .cddots i.hot{background:#ff7a45}
+  .profeat{list-style:none;text-align:left;display:flex;flex-direction:column;gap:7px;margin:4px 0 12px;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:14px}
+  .profeat li{display:flex;gap:9px;align-items:flex-start} .profeat i{font-style:normal;font-size:18px;width:24px;text-align:center} .profeat b{display:block;font-size:13.5px} .profeat small{display:block;font-size:11.5px;color:var(--mut);line-height:1.3}
+  .card .fig{position:relative} .lock{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.7);border:1px solid #5b7a1f;color:#e9ffc2;font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px}
+  .teaser{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;text-align:center;margin-top:6px} .tlock{font-size:44px} .teaser h3{font-family:Oswald,sans-serif;text-transform:uppercase;font-size:22px;margin:4px 0}
+  .teaser p{color:var(--mut);font-size:14px} .teaser ul{list-style:none;text-align:left;display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}
+  .teaser li{display:flex;gap:9px} .teaser li i{font-style:normal;font-size:18px;width:24px} .teaser li b{display:block;font-size:14px} .teaser li small{color:var(--mut);font-size:12px}
+  #gate .box{width:100%;max-width:360px;text-align:center;margin:auto}
   #gate h2{font-family:Oswald,sans-serif;font-size:32px;text-transform:uppercase;margin-top:10px}
   #gate h2 span{color:var(--acc)}
   #gate p{color:var(--mut);font-size:14px;margin:6px 0 18px}
@@ -112,6 +129,20 @@
   .wnbanner{width:100%;display:flex;gap:12px;align-items:center;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#1d2410,#171a1c 80%);border:1px solid #3c4d1a}
   .wnbanner>span{font-size:24px} .wnbanner div{flex:1} .wnbanner b{display:block;font-size:14px} .wnbanner small{display:block;font-size:12px;color:var(--mut)}
   .wnbanner em{font-style:normal;font-size:10.5px;font-weight:800;background:var(--acc);color:#111;border-radius:6px;padding:2px 7px}
+  .instpop{position:fixed;inset:0;z-index:72;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;padding:16px 16px calc(70px + env(safe-area-inset-bottom))}
+  .instpop.on{display:flex;animation:vin .25s ease}
+  .instbox{position:relative;background:var(--card);border:1px solid #3c4d1a;border-radius:20px;padding:16px;width:100%;max-width:420px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .insthd{display:flex;gap:12px;align-items:center;padding-right:36px;margin-bottom:8px} .insthd img{width:54px;height:54px;border-radius:13px}
+  .insthd b{display:block;font-family:Oswald,sans-serif;text-transform:uppercase;font-size:21px;color:var(--acc);line-height:1.1} .insthd small{color:var(--mut);font-size:12px}
+  .instbox p{font-size:14px;margin:6px 0} .instbox .later{display:block;margin:8px auto 0;color:var(--mut);font-weight:600;font-size:14px}
+  .isteps{list-style:none;display:flex;flex-direction:column;gap:8px;margin:10px 0}
+  .isteps li{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px} .isteps li div{flex:1;font-size:13.5px}
+  .isteps .n{width:26px;height:26px;border-radius:50%;background:var(--acc);color:#111;font-weight:800;display:grid;place-items:center;flex:none;font-size:13px}
+  .isteps .ic{flex:none;width:34px;height:34px;border-radius:9px;background:#2a2f35;display:grid;place-items:center}
+  .instarrow{position:fixed;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));transform:translateX(-50%);font-size:34px;color:var(--acc);animation:bob 1s ease-in-out infinite;text-shadow:0 0 12px rgba(198,255,61,.7)}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+  .instcard{width:100%;display:flex;gap:12px;align-items:center;text-align:left;margin-top:12px;padding:10px 14px;border-radius:14px;background:linear-gradient(135deg,#1d2410,#171a1c 80%);border:1px solid #5b7a1f}
+  .instcard img{width:42px;height:42px;border-radius:10px} .instcard div{flex:1} .instcard b{display:block;font-size:15px} .instcard small{display:block;font-size:12px;color:var(--mut)} .instcard em{font-style:normal;font-size:24px;color:var(--acc)}
   .newtag{font-size:10px;font-weight:800;background:var(--acc);color:#111;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:2px}
   .lookgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .lookgrid button{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
@@ -339,6 +370,16 @@
   .lvnav button[disabled]{opacity:.35}
   .lvnav button.pri{flex:2;background:var(--acc);color:#111;border-color:var(--acc)}
   .lvnav button.fin{background:#ff7a45;border-color:#ff7a45}
+  .testbtn{width:100%;margin-top:8px;padding:11px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px;color:var(--txt)}
+  .testbtn small{color:var(--mut);font-weight:500}
+  .lvtest{margin:8px 0 0;padding:9px 12px;border-radius:11px;background:#10222e;border:1px solid #2f6a8a;font-size:13px;color:#bfe6ff}
+  .lvchips button.skip{background:#2a2216;border-color:#7a5a1f;color:#ffcf7a}
+  .lvskip{width:100%;margin-top:10px;padding:12px;border-radius:12px;background:var(--card);border:1px dashed #7a5a1f;color:#ffcf7a;font-weight:700;font-size:14px}
+  .lvskip small{display:block;font-weight:500;font-size:11.5px;color:var(--mut)}
+  .lvcx{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+  .lvcx b{font-size:15px} .lvcx span{font-size:12.5px;color:var(--mut)}
+  .lvcx button{padding:12px;border-radius:11px;background:var(--card2);border:1px solid var(--line);font-weight:700;font-size:14px}
+  .lvcx button.pri{background:var(--acc);color:#111;border-color:var(--acc)}
   .lvend{width:100%;margin-top:8px;padding:11px;border-radius:11px;color:var(--mut);font-size:13.5px}
   .restbar{position:fixed;left:0;right:0;bottom:0;z-index:12;background:#151a12;border-top:1px solid #3c4d1a;transform:translateY(110%);transition:transform .25s;padding-bottom:env(safe-area-inset-bottom)}
   .restbar.on{transform:none}
@@ -493,6 +534,7 @@
 
   <section class="view" id="vHome">
     <div id="summary"></div>
+    <div id="instBox"></div>
     <div id="nagBox"></div>
     <h3 class="vh">Schnellzugriff</h3>
     <div class="qgrid">
@@ -505,7 +547,6 @@
     <div id="recBox"></div>
     <h3 class="vh">Teilen</h3>
     <div class="sharecard"><b>📲 Muskel-Coach teilen</b><span>Schick die App an Freunde oder Familie – sie öffnen den Link einfach im Browser.</span>
-    <label class="pwck"><input type="checkbox" id="sendPw"> Kennwort mitschicken</label>
     <div class="shbtns"><a class="wa" id="waApp" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg> WhatsApp</a><button id="copyApp">🔗 Link kopieren</button></div><small id="copyMsg"></small></div>
   <p class="note">Hinweis: Die Anleitungen ersetzen keine Trainer- oder Arztberatung. Wärm dich vorher auf, beginne mit leichtem Gewicht und hör bei Schmerzen sofort auf.</p>
   
@@ -611,6 +652,33 @@
 </div>
 
 <script>
+/* ===== Demo / Basis / Vollversion ===== */
+const MC=(function(){ const H='1o8nfmawtnm', TRIAL=10, D=864e5;
+  let unlocked=false; try{ unlocked=localStorage.getItem('mc_unlock')===H; }catch(e){}
+  let st=0; try{ st=+localStorage.getItem('mc_trial')||0; }catch(e){}
+  const ck=(document.cookie.match(/(?:^|; )mc_trial=(\d+)/)||[])[1]; if(ck&&(!st||+ck<st)) st=+ck;
+  if(!st) st=Date.now();
+  const left=Math.max(0,TRIAL-Math.floor((Date.now()-st)/D));
+  const o={H,TRIAL,unlocked,start:st,left,trial:!unlocked&&left>0,pro:unlocked||left>0};
+  const idbPut=v=>{ try{ const r=indexedDB.open('mc_meta',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>{ try{ r.result.transaction('kv','readwrite').objectStore('kv').put(v,'trial'); }catch(e){} }; }catch(e){} };
+  o.persist=(v,idb)=>{ try{ localStorage.setItem('mc_trial',String(v)); }catch(e){} try{ document.cookie='mc_trial='+v+';max-age=315360000;path=/;SameSite=Lax'; }catch(e){} if(idb) idbPut(v); };
+  o.persist(st,false);
+  // Datenbank kann einen früheren Start kennen (z. B. wenn nur ein Teil gelöscht wurde)
+  try{ const r=indexedDB.open('mc_meta',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv');
+    r.onsuccess=()=>{ try{ const q=r.result.transaction('kv').objectStore('kv').get('trial'); q.onsuccess=()=>{ const v=+q.result||0;
+      if(!v||v>st){ idbPut(st); return; }
+      if(v<st){ o.persist(v,false); const nl=Math.max(0,TRIAL-Math.floor((Date.now()-v)/D)); if(!unlocked&&(nl>0)!==(left>0)) location.reload(); } }; }catch(e){} }; }catch(e){}
+  return o; })();
+const FREE_EX=['laufband','bankdruecken','schraegbank-kh','butterfly-kabel','liegestuetze','schulterdruecken-kh','schulterpresse-maschine','seitheben','face-pulls','shrugs',
+  'crunches','beinheben-haengend','unterarmstuetz','mountain-climbers','kh-curls','hammer-curls','trizepsdruecken-kabel','ueberkopf-trizeps','klimmzuege','latzug',
+  'kh-rudern','kabelrudern-sitzend','kniebeuge','ausfallschritte','beinpresse','beinstrecker','beinbeuger','wadenheben'];
+const PRO_FEATURES=[['🏋️','Alle 75 Übungen','statt 28 – inkl. Unterarme, Kabel- & Freihantel-Übungen'],['🧍','3D-Bodybuilder','drehbar von allen Seiten, Muskeln leuchten, 6 Coach-Looks'],
+  ['🏆','Rekord-Speicher','merkt sich dein schwerstes Gewicht & feiert jeden neuen Rekord'],['📈','Fortschritt','Statistik, Körper & Maße, Fortschrittsfotos, 21 Abzeichen'],
+  ['🧮','Profi-Helfer','Scheiben-Rechner, Maximalkraft, Aufwärmsätze im Training']];
+const isLocked=e=>!MC.pro&&!!e&&!FREE_EX.includes(e.id);
+function upsell(why){ if(window.MC_GATE) window.MC_GATE.show(MC.trial?'trial':'basic',why); }
+function proTeaser(title){ return `<div class="teaser"><div class="tlock">🔒</div><h3>${title}</h3><p>Diese Funktion gehört zur <b>Vollversion</b> – einmalig nur <b>5 €</b>, danach für immer frei.</p>
+  <ul>${PRO_FEATURES.map(f=>`<li><i>${f[0]}</i><div><b>${f[1]}</b><small>${f[2]}</small></div></li>`).join('')}</ul><button class="savebtn" onclick="upsell()">Vollversion holen</button></div>`; }
 /* ============ Figuren-Engine ============ */
 const S = {hd:[100,46],sh:[100,64],el:[101,90],ha:[102,115],hp:[100,115],kn:[101,150],ft:[100,184],to:[113,184]};
 const F = {hd:[100,44],nk:[100,60],shL:[85,64],shR:[115,64],elL:[81,90],haL:[79,114],elR:[119,90],haR:[121,114],
@@ -1120,9 +1188,9 @@ const APP_LINK_FALLBACK='https://cimi80-hub.github.io/Muskel-coach/';
 const WA_ICON='<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
 function appUrl(){ if(/^https?:/.test(location.protocol)) return location.href.split('#')[0]; return APP_LINK_FALLBACK; }
 const waHref=t=>'https://wa.me/?text='+encodeURIComponent(t);
-function appShareText(pw){ return '💪 Muskel-Coach – meine Trainings-App mit Übungen & Vorführung, Trainingsplan, Kalender und Kalorienrechner:\n'+appUrl()+(pw?'\n🔒 Kennwort: 45575':''); }
-function initShare(){ const upd=()=>{ $('waApp').href=waHref(appShareText($('sendPw').checked)); }; $('sendPw').onchange=upd; upd();
-  $('copyApp').onclick=async()=>{ const t=appShareText($('sendPw').checked); try{ await navigator.clipboard.writeText(t); $('copyMsg').textContent='Kopiert ✓ – jetzt in WhatsApp einfügen'; }catch(e){ $('copyMsg').textContent=t; } }; }
+function appShareText(){ return '💪 Muskel-Coach – Trainings-App mit 3D-Übungen, Trainingsplan, Kalender und Kalorienrechner. 10 Tage kostenlos testen:\n'+appUrl(); }
+function initShare(){ $('waApp').href=waHref(appShareText());
+  $('copyApp').onclick=async()=>{ const t=appShareText(); try{ await navigator.clipboard.writeText(t); $('copyMsg').textContent='Kopiert ✓ – jetzt in WhatsApp einfügen'; }catch(e){ $('copyMsg').textContent=t; } }; }
 
 /* ============ Kalorien (MET-Methode) ============ */
 const MET_CAT={big:6.0,mid:5.0,iso:3.5,core:3.8,hiit:8.0,light:2.3};
@@ -1331,14 +1399,14 @@ function renderGrid(){
   $('sectitle').textContent = (group==='alle'?'Alle Übungen':group==='favs'?'Gemerkte Übungen':gname(group)) + ` · ${items.length}`;
   $('grid').innerHTML = items.length ? items.map(e=>`
     <button class="card" data-id="${e.id}">
-      <span class="fig">${figure(e,0.65)}</span>
+      <span class="fig">${figure(e,0.65)}${isLocked(e)?'<span class="lock">🔒 Vollversion</span>':''}</span>
       <span class="meta"><h3>${esc(e.name)} ${favs.includes(e.id)?'<span class="fav">★</span>':''}${isNewEx(e)?'<span class="newtag">NEU</span>':''}</h3><div class="sub">${esc(e.prim)}</div></span>
     </button>`).join('') : `<div class="empty">${group==='favs'?'Noch nichts gemerkt – öffne eine Übung und tippe auf „☆ Merken“.':'Keine Übung gefunden.'}</div>`;
 }
 
 let cur=null, raf=0, t0=0, speed=1, paused=false, pausedAt=0;
 function openEx(id, push=true){
-  const e=EX.find(x=>x.id===id); if(!e) return;
+  const e=EX.find(x=>x.id===id); if(!e) return; if(isLocked(e)){ upsell(e.name); return; }
   cur=e;
   const yt='https://www.youtube.com/results?search_query='+encodeURIComponent(e.name.replace(/\(.*?\)/g,'')+' richtige Ausführung');
   $('detail').innerHTML=`
@@ -1418,7 +1486,7 @@ function closeEx(){
 function updFav(){ const on=cur&&favs.includes(cur.id); $('favbtn').textContent=on?'★ Gemerkt':'☆ Merken'; $('favbtn').style.color=on?'var(--acc)':''; }
 
 $('chips').onclick=e=>{const b=e.target.closest('.gcard'); if(!b)return; group=b.dataset.g; renderChips(); renderGrid();};
-$('grid').onclick=e=>{const b=e.target.closest('.card'); if(b) openEx(b.dataset.id);};
+$('grid').onclick=e=>{const b=e.target.closest('.card'); if(!b) return; const x=exById(b.dataset.id); if(isLocked(x)) return upsell(x.name); openEx(b.dataset.id);};
 $('q').oninput=e=>{query=e.target.value; renderGrid();};
 $('back').onclick=closeEx;
 $('favbtn').onclick=()=>{ if(!cur)return; favs=favs.includes(cur.id)?favs.filter(x=>x!==cur.id):[...favs,cur.id]; saveFavs(); updFav(); };
@@ -1478,7 +1546,7 @@ function setView(v){
   for(const k in VIEWMAP){ const el=$(VIEWMAP[k]); if(el) el.style.display=k===v?'':'none'; }
   document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   $('tbSub').textContent=VIEWNAME[v];
-  if(v==='plan') renderPlan(); else if(v==='cal') renderCal(); else if(v==='prof'){ for(const f of [fillForm,renderResults,renderSettings]){ try{ f(); }catch(e){ console.warn(f.name,e); } } } else if(v==='prog') renderProg(); else if(v==='home') renderSummary(); else { renderChips(); renderGrid(); }
+  if(v==='plan') renderPlan(); else if(v==='cal') renderCal(); else if(v==='prof'){ for(const f of [fillForm,renderResults,renderSettings]){ try{ f(); }catch(e){ console.warn(f.name,e); } } } else if(v==='prog'){ if(MC.pro) renderProg(); else $('vProg').innerHTML=proTeaser('Fortschritt: Statistik, Körper & Abzeichen'); } else if(v==='home') renderSummary(); else { renderChips(); renderGrid(); }
   try{localStorage.setItem('mc_tab',v)}catch(e){}
   if(changed) window.scrollTo({top:0});
 }
@@ -1506,7 +1574,8 @@ function renderPlan(){
     <div class="curplan">Aktueller Plan: <b>${PRESETS[plan.type]?PRESETS[plan.type].name:'Eigener Plan'}</b> · ${plan.days.length} Tage</div>
     <div class="seg" id="days" style="margin-top:8px">${plan.days.map((x,i)=>`<button data-d="${i}" class="${i===day?'on':''}">${plan.days.length>4?'T'+(i+1):'Tag '+(i+1)}</button>`).join('')}${plan.days.length<7?'<button data-add="1" aria-label="Tag hinzufügen">＋</button>':''}</div>
     <input class="dayname" id="dayname" value="${esc(d.name)}" maxlength="40" aria-label="Name des Trainingstags">
-    <button class="startbtn" id="startTr">${LIVE?'▶ Laufendes Training fortsetzen':'▶ Training starten'}</button>
+    <button class="startbtn" id="startTr">${LIVE?(LIVE.test?'▶ Testlauf fortsetzen':'▶ Laufendes Training fortsetzen'):'▶ Training starten'}</button>
+    ${LIVE?'':'<button class="testbtn" id="testTr">👀 Testlauf – Übungen nur ansehen <small>(wird nicht gespeichert)</small></button>'}
     <div class="daymeta" id="daymeta">${d.items.length} Übungen · ${totalSets} Sätze · ca. ${mins} Min. · <b class="kc">🔥 ca. ${kTxt(kcalDay(d))} kcal</b></div>
     <div id="items">${d.items.map((i,n)=>{const e=exById(i.id); return `
       <div class="item" data-n="${n}">
@@ -1557,6 +1626,7 @@ function renderPlan(){
   };
   $('addEx').onclick=openPicker;
   $('startTr').onclick=()=>{ if(LIVE) openLive(); else startLive(day); };
+  if($('testTr')) $('testTr').onclick=()=>{ startLive(day); if(LIVE){ LIVE.test=true; saveLive(); renderLive(); } };
   $('doneDay').onclick=()=>{ if(!LOG.some(l=>l.date===ymd(new Date())&&l.day===day)) logTraining(ymd(new Date()),day); setView('cal'); window.scrollTo({top:0,behavior:'smooth'}); };
 }
 
@@ -1578,11 +1648,11 @@ function renderPicker(){
   $('pkchips').innerHTML=[['alle','Alle'],...GROUPS].map(([k,n])=>`<button class="chip ${pkGroup===k?'on':''}" data-g="${k}">${n}</button>`).join('');
   const q=pkQ.trim().toLowerCase(), inDay=plan.days[day].items.map(i=>i.id);
   const list=EX.filter(e=>(pkGroup==='alle'||e.g.includes(pkGroup)) && (!q||(e.name+' '+e.prim+' '+e.equip).toLowerCase().includes(q)));
-  $('pklist').innerHTML=list.map(e=>{const inn=inDay.includes(e.id); return `<button class="pickrow" data-id="${e.id}"><span class="mini">${figure(e,0.65)}</span><span class="t">${esc(e.name)}<small>${esc(e.equip)}</small></span><span class="plus ${inn?'done':''}">${inn?'✓':'+'}</span></button>`}).join('') || '<div class="empty">Keine Übung gefunden.</div>';
+  $('pklist').innerHTML=list.map(e=>{const inn=inDay.includes(e.id); return `<button class="pickrow" data-id="${e.id}"><span class="mini">${figure(e,0.65)}</span><span class="t">${esc(e.name)}<small>${esc(e.equip)}</small></span>${isLocked(e)?'<span class="plus">🔒</span>':`<span class="plus ${inn?'done':''}">${inn?'✓':'+'}</span>`}</button>`}).join('') || '<div class="empty">Keine Übung gefunden.</div>';
 }
 $('pkchips').onclick=e=>{const b=e.target.closest('.chip'); if(!b)return; pkGroup=b.dataset.g; renderPicker();};
 $('pkq').oninput=e=>{pkQ=e.target.value; renderPicker();};
-$('pklist').onclick=e=>{const b=e.target.closest('.pickrow'); if(!b)return; const arr=plan.days[day].items, k=arr.findIndex(x=>x.id===b.dataset.id);
+$('pklist').onclick=e=>{const b=e.target.closest('.pickrow'); if(!b)return; if(isLocked(exById(b.dataset.id))) return upsell(exById(b.dataset.id).name); const arr=plan.days[day].items, k=arr.findIndex(x=>x.id===b.dataset.id);
   if(k>=0) arr.splice(k,1); else addToDay(b.dataset.id,day); savePlan(); renderPicker();};
 $('pkback').onclick=()=>{ $('pick').classList.remove('open'); document.body.style.overflow=''; renderPlan(); };
 
@@ -1744,7 +1814,9 @@ function suggestKg(id,target){
   return allHit?{kg:top+step,up:true}:{kg:top,up:false};
 }
 function startLive(dIdx){
-  const d=plan.days[dIdx];
+  const d0=plan.days[dIdx], lockedN=d0.items.filter(i=>isLocked(exById(i.id))).length, d=Object.assign({},d0,{items:d0.items.filter(i=>!isLocked(exById(i.id)))});
+  if(!d.items.length){ upsell(); return; }
+  if(lockedN) setTimeout(()=>{ try{ toast2(`🔒 ${lockedN} Pro-Übung${lockedN>1?'en':''} übersprungen – in der Vollversion dabei`); }catch(e){} },600);
   LIVE={date:ymd(new Date()),day:dIdx,name:d.name,start:Date.now(),idx:0,items:d.items.map(it=>{
     if(it.id==='laufband'){ const n=nums(it.reps); return {id:it.id,target:it.reps,sets:[{kg:String(n[2]||4),reps:String(n[0]&&n[1]?Math.round((n[0]+n[1])/2):(n[0]||6)),done:false}]}; }
     const r=rng(it.reps), cnt=r.list?r.list.length:(parseInt(it.sets)||3), h=history(it.id)[0], sg=suggestKg(it.id,it.reps);
@@ -1787,17 +1859,18 @@ function renderLive(){
   if(!LIVE){ closeLive(); return; }
   const it=LIVE.items[LIVE.idx], ex=exById(it.id), walk=it.id==='laufband', hold=isHold(it.target);
   const h=history(it.id)[0], sg=walk?null:suggestKg(it.id,it.target);
-  const doneSets=LIVE.items.reduce((a,x)=>a+x.sets.filter(s=>s.done).length,0), allSets=LIVE.items.reduce((a,x)=>a+x.sets.length,0);
+  const doneSets=LIVE.items.reduce((a,x)=>a+x.sets.filter(s=>s.done).length,0), allSets=LIVE.items.reduce((a,x)=>a+(x.skip?x.sets.filter(s=>s.done).length:x.sets.length),0);
   $('tbody').innerHTML=`
     <div class="lvtop"><div><small>${esc(LIVE.name)}</small><b id="lvClock">${mmss((Date.now()-LIVE.start)/1000)}</b></div>
       <div class="lvprog"><i style="width:${allSets?100*doneSets/allSets:0}%"></i></div><span>${doneSets}/${allSets} Sätze</span></div>
-    <div class="lvchips" id="lvChips">${LIVE.items.map((x,i)=>{const f=x.sets.every(s=>s.done); return `<button data-i="${i}" class="${i===LIVE.idx?'on':''} ${f?'fin':''}">${f?'✓':i+1}</button>`}).join('')}</div>
+    ${LIVE.test?'<div class="lvtest">👀 <b>Testlauf</b> – schau dir alles in Ruhe an, es wird nichts gespeichert.</div>':''}
+    <div class="lvchips" id="lvChips">${LIVE.items.map((x,i)=>{const f=x.sets.every(s=>s.done); return `<button data-i="${i}" class="${i===LIVE.idx?'on':''} ${f?'fin':''} ${x.skip&&!f?'skip':''}">${f?'✓':x.skip?'–':i+1}</button>`}).join('')}</div>
     <div class="lvcard">
       <div class="lvfig" id="lvFig">${figure(ex,.5)}</div>
       <div class="lvname"><small>Übung ${LIVE.idx+1} von ${LIVE.items.length}</small><h3>${esc(ex.name)}</h3>
         <span class="tag p">🔥 ${esc(ex.prim)}</span> <button class="lvinfo" data-open="${ex.id}">ⓘ Anleitung</button></div>
       ${h&&!walk?`<div class="lvlast">Letztes Mal (${fmtD(parseD(h.date))}): <b>${h.sets.map(s=>(parseFloat(s.kg)?s.kg+' kg × ':'')+s.reps+(hold?' s':'')).join(' · ')}</b></div>`:''}
-      ${(()=>{ if(walk) return ''; const rc=maxKgRec(it.id), rr=maxRepRec(it.id); return rc?`<div class="lvrec">🏆 Dein Rekord: <b>${fmtKg(rc.kg)} kg × ${rc.reps}</b> <small>(${fmtD(parseD(rc.date))})</small> – schaffst du mehr?</div>`:rr?`<div class="lvrec">🏆 Dein Rekord: <b>${unitR(it.id,rr.reps)}</b> am Stück <small>(${fmtD(parseD(rr.date))})</small> – schaffst du mehr?</div>`:''; })()}
+      ${(()=>{ if(walk) return ''; if(!MC.pro) return ''; const rc=maxKgRec(it.id), rr=maxRepRec(it.id); return rc?`<div class="lvrec">🏆 Dein Rekord: <b>${fmtKg(rc.kg)} kg × ${rc.reps}</b> <small>(${fmtD(parseD(rc.date))})</small> – schaffst du mehr?</div>`:rr?`<div class="lvrec">🏆 Dein Rekord: <b>${unitR(it.id,rr.reps)}</b> am Stück <small>(${fmtD(parseD(rr.date))})</small> – schaffst du mehr?</div>`:''; })()}
       ${liveHelpers(it,ex)}
       ${sg&&sg.up?`<div class="lvup">⬆️ Stark! Letztes Mal alle Wiederholungen geschafft – heute <b>${fmtKg(sg.kg)} kg</b> versuchen.</div>`:''}
       <div class="lvsets" id="lvSets">
@@ -1812,8 +1885,9 @@ function renderLive(){
     </div>
     <div class="lvnav"><button id="lvPrev" ${LIVE.idx===0?'disabled':''}>‹ Zurück</button>
       ${LIVE.idx<LIVE.items.length-1?'<button class="pri" id="lvNext">Nächste Übung ›</button>':'<button class="pri fin" id="lvFinish">🏁 Training beenden</button>'}</div>
-    ${LIVE.idx<LIVE.items.length-1?'<button class="lvend" id="lvFinish2">Training jetzt beenden</button>':''}
-    <button class="lvend" id="lvCancel">✕ Training abbrechen (nicht speichern)</button>`;
+    <button class="lvskip" id="lvSkip">${it.skip?'↩ Übung wieder aufnehmen':'⏭ Übung überspringen <small>(Gerät belegt/defekt, geht gerade nicht …)</small>'}</button>
+    ${LIVE.idx<LIVE.items.length-1&&!LIVE.test?'<button class="lvend" id="lvFinish2">Training jetzt beenden &amp; speichern</button>':''}
+    <div id="lvCx"><button class="lvend" id="lvCancel">${LIVE.test?'✕ Testlauf beenden':'✕ Training abbrechen …'}</button></div>`;
   $('lvChips').onclick=e=>{const b=e.target.closest('button'); if(!b)return; LIVE.idx=+b.dataset.i; saveLive(); renderLive();};
   $('lvSets').oninput=e=>{const f=e.target.dataset.f; if(!f)return; const i=+e.target.closest('.lvrow').dataset.s; it.sets[i][f]=e.target.value; saveLive();};
   $('lvSets').onclick=e=>{ const b=e.target.closest('[data-ck]'); if(!b) return; const i=+b.dataset.ck, s=it.sets[i];
@@ -1822,7 +1896,7 @@ function renderLive(){
     if(s.done&&!walk){ restTotal=REST_CAT[CAT[it.id]||'iso']; restEnd=Date.now()+restTotal*1000; }
     const wasLast=it.sets.every(x=>x.done);
     renderLive();
-    if(s.done&&!walk){ const k=kgNum(s.kg), r=parseFloat(s.reps)||0, rc=maxKgRec(it.id), nm=ex.name;
+    if(s.done&&!walk&&!LIVE.test&&MC.pro){ const k=kgNum(s.kg), r=parseFloat(s.reps)||0, rc=maxKgRec(it.id), nm=ex.name;
       const sess=it.sets.filter((x,j)=>j!==i&&x.done).reduce((m,x)=>Math.max(m,kgNum(x.kg)),0);
       if(k>0&&rc&&k>rc.kg&&k>sess){ celebrate('Du bist stärker geworden! 💪',`Zum ersten Mal <b>${fmtKg(k)} kg</b> bei ${esc(nm)} geschafft!<br><small>Bisher: ${fmtKg(rc.kg)} kg am ${fmtD(parseD(rc.date))}</small>`); setTimeout(()=>{const m=$('lvMsg'); if(m) m.innerHTML=`🏆 <b>Neuer Rekord: ${fmtKg(k)} kg!</b> Stark – die App hat ihn gespeichert.`;},0); return; }
       if(k===0&&r>0){ const rr=maxRepRec(it.id), sr=it.sets.filter((x,j)=>j!==i&&x.done&&kgNum(x.kg)===0).reduce((m,x)=>Math.max(m,parseFloat(x.reps)||0),0);
@@ -1834,12 +1908,24 @@ function renderLive(){
   $('lvPrev').onclick=()=>{ if(LIVE.idx>0){LIVE.idx--; saveLive(); renderLive();} };
   if($('lvNext')) $('lvNext').onclick=()=>{ LIVE.idx++; saveLive(); renderLive(); $('tsheet').scrollTop=0; };
   const fin=()=>finishLive(); if($('lvFinish')) $('lvFinish').onclick=fin; if($('lvFinish2')) $('lvFinish2').onclick=fin;
-  $('lvCancel').onclick=()=>{ const b=$('lvCancel'); if(b.dataset.ask){ LIVE=null; saveLive(); closeLive(); renderCal&&view==='cal'&&renderCal(); } else { b.dataset.ask=1; b.textContent='Sicher? Nochmal tippen – alles geht verloren'; } };
+  $('lvSkip').onclick=()=>{ it.skip=!it.skip; if(it.skip){ restEnd=0; if(LIVE.idx<LIVE.items.length-1) LIVE.idx++; } saveLive(); renderLive(); $('tsheet').scrollTop=0;
+    const m=$('lvMsg'); if(m&&it.skip) m.textContent='⏭ Übung übersprungen – du kannst sie jederzeit oben über die Nummer wieder aufrufen.'; };
+  $('lvCancel').onclick=()=>{ if(LIVE.test){ finishLive(); return; }
+    const done=LIVE.items.reduce((a,x)=>a+x.sets.filter(s=>s.done).length,0);
+    $('lvCx').innerHTML=`<div class="lvcx"><b>Training abbrechen?</b><span>Dein Trainingsplan bleibt in jedem Fall erhalten.</span>
+      ${done?`<button class="pri" id="cxSave">💾 Bisher Geschafftes speichern (${done} ${done===1?'Satz':'Sätze'})</button>`:''}
+      <button id="cxDrop">🗑 Verwerfen – nichts speichern</button><button id="cxBack">Weiter trainieren</button></div>`;
+    if($('cxSave')) $('cxSave').onclick=()=>finishLive();
+    $('cxDrop').onclick=()=>{ LIVE=null; saveLive(); restEnd=0; closeLive(); try{ if(view==='plan') renderPlan(); if(view==='cal') renderCal(); }catch(e){} toast2('Training verworfen – Plan bleibt erhalten'); };
+    $('cxBack').onclick=()=>renderLive(); };
   document.querySelectorAll('#tbody [data-open]').forEach(b=>b.onclick=()=>openEx(b.dataset.open));
   tickLive();
 }
 function finishLive(){
   if(!LIVE) return;
+  if(LIVE.test){ LIVE=null; saveLive(); restEnd=0;
+    $('tbody').innerHTML='<div class="sum2"><div style="font-size:58px">👀</div><h2>Testlauf beendet</h2><p class="muted">Es wurde nichts gespeichert – kein Kalender-Eintrag, keine Rekorde, dein Plan ist unverändert.</p><button class="savebtn" id="lvDone">Fertig</button></div>';
+    $('lvDone').onclick=()=>{ closeLive(); try{ if(view==='plan') renderPlan(); }catch(e){} }; return; }
   const sets={}, prs=[]; let kcal=0, vol=0;
   for(const it of LIVE.items){ const done=it.sets.filter(s=>s.done); if(!done.length) continue;
     const clean=done.map(s=>({kg:String(s.kg||'').replace(',','.'),reps:String(s.reps||'')}));
@@ -2022,12 +2108,12 @@ function heroLoop(){
 }
 function renderRecords(){
   const nb=$('nagBox'); if(nb){ nb.innerHTML=(typeof newBanner==='function'?newBanner():'')+backupNag(); const wb=$('wnBan'); if(wb) wb.onclick=()=>showWhatsNew(true); const n=$('nagBak'); if(n) n.onclick=()=>{ setView('prof'); setTimeout(()=>{const b=$('bakMake'); if(b) b.scrollIntoView({behavior:'smooth',block:'center'});},120); }; }
-  const box=$('recBox'); if(!box) return; const all=allRecords(), wk=ymd(new Date(Date.now()-7*864e5));
+  const box=$('recBox'); if(!box) return; if(!MC.pro){ box.innerHTML=`<button class="recempty" style="text-align:left;width:100%" onclick="upsell('Rekorde')">🔒 <b>Rekord-Speicher</b> – merkt sich dein schwerstes Gewicht und feiert jeden neuen Rekord. In der Vollversion.</button>`; return; } const all=allRecords(), wk=ymd(new Date(Date.now()-7*864e5));
   box.innerHTML = all.length ? `<div class="reclist">${all.map(x=>`<button class="recrow" data-rex="${x.id}"><span class="rn">${esc(x.ex.name)}${x.rec.date>=wk?' <em>NEU</em>':''}</span><span class="rk">${x.rec.kg?`${fmtKg(x.rec.kg)} kg <small>× ${x.rec.reps}</small>`:`${x.rec.reps} <small>${holdOf(x.id)?'Sek.':'Wdh.'}</small>`}</span><span class="rd">${fmtD(parseD(x.rec.date))}</span></button>`).join('')}</div>`
     : `<div class="recempty">Noch keine Rekorde. Starte im Plan „▶ Training starten“ und trag deine Kilo ein – die App merkt sich automatisch dein schwerstes Gewicht pro Übung und feiert jeden neuen Rekord mit dir. 🏆</div>`;
   box.onclick=e=>{const b=e.target.closest('[data-rex]'); if(b) openEx(b.dataset.rex);};
 }
-function renderSummary(){ setTimeout(renderRecords,0);
+function renderSummary(){ setTimeout(renderRecords,0); setTimeout(()=>{ try{ renderInstallCard(); }catch(e){} },0);
   const r=calc(prof), nm=(prof.name||'').trim();
   $('summary').innerHTML=`<button class="hero" id="sumbtn">
     <span class="hfig" id="heroFig">${heroSvg(0.5)}</span>
@@ -2416,7 +2502,7 @@ const DEF_AZ={s:62,f:22,b:22};
 
 /* ---------- Haupt-Ansicht (Detail & Training) ---------- */
 let eng=null, ok=null, st={az:62,el:12,zoom:1,auto:false,ex:null,view:'s',drag:null,pins:{}};
-function init(){ if(ok!==null) return ok; try{ const c=document.createElement('canvas'); c.className='g3d'; eng=Engine(c); ok=true; controls(c); }catch(e){ console.warn('3D nicht verfügbar',e); ok=false; } return ok; }
+function init(){ if(ok!==null) return ok; if(!MC.pro){ ok=false; return ok; } try{ const c=document.createElement('canvas'); c.className='g3d'; eng=Engine(c); ok=true; controls(c); }catch(e){ console.warn('3D nicht verfügbar',e); ok=false; } return ok; }
 function controls(c){
   c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);st.pins[e.pointerId]=[e.clientX,e.clientY];st.auto=false;updBtns();});
   c.addEventListener('pointermove',e=>{const pv=st.pins[e.pointerId];if(!pv)return;const ids=Object.keys(st.pins);
@@ -2644,8 +2730,9 @@ function renderSettings(){
   const bak=localStorage.getItem('mc_bak');
   box.innerHTML=`
   <h3 class="vh">🧍 Dein Coach-Look</h3>
-  <div class="pcard"><div class="lookgrid" id="lookGrid">${COACH_LOOKS.map((l,i)=>`<button data-look="${i}" class="${(curLookIdx()===i)?'on':''}"><b>${l[0]}</b><small>${l[1]}</small></button>`).join('')}</div>
-    <p class="muted">So sieht deine 3D-Figur in allen Übungen aus.</p></div>
+  ${MC.pro?'':'<div class="pcard"><p style="font-size:14px">🔒 3D-Coach mit 6 Looks gibt es in der <b>Vollversion</b>.</p><button class="savebtn" onclick="upsell()">Vollversion holen</button></div><div hidden>'}<div class="pcard"><div class="lookgrid" id="lookGrid">${COACH_LOOKS.map((l,i)=>`<button data-look="${i}" class="${(curLookIdx()===i)?'on':''}"><b>${l[0]}</b><small>${l[1]}</small></button>`).join('')}</div>
+    <p class="muted">So sieht deine 3D-Figur in allen Übungen aus.</p></div>${MC.pro?'':'</div>'}
+  ${INST.standalone()?'':'<h3 class="vh">📲 App</h3><div class="pcard"><p style="font-size:14px">Leg Muskel-Coach als App auf deinen Startbildschirm – mit eigenem Icon, Vollbild und offline nutzbar.</p><button class="savebtn" onclick="openInstall()">Als App installieren</button></div>'}
   <h3 class="vh">⏰ Trainings-Erinnerung</h3>
   <div class="pcard">
     <p style="font-size:14px">Deine Trainingstage: <b>${SCHED.wd.map(i=>WD[i]).join(', ')||'–'}</b> <span class="muted" style="margin:0">(änderbar im Kalender)</span></p>
@@ -2695,7 +2782,7 @@ function loadBackup(file){ const fr=new FileReader(); fr.onload=async()=>{ try{ 
     alert('Backup geladen ✓ – die App startet neu.'); location.reload(); }catch(e){ alert('Das ist keine gültige Muskel-Coach-Sicherung.'); } }; fr.readAsText(file); }
 
 /* ---------- Training: Scheiben & Aufwärmsätze ---------- */
-function liveHelpers(it,ex){ if(!it||it.id==='laufband') return ''; const cur=it.sets.find(s=>!s.done)||it.sets[0], kg=kgNum(cur&&cur.kg); let h='';
+function liveHelpers(it,ex){ if(!MC.pro||!it||it.id==='laufband') return ''; const cur=it.sets.find(s=>!s.done)||it.sets[0], kg=kgNum(cur&&cur.kg); let h='';
   if(/Langhantel/.test(ex.equip||'')&&kg>=20){ const r=platesFor(kg,20); if(r) h+=`<div class="lvhelp">🧮 <b>${fd1(kg)} kg</b> = Stange 20 kg + pro Seite <b>${platesTxt(r)}</b></div>`; }
   if(CAT[it.id]==='big'&&kg>=30&&!it.sets.some(s=>s.done)) h+=`<div class="lvhelp warm">🔥 <b>Aufwärmsätze:</b> 10 × ${fd1(round25(kg*.5))} kg · 5 × ${fd1(round25(kg*.7))} kg · 3 × ${fd1(round25(kg*.85))} kg – dann Arbeitssätze</div>`;
   return h; }
@@ -2709,9 +2796,12 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-22a';
+const APP_VERSION='2026-11-22b';
 const RELEASE='2026-11-22';
 const CHANGES=[
+  ['⏭','Übung überspringen','Gerät belegt oder defekt? Einzelne Übung im Training überspringen – der Rest läuft weiter'],
+  ['💾','Abbrechen ohne Verlust','Beim Abbrechen wählen: Bisher Geschafftes speichern oder verwerfen – der Plan bleibt immer erhalten'],
+  ['👀','Testlauf','Training nur ansehen und ausprobieren – es wird nichts gespeichert'],
   ['🏋️','31 neue Übungen','Brust, Bauch, Schultern, Trizeps, Bizeps – mit Kurzhantel, Langhantel & Seilzug'],
   ['✊','Neue Gruppe „Unterarme“','Handgelenk-Curls, Farmer’s Walk, Handgelenk-Roller, Dead Hang u. v. m.'],
   ['🧍','Menschlichere 3D-Figur','Glatte Haut, echtes Gesicht – und im Profil 6 Coach-Looks zur Auswahl'],
@@ -2733,7 +2823,64 @@ function showWhatsNew(force){ let seen=''; try{ seen=localStorage.getItem('mc_se
   $('wnX').onclick=close; $('wnOk').onclick=close; ov.onclick=e=>{ if(e.target===ov) close(); }; }
 function newBanner(){ if(!isFresh(RELEASE)) return '';
   return `<button class="wnbanner" id="wnBan"><span>✨</span><div><b>Neu: ${esc(CHANGES[0][1])}${CHANGES.length>1?` &amp; ${CHANGES.length-1} weitere Neuerung${CHANGES.length>2?'en':''}`:''}</b><small>Tippen für alle Neuigkeiten</small></div><em>NEU</em></button>`; }
-(function waitGate(){ if(document.getElementById('gate')) return setTimeout(waitGate,500); setTimeout(()=>showWhatsNew(false),700); })();
+(function waitGate(){ const gg=document.getElementById('gate'); if(gg&&gg.style.display!=='none') return setTimeout(waitGate,500); setTimeout(()=>showWhatsNew(false),700); })();
+
+
+/* =====================================================================
+   „ALS APP INSTALLIEREN“ – Android: 1 Tipp · iPhone: geführte Anleitung
+   ===================================================================== */
+const INST=(function(){
+  const ua=navigator.userAgent||'', iOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+    android=/Android/i.test(ua), inApp=/FBAN|FBAV|Instagram|Line\/|WhatsApp|wv\)|; wv/i.test(ua),
+    iosSafari=iOS&&/Safari/i.test(ua)&&!/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua)&&!inApp, iosOther=iOS&&!iosSafari;
+  const standalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  let deferred=null;
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferred=e; try{ renderInstallCard(); }catch(x){} });
+  window.addEventListener('appinstalled',()=>{ deferred=null; try{ localStorage.setItem('mc_installed','1'); }catch(e){} closeInstall(); try{ toast2('✅ App installiert – du findest sie jetzt auf dem Startbildschirm'); renderInstallCard(); }catch(e){} });
+  return {iOS,android,inApp,iosSafari,iosOther,standalone,get deferred(){return deferred;},set deferred(v){deferred=v;}};
+})();
+const SHARE_ICO='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4da3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M6 10H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1"/></svg>';
+const ADD_ICO='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+function installHTML(){
+  const step=(n,t,ico)=>`<li><span class="n">${n}</span><div>${t}</div>${ico?`<span class="ic">${ico}</span>`:''}</li>`;
+  let body='';
+  if(INST.inApp){
+    body=`<p>Du hast den Link in <b>WhatsApp/Instagram</b> geöffnet. Dort kann man keine Apps installieren.</p>
+      <ol class="isteps">${step(1,`Tippe oben rechts auf <b>⋯</b> bzw. das Kompass-Symbol`)}${step(2,`Wähle <b>„In ${INST.iOS?'Safari':'Chrome'} öffnen“</b>`)}${step(3,'Dann hier nochmal auf <b>„Als App installieren“</b> tippen')}</ol>`;
+  } else if(INST.deferred){
+    body=`<p>Mit einem Tipp landet Muskel-Coach als <b>echte App</b> auf deinem Startbildschirm – mit eigenem Icon, im Vollbild und auch offline.</p>
+      <button class="savebtn" id="instNow">📲 Jetzt installieren</button>`;
+  } else if(INST.iosSafari){
+    body=`<p>So kommt Muskel-Coach als <b>App</b> auf deinen Home-Bildschirm (dauert 10 Sekunden):</p>
+      <ol class="isteps">${step(1,'Unten in Safari auf <b>Teilen</b> tippen <small style="display:block;color:var(--mut)">Neuere iPhones: erst auf <b>⋯</b> (unten rechts), dann auf <b>Teilen</b></small>',SHARE_ICO)}${step(2,'Nach unten wischen und <b>„Zum Home-Bildschirm“</b> wählen <small style="display:block;color:var(--mut)">ggf. „Als Web-App öffnen“ eingeschaltet lassen</small>',ADD_ICO)}${step(3,'Oben rechts auf <b>„Hinzufügen“</b> tippen – fertig! 🎉')}</ol>
+      <p class="muted">Apple erlaubt Websites nicht, das automatisch zu machen – deshalb diese 3 Tipps.</p>`;
+  } else if(INST.iosOther){
+    body=`<p>Auf dem iPhone geht das am besten in <b>Safari</b>:</p>
+      <ol class="isteps">${step(1,'Link kopieren und in <b>Safari</b> öffnen (oder in Chrome: Teilen-Symbol oben rechts)')}${step(2,'<b>Teilen</b> antippen',SHARE_ICO)}${step(3,'<b>„Zum Home-Bildschirm“</b> → <b>„Hinzufügen“</b>',ADD_ICO)}</ol>`;
+  } else if(INST.android){
+    body=`<p>So kommt Muskel-Coach als <b>App</b> auf deinen Startbildschirm:</p>
+      <ol class="isteps">${step(1,'Oben rechts im Browser auf <b>⋮</b> tippen')}${step(2,'<b>„App installieren“</b> oder <b>„Zum Startbildschirm hinzufügen“</b> wählen')}${step(3,'Mit <b>„Installieren“</b> bestätigen – fertig! 🎉')}</ol>`;
+  } else {
+    body=`<p>Öffne diesen Link auf deinem <b>Handy</b> – dort kannst du Muskel-Coach als App auf den Startbildschirm legen. Am Computer: im Chrome/Edge-Adressfeld auf das <b>Installieren-Symbol</b> klicken.</p>`;
+  }
+  return `<div class="instbox"><button class="wnx" id="instX" aria-label="Schließen">✕</button>
+    <div class="insthd"><img src="icon-192.png" alt=""><div><b>Als App installieren</b><small>Muskel-Coach · kostenlos · ohne App Store</small></div></div>
+    ${body}<button class="later" id="instLater">Später</button></div>`;
+}
+function openInstall(){ let ov=$('instPop'); if(!ov){ ov=document.createElement('div'); ov.id='instPop'; ov.className='instpop'; document.body.appendChild(ov); }
+  ov.innerHTML=installHTML(); ov.classList.add('on');
+  $('instX').onclick=closeInstall; $('instLater').onclick=closeInstall; ov.onclick=e=>{ if(e.target===ov) closeInstall(); };
+  const b=$('instNow'); if(b) b.onclick=async()=>{ const d=INST.deferred; if(!d) return; d.prompt(); try{ const r=await d.userChoice; if(r&&r.outcome==='accepted'){ try{localStorage.setItem('mc_installed','1')}catch(e){} closeInstall(); } }catch(e){} INST.deferred=null; }; }
+function closeInstall(){ const ov=$('instPop'); if(ov) ov.classList.remove('on'); try{ localStorage.setItem('mc_inst_pop',String(Date.now())); }catch(e){} }
+function renderInstallCard(){ const box=$('instBox'); if(!box) return; if(INST.standalone()){ box.innerHTML=''; return; }
+  box.innerHTML=`<button class="instcard" id="instCard"><img src="icon-192.png" alt=""><div><b>📲 Als App installieren</b><small>${INST.deferred?'Ein Tipp – fertig':'Mit eigenem Icon auf den Startbildschirm'}</small></div><em>›</em></button>`;
+  $('instCard').onclick=openInstall; }
+// automatisch anbieten: beim ersten Mal, danach höchstens alle 3 Tage – nur wenn nicht schon als App geöffnet
+(function autoInstall(){ if(INST.standalone()) return;
+  const busy=()=>{ const g=document.getElementById('gate'); return (g&&g.style.display!=='none')||document.querySelector('#wnPop.on,.sheet.open'); };
+  let last=0; try{ last=+localStorage.getItem('mc_inst_pop')||0; }catch(e){}
+  if(Date.now()-last<3*864e5) return;
+  let tries=0; (function wait(){ if(busy()&&tries++<120) return setTimeout(wait,1000); setTimeout(()=>{ if(!busy()&&!INST.standalone()) openInstall(); },1500); })(); })();
 
 setTimeout(()=>{ try{ start3DThumbs(); }catch(e){ console.warn('3D',e); } },400);
 renderSummary(); renderChips(); renderGrid(); (function(){let t='home';try{t=localStorage.getItem('mc_tab')||'home'}catch(e){} setView(t);})(); route(); heroLoop(); initShare();
@@ -2744,18 +2891,53 @@ $('restSkip').onclick=()=>{ restEnd=0; tickLive(); };
 updResume();
 </script>
 <script>
+/* ===== Demo-Countdown, Basis-Version & Freischalten per Code ===== */
+const BUY={ price:'5 €', paypal:'', whatsapp:'', name:'Cem' };   // paypal: PayPal.me-Name · whatsapp: Nummer mit Ländervorwahl, z. B. 4917612345678
 (function(){
-  const H='1o8nfmawtnm';
   const cyrb53=(str,seed=7)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);};
   const g=document.getElementById('gate');
-  let ok=false; try{ ok=localStorage.getItem('mc_unlock')===H; }catch(e){}
-  if(ok){ g.remove(); return; }
-  document.body.style.overflow='hidden';
-  document.getElementById('gateForm').addEventListener('submit',ev=>{ ev.preventDefault();
-    const v=document.getElementById('gatePw').value.trim();
-    if(cyrb53(v)===H){ try{localStorage.setItem('mc_unlock',H)}catch(e){} g.remove(); document.body.style.overflow=''; }
-    else { document.getElementById('gateErr').textContent='Falsches Kennwort – bitte nochmal versuchen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); document.getElementById('gatePw').value=''; }
-  });
+  if(MC.unlocked){ g.remove(); return; }
+  g.style.display='none';
+  const left=MC.left;
+  const msg=encodeURIComponent('Hallo '+BUY.name+', ich möchte die Vollversion von Muskel-Coach für '+BUY.price+' kaufen. Bitte schick mir den Freischalt-Code. 💪');
+  const waUrl=BUY.whatsapp?('https://wa.me/'+BUY.whatsapp.replace(/\D/g,'')+'?text='+msg):('https://wa.me/?text='+msg);
+  const ppUrl=BUY.paypal?('https://paypal.me/'+BUY.paypal+'/'+BUY.price.replace(/[^\d,.]/g,'').replace(',','.')+'EUR'):'';
+  const dots=()=>Array.from({length:MC.TRIAL},(_,i)=>`<i class="${i<left?(left<=2?'hot':'on'):''}"></i>`).join('');
+  function show(mode,why){
+    g.style.display='flex'; document.body.style.overflow='hidden';
+    const head = mode==='trial'
+      ? `<div class="cd ${left<=2?'hot':''}"><b>${left}</b><span>${left===1?'Tag':'Tage'}<br>Vollversion gratis</span></div><div class="cddots">${dots()}</div>
+         <p>${left<=2?'⏰ <b>Bald vorbei!</b> ':''}Du testest gerade die <b>Vollversion</b>. Danach geht es mit der kostenlosen Basis-Version weiter – oder du behältst alles für einmalig <b style="color:var(--acc)">${BUY.price}</b>.</p>`
+      : `<p>${why?`🔒 <b>${String(why).replace(/[<>]/g,'')}</b> gehört zur Vollversion.<br>`:'<b style="color:#ff9a6e">Deine 10-Tage-Demo ist vorbei.</b> Du nutzt jetzt die kostenlose Basis-Version.<br>'}Hol dir alles für einmalig <b style="color:var(--acc)">${BUY.price}</b>:</p>`;
+    g.innerHTML=`<form class="box" id="gateForm" autocomplete="off">
+      <img src="icon-512.png" alt="Muskel-Coach" style="width:84px;height:84px;border-radius:20px;box-shadow:0 8px 30px rgba(255,40,40,.35)">
+      ${head}
+      <ul class="profeat">${PRO_FEATURES.map(f=>`<li><i>${f[0]}</i><div><b>${f[1]}</b><small>${f[2]}</small></div></li>`).join('')}</ul>
+      <div class="buyrow">${ppUrl?`<a class="buy pp" href="${ppUrl}" target="_blank" rel="noopener">💳 ${BUY.price} mit PayPal zahlen</a>`:''}
+        <a class="buy wa" href="${waUrl}" target="_blank" rel="noopener">💬 Vollversion kaufen – Code anfragen</a></div>
+      <div class="codelbl">Schon gekauft? Code einmal eingeben:</div>
+      <input id="gatePw" type="password" inputmode="numeric" placeholder="Freischalt-Code" aria-label="Freischalt-Code">
+      <button type="submit">Freischalten</button>
+      <div class="err" id="gateErr"></div>
+      <button type="button" class="later" id="gateLater">${mode==='trial'?'Weiter testen ›':'Mit Basis-Version weiter ›'}</button>
+    </form>`;
+    document.getElementById('gateForm').addEventListener('submit',ev=>{ ev.preventDefault();
+      const v=document.getElementById('gatePw').value.trim();
+      if(cyrb53(v)===MC.H){ try{localStorage.setItem('mc_unlock',MC.H)}catch(e){} g.innerHTML='<div class="box"><div style="font-size:64px">🎉</div><h2>Vollversion<br><span>freigeschaltet!</span></h2><p>Danke! Die App startet neu …</p></div>'; setTimeout(()=>location.reload(),1200); }
+      else { document.getElementById('gateErr').textContent='Falscher Code – bitte nochmal prüfen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); }
+    });
+    document.getElementById('gateLater').onclick=hide;
+  }
+  function hide(){ g.style.display='none'; document.body.style.overflow=''; try{ localStorage.setItem('mc_trial_pop',new Date().toDateString()); }catch(e){} pill(); }
+  function pill(){ let b=document.getElementById('demoPill'); if(!b){ b=document.createElement('button'); b.id='demoPill'; b.className='demopill'; document.body.appendChild(b); }
+    b.classList.toggle('hot',MC.trial&&left<=2);
+    b.innerHTML=MC.trial?`🎁 Vollversion-Demo · noch <b>${left} ${left===1?'Tag':'Tage'}</b>`:`🔓 Basis-Version · <b>Vollversion ${BUY.price}</b>`;
+    b.onclick=()=>show(MC.trial?'trial':'basic'); }
+  window.MC_GATE={show};
+  let popped=''; try{ popped=localStorage.getItem('mc_trial_pop')||''; }catch(e){}
+  let basicSeen=''; try{ basicSeen=localStorage.getItem('mc_basic_seen')||''; }catch(e){}
+  if(MC.trial){ if(popped===new Date().toDateString()) pill(); else show('trial'); }
+  else { if(!basicSeen){ try{ localStorage.setItem('mc_basic_seen','1'); }catch(e){} show('basic'); } else pill(); }
 })();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
