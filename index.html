@@ -783,9 +783,10 @@ const MC=(function(){ const H='1o8nfmawtnm', TRIAL=10, D=864e5;
 
 /* ===== Nutzer-Zähler (anonym) & Einmal-Codes ===== */
 const CNT={ns:'muskel-coach-cimi80', base:'https://abacus.jasoncameron.dev'};
-const cntFetch=(u,ms=8000)=>{ const c=typeof AbortController!=='undefined'?new AbortController():null; const t=setTimeout(()=>c&&c.abort(),ms); return fetch(u,{cache:'no-store',signal:c?c.signal:undefined}).finally(()=>clearTimeout(t)); };
+let CNT_ERR='';
+const cntFetch=(u,ms=20000)=>{ const c=typeof AbortController!=='undefined'?new AbortController():null; const t=setTimeout(()=>c&&c.abort(),ms); return fetch(u,{cache:'no-store',signal:c?c.signal:undefined}).finally(()=>clearTimeout(t)); };
 async function cntHit(key){ try{ const r=await cntFetch(`${CNT.base}/hit/${CNT.ns}/${key}`); if(!r.ok) throw 0; return (await r.json()).value; }catch(e){ return null; } }
-async function cntGet(key){ try{ const r=await cntFetch(`${CNT.base}/get/${CNT.ns}/${key}`); if(r.status===404) return 0; if(!r.ok) throw 0; return (await r.json()).value||0; }catch(e){ return null; } }
+async function cntGet(key,retry=1){ try{ const r=await cntFetch(`${CNT.base}/get/${CNT.ns}/${key}`); if(r.status===404) return 0; if(!r.ok){ CNT_ERR='HTTP '+r.status+(r.status===429?' (zu viele Abfragen)':''); throw 0; } CNT_ERR=''; return (await r.json()).value||0; }catch(e){ const to=e&&e.name==='AbortError'; if(to) CNT_ERR='keine Antwort nach 20 Sek.'; else if(e!==0) CNT_ERR='Verbindung fehlgeschlagen'; if(retry>0&&!to){ await new Promise(r=>setTimeout(r,1500)); return cntGet(key,retry-1); } return null; } }
 const fnv=s=>{let h=0x811c9dc5;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h>>>0;};
 async function slowHash(pw,salt){ try{ const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
   const b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode(salt),iterations:300000},k,256);
@@ -3281,14 +3282,17 @@ async function devStats(force){ if(!$('devStats')) return;
     const vals=S.w||[]; const mx=Math.max(1,...vals.map(v=>v||0)); const age=S.at?Math.round((Date.now()-S.at)/60000):null;
     $('devWeek').innerHTML=`<div class="pch"><b>Aktive Nutzer – letzte 7 Tage</b><button class="iconbtn" id="devRef" style="padding:4px 10px;font-size:12px">🔄</button></div>
       ${vals.length?`<div class="devbars">${days.map((d,i)=>`<div><i style="height:${Math.round(100*(vals[i]||0)/mx)}%"></i><b>${vals[i]??'–'}</b><small>${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}</small></div>`).join('')}</div>`:''}
-      <p class="muted" style="margin:6px 0 0;font-size:12px">${state==='load'?'⏳ Wird aktualisiert …':state==='err'?'⚠️ Zähldienst antwortet gerade nicht – angezeigt wird der letzte Stand. 🔄 tippen zum Neu laden.':(age===null?'':age<1?'✓ Gerade aktualisiert':'Stand: vor '+age+' Min.')}</p>`;
+      <p class="muted" style="margin:6px 0 0;font-size:12px">${state==='load'?'⏳ Wird aktualisiert …':state==='week'?'⏳ Verlauf wird geladen …':state==='err'?'⚠️ Zähldienst antwortet gerade nicht'+(CNT_ERR?' ('+CNT_ERR+')':'')+' – angezeigt wird der letzte Stand. 🔄 tippen zum Neu laden.':(age===null?'':age<1?'✓ Gerade aktualisiert':'Stand: vor '+age+' Min.')}</p>`;
     const rb=$('devRef'); if(rb) rb.onclick=()=>devStats(true); };
   let S={}; try{ S=JSON.parse(localStorage.getItem('mc_dev_stats')||'{}'); }catch(e){}
   draw(S,'load');
-  const keys=['users',k(today),'pro-users','unlocks',...days.map(k)];
-  const r=await Promise.all(keys.map(x=>cntGet(x)));
-  if(r.every(v=>v===null)){ draw(S,'err'); return; }
-  S={u:r[0],t:r[1],p:Math.max(r[2]||0,r[3]||0),w:r.slice(4),at:Date.now()};
+  /* nacheinander statt alles gleichzeitig – schont den kostenlosen Zähldienst */
+  const main=await Promise.all(['users',k(today),'pro-users','unlocks'].map(x=>cntGet(x))); if(!$('devStats')) return;
+  if(main.every(v=>v===null)){ draw(S,'err'); return; }
+  S={...S,u:main[0]??S.u,t:main[1]??S.t,p:(main[2]===null&&main[3]===null)?S.p:Math.max(main[2]||0,main[3]||0),at:Date.now()};
+  draw(S,'week');
+  const w=[]; for(let i=0;i<days.length;i+=2){ w.push(...await Promise.all(days.slice(i,i+2).map(d=>cntGet(k(d),0)))); if(!$('devStats')) return; }
+  if(!w.every(v=>v===null)) S.w=w;
   try{ localStorage.setItem('mc_dev_stats',JSON.stringify(S)); }catch(e){}
   draw(S,'ok'); }
 
