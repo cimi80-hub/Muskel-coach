@@ -59,6 +59,9 @@
   .empty{color:var(--mut);padding:30px 0;text-align:center}
   #gate{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 30%,#22300f,#0d0f10 65%);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
   #gate .box p b{font-weight:700}
+  .buy.chat{width:100%;background:linear-gradient(135deg,#c6ff3d,#7bd61a);color:#111;border:0;font:inherit;font-weight:800;cursor:pointer} .buy.wa.alt{background:transparent;border:1px solid #25D366;color:#25D366}
+  .buysteps{list-style:none;text-align:left;display:flex;flex-direction:column;gap:6px;margin:0 0 10px} .buysteps li{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:#d6dcde}
+  .buysteps span{flex:none;width:22px;height:22px;border-radius:50%;background:#25D366;color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center}
   .buyrow{display:flex;flex-direction:column;gap:8px;margin:6px 0 14px}
   .buy{display:block;padding:13px;border-radius:13px;font-weight:800;text-decoration:none;font-size:15px}
   .buy.wa{background:#25D366;color:#fff} .buy.pp{background:#ffc439;color:#111}
@@ -153,6 +156,21 @@
   .grenz .gtbest{margin-top:12px;font-size:15px} .grenz .gtbest b{color:var(--acc);font-size:18px}
   .gtlist{margin-top:10px} .gtlist div{display:flex;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13px} .gtlist span:first-child{color:var(--mut);width:84px;flex:none} .gtlist span:nth-child(2){flex:1} .gtlist em{font-style:normal;font-weight:700}
   .optrow{display:flex;gap:12px;align-items:center;justify-content:space-between} .optrow b{display:block;font-size:14.5px} .optrow small{display:block;color:var(--mut);font-size:12px} .optrow input{width:22px;height:22px;accent-color:var(--acc);flex:none}
+  .devsheet{position:fixed;inset:0;z-index:75;background:var(--bg);overflow-y:auto;display:none} .devsheet.on{display:block;animation:vin .2s}
+  .devtop{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:rgba(13,15,16,.95);border-bottom:1px solid var(--line)}
+  .devtop b{font-family:Oswald,sans-serif;text-transform:uppercase;font-size:18px;color:var(--acc)}
+  .devwrap{max-width:760px;margin:0 auto;padding:6px 14px calc(40px + env(safe-area-inset-bottom))}
+  .devstats{display:grid;grid-template-columns:1fr 1fr;gap:8px} .devstats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .devstats b{display:block;font-family:Oswald,sans-serif;font-size:30px;color:var(--acc);line-height:1.1} .devstats small{color:var(--mut);font-size:12px}
+  .devbars{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:130px;align-items:end;margin-top:8px} .devbars div{display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:2px}
+  .devbars i{width:70%;background:linear-gradient(#c6ff3d,#7bd61a);border-radius:5px 5px 2px 2px;min-height:2px} .devbars b{font-size:12px} .devbars small{font-size:11px;color:var(--mut)}
+  .f2{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--mut);font-weight:600} .f2 input,.devin{padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:inherit;font-size:16px;width:100%}
+  .devin{margin-top:14px;text-align:center;letter-spacing:6px;font-size:22px}
+  .devcode{margin:14px 0 8px;text-align:center;font-family:Oswald,sans-serif;font-size:46px;letter-spacing:10px;color:var(--acc);background:var(--bg);border:2px dashed #5b7a1f;border-radius:14px;padding:8px}
+  .devbtns{display:flex;flex-direction:column;gap:8px}
+  .devlist div{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)} .devlist div:first-child{border-top:0}
+  .devlist code{font-family:Oswald,sans-serif;font-size:19px;letter-spacing:2px;color:var(--txt)} .devlist span{flex:1;font-size:13.5px} .devlist small{display:block;color:var(--mut);font-size:11.5px} .devlist .st{font-style:normal;font-size:12px}
+  .devtools{display:flex;flex-direction:column;gap:8px} .devtools button{padding:11px;border-radius:11px;background:var(--card2);border:1px solid var(--line);font-weight:600;font-size:14px}
   .newtag{font-size:10px;font-weight:800;background:var(--acc);color:#111;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:2px}
   .lookhd{font-size:12.5px;color:var(--mut);font-weight:700;margin:4px 0 6px} .lookgrid+.lookhd{margin-top:12px}
   .lookgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
@@ -680,6 +698,24 @@ const MC=(function(){ const H='1o8nfmawtnm', TRIAL=10, D=864e5;
       if(!v||v>st){ idbPut(st); return; }
       if(v<st){ o.persist(v,false); const nl=Math.max(0,TRIAL-Math.floor((Date.now()-v)/D)); if(!unlocked&&(nl>0)!==(left>0)) location.reload(); } }; }catch(e){} }; }catch(e){}
   return o; })();
+
+/* ===== Nutzer-Zähler (anonym) & Einmal-Codes ===== */
+const CNT={ns:'muskel-coach-cimi80', base:'https://abacus.jasoncameron.dev'};
+async function cntHit(key){ try{ const r=await fetch(`${CNT.base}/hit/${CNT.ns}/${key}`,{cache:'no-store'}); if(!r.ok) throw 0; return (await r.json()).value; }catch(e){ return null; } }
+async function cntGet(key){ try{ const r=await fetch(`${CNT.base}/get/${CNT.ns}/${key}`,{cache:'no-store'}); if(r.status===404) return 0; if(!r.ok) throw 0; return (await r.json()).value||0; }catch(e){ return null; } }
+const fnv=s=>{let h=0x811c9dc5;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h>>>0;};
+async function slowHash(pw,salt){ try{ const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  const b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode(salt),iterations:300000},k,256);
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }catch(e){ return ''; } }
+const CODE_SALT='mc|cem|2026|x7q';
+function validCode(v){ v=String(v||'').trim(); if(!/^\d{6}$/.test(v)) return false; return String(fnv(v.slice(0,4)+CODE_SALT)%100).padStart(2,'0')===v.slice(4); }
+function makeCode(){ const a=new Uint32Array(1); let first; do{ crypto.getRandomValues(a); first=String(1000+a[0]%9000); }while(false); return first+String(fnv(first+CODE_SALT)%100).padStart(2,'0'); }
+async function redeemCode(v){ const n=await cntHit('c-'+v); if(n===null) return 'offline'; return n===1?'ok':'used'; }
+(function track(){ const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  try{ if(!localStorage.getItem('mc_counted')){ cntHit('users').then(v=>{ if(v!==null) localStorage.setItem('mc_counted','1'); }); }
+    if(localStorage.getItem('mc_day')!==today){ cntHit('d-'+today).then(v=>{ if(v!==null) localStorage.setItem('mc_day',today); }); }
+    if(MC.unlocked&&!localStorage.getItem('mc_cnt_pro')){ cntHit('pro-users').then(v=>{ if(v!==null) localStorage.setItem('mc_cnt_pro','1'); }); }
+  }catch(e){} })();
 const FREE_EX=['laufband','bankdruecken','schraegbank-kh','butterfly-kabel','liegestuetze','schulterdruecken-kh','schulterpresse-maschine','seitheben','face-pulls','shrugs',
   'crunches','beinheben-haengend','unterarmstuetz','mountain-climbers','kh-curls','hammer-curls','trizepsdruecken-kabel','ueberkopf-trizeps','klimmzuege','latzug',
   'kh-rudern','kabelrudern-sitzend','kniebeuge','ausfallschritte','beinpresse','beinstrecker','beinbeuger','wadenheben'];
@@ -2972,7 +3008,7 @@ function gcalUrl(rt){ const w=SCHED.wd.length?SCHED.wd:[0], d=nextDateFor(w[0]),
 async function deliverFile(blob,name,title){
   try{ const file=new File([blob],name,{type:blob.type}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title}); return true; } }catch(e){ if(e&&e.name==='AbortError') return false; }
   const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},4000); return true; }
-const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts'];
+const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts','mc_dev_codes'];
 async function makeBackup(){ const data={}; BAK_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) data[k]=v; });
   const photos=await photoAll(); const obj={app:'muskel-coach',v:1,date:new Date().toISOString(),data,photos};
   const ok=await deliverFile(new Blob([JSON.stringify(obj)],{type:'application/json'}),'muskel-coach-backup-'+ymd(new Date())+'.json','Muskel-Coach Backup');
@@ -2998,9 +3034,10 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-22d';
+const APP_VERSION='2026-11-22e';
 const RELEASE='2026-11-22';
 const CHANGES=[
+  ['💬','Vollversion per WhatsApp','„Vollversion“ per WhatsApp schreiben → PayPal-Adresse kommt → persönlicher Code, der nur einmal gilt'],
   ['👩','6 Frauen-Figuren','Im Profil unter „Coach-Look“: Pferdeschwanz, Blond, Bob, Dutt, Zopf, Pixie – mit Sport-BH, Shorts oder Leggings'],
   ['🔗','Supersätze','Zwei Übungen im Plan verbinden – im Training ohne Pause hintereinander, Pause erst danach'],
   ['📊','Durchschnittswerte','Ø Gewicht & Ø Wiederholungen im Training und bei jeder Übung (im Profil abschaltbar)'],
@@ -3090,6 +3127,69 @@ function renderInstallCard(){ const box=$('instBox'); if(!box) return; if(INST.s
   if(Date.now()-last<3*864e5) return;
   let tries=0; (function wait(){ if(busy()&&tries++<120) return setTimeout(wait,1000); setTimeout(()=>{ if(!busy()&&!INST.standalone()) openInstall(); },1500); })(); })();
 
+
+/* =====================================================================
+   ENTWICKLER-MODUS (5× auf das Logo oben links tippen · Passwort)
+   ===================================================================== */
+const DEV_HASH='0c6394ae073594074f5a2bb730b0d1b535b4a25ccc80a0ce3c15a52f09716c0c';
+(function(){ let taps=0,t=0; document.addEventListener('click',e=>{ if(!e.target.closest('.tb-logo')) return; const now=Date.now(); taps=now-t<700?taps+1:1; t=now; if(taps>=5){ taps=0; devLogin(); } }); })();
+function devLogin(){ if(sessionStorage.getItem('mc_dev')==='1') return devOpen();
+  let ov=$('devPop'); if(!ov){ ov=document.createElement('div'); ov.id='devPop'; ov.className='wnpop'; document.body.appendChild(ov); }
+  ov.innerHTML=`<form class="wnbox" id="devForm" autocomplete="off"><button type="button" class="wnx" id="devX">✕</button><div class="wnhd"><span>🛠️</span><div><b>Entwickler-Modus</b><small>Nur für den Entwickler</small></div></div>
+    <input id="devPw" type="password" inputmode="numeric" placeholder="Passwort" class="devin"><div class="err" id="devErr" style="color:#ff9a6e;font-size:13px;min-height:18px"></div><button class="savebtn" type="submit">Öffnen</button></form>`;
+  ov.classList.add('on'); $('devX').onclick=()=>ov.classList.remove('on'); setTimeout(()=>$('devPw').focus(),100);
+  $('devForm').onsubmit=e=>{ e.preventDefault(); $('devErr').textContent='⏳'; slowHash($('devPw').value.trim(),'mc-dev-v2').then(h=>{ if(h===DEV_HASH){ sessionStorage.setItem('mc_dev','1'); ov.classList.remove('on'); devOpen(); } else $('devErr').textContent='Falsches Passwort'; }); }; }
+let DEVC=[]; try{ DEVC=JSON.parse(localStorage.getItem('mc_dev_codes')||'[]'); }catch(e){}
+const saveDevC=()=>{ try{ localStorage.setItem('mc_dev_codes',JSON.stringify(DEVC)); }catch(e){} };
+function devOpen(){ let ov=$('devSheet'); if(!ov){ ov=document.createElement('div'); ov.id='devSheet'; ov.className='devsheet'; document.body.appendChild(ov); }
+  ov.classList.add('on'); document.body.style.overflow='hidden'; devRender(); devStats(); }
+function devClose(){ const ov=$('devSheet'); if(ov) ov.classList.remove('on'); document.body.style.overflow=''; }
+function devRender(){ const ov=$('devSheet');
+  ov.innerHTML=`<div class="devtop"><button class="iconbtn" id="devBack">← Zurück</button><b>🛠️ Entwickler</b><button class="iconbtn" id="devLock">🔒 Sperren</button></div>
+  <div class="devwrap">
+    <h3 class="vh first">📊 Nutzer</h3>
+    <div class="devstats" id="devStats"><div><b>…</b><small>Nutzer gesamt</small></div><div><b>…</b><small>heute aktiv</small></div><div><b>…</b><small>Vollversion</small></div><div><b>…</b><small>Codes eingelöst</small></div></div>
+    <div class="pc" id="devWeek"><p class="muted" style="margin:0">Lade Verlauf …</p></div>
+    <p class="muted">Zählt anonym jedes Gerät einmal (ohne Namen oder persönliche Daten). Wer alle Website-Daten löscht, wird neu gezählt.</p>
+
+    <h3 class="vh">🎟️ Freischalt-Code erzeugen</h3>
+    <div class="pc">
+      <label class="f2">Für wen? (optional)<input id="devWho" placeholder="z. B. Max, Studio Müller"></label>
+      <button class="savebtn" id="devGen">🎲 Neuen 6-stelligen Code erzeugen</button>
+      <div id="devNew"></div>
+      <p class="muted">Jeder Code funktioniert <b>genau einmal</b> – danach ist er verbraucht. Für jeden Käufer einen neuen Code erzeugen.</p>
+    </div>
+    <h3 class="vh">📋 Vergebene Codes <small style="text-transform:none;letter-spacing:0">${DEVC.length}</small></h3>
+    <div class="pc">${DEVC.length?`<div class="devlist">${DEVC.slice().reverse().map(c=>`<div data-c="${c.code}"><code>${c.code}</code><span>${esc(c.who||'–')}<small>${fmtD(parseD(c.date))}</small></span><em class="st">${c.used?'✅ eingelöst':'⏳ offen'}</em></div>`).join('')}</div>
+      <button class="savebtn sec2" id="devCheck">🔄 Status aller Codes prüfen</button>`:'<p class="muted" style="margin:0">Noch keine Codes erzeugt.</p>'}</div>
+    <h3 class="vh">🧪 Test-Werkzeuge</h3>
+    <div class="pc devtools"><button id="devDemo">Demo neu starten (nur dieses Gerät)</button><button id="devBasic">Demo als abgelaufen simulieren</button><button id="devWN">„Was ist neu“ erneut zeigen</button></div>
+  </div>`;
+  $('devBack').onclick=devClose; $('devLock').onclick=()=>{ sessionStorage.removeItem('mc_dev'); devClose(); toast2('Entwickler-Modus gesperrt'); };
+  $('devGen').onclick=()=>{ let code; do{ code=makeCode(); }while(DEVC.some(c=>c.code===code));
+    const who=$('devWho').value.trim(); DEVC.push({code,who,date:ymd(new Date()),used:false}); saveDevC();
+    const txt=`Danke für deinen Kauf! 💪\n\nDein persönlicher Freischalt-Code für Muskel-Coach:\n\n*${code}*\n\nSo geht's: App öffnen → „Vollversion“ antippen → Code eingeben → fertig. Der Code gilt nur einmal.\n\n${appUrl()}`;
+    devRender(); devStats();
+    $('devNew').innerHTML=`<div class="devcode">${code}</div><div class="devbtns"><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">💬 Per WhatsApp senden</a><button class="savebtn sec2" id="devCopy">📋 Kopieren</button></div>`;
+    $('devCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); toast2('Kopiert ✓'); }catch(e){ toast2(code); } }; };
+  const chk=$('devCheck'); if(chk) chk.onclick=async()=>{ chk.textContent='⏳ Prüfe …'; for(const c of DEVC){ const v=await cntGet('c-'+c.code); if(v!==null) c.used=v>0; } saveDevC(); devRender(); devStats(); toast2('Status aktualisiert'); };
+  $('devDemo').onclick=()=>{ try{ localStorage.removeItem('mc_trial'); document.cookie='mc_trial=;max-age=0;path=/'; indexedDB.deleteDatabase('mc_meta'); }catch(e){} toast2('Demo-Daten gelöscht – gilt erst, wenn das Gerät nicht freigeschaltet ist'); };
+  $('devBasic').onclick=()=>{ const v=Date.now()-11*864e5; MC.persist(v,true); toast2('Demo-Start auf vor 11 Tagen gesetzt'); };
+  $('devWN').onclick=()=>{ devClose(); showWhatsNew(true); };
+}
+async function devStats(){ const box=$('devStats'); if(!box) return;
+  const today=new Date(); const k=d=>'d-'+d.toISOString().slice(0,10).replace(/-/g,'');
+  const [u,t,p,un]=await Promise.all([cntGet('users'),cntGet(k(today)),cntGet('pro-users'),cntGet('unlocks')]);
+  const red=DEVC.filter(c=>c.used).length;
+  const f=v=>v===null?'–':Number(v).toLocaleString('de-DE');
+  if(!$('devStats')) return;
+  $('devStats').innerHTML=`<div><b>${f(u)}</b><small>Nutzer gesamt</small></div><div><b>${f(t)}</b><small>heute aktiv</small></div><div><b>${f(Math.max(p||0,un||0))}</b><small>Vollversion</small></div><div><b>${red}</b><small>Codes eingelöst</small></div>`;
+  const days=[...Array(7)].map((_,i)=>new Date(today.getTime()-(6-i)*864e5)); const vals=await Promise.all(days.map(d=>cntGet(k(d))));
+  if(!$('devWeek')) return;
+  if(vals.every(v=>v===null)){ $('devWeek').innerHTML='<p class="muted" style="margin:0">⚠️ Zähldienst nicht erreichbar – Internet prüfen.</p>'; return; }
+  const mx=Math.max(1,...vals.map(v=>v||0));
+  $('devWeek').innerHTML=`<div class="pch"><b>Aktive Nutzer – letzte 7 Tage</b></div><div class="devbars">${days.map((d,i)=>`<div><i style="height:${Math.round(100*(vals[i]||0)/mx)}%"></i><b>${vals[i]??'–'}</b><small>${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}</small></div>`).join('')}</div>`; }
+
 setTimeout(()=>{ try{ start3DThumbs(); }catch(e){ console.warn('3D',e); } },400);
 renderSummary(); renderChips(); renderGrid(); (function(){let t='home';try{t=localStorage.getItem('mc_tab')||'home'}catch(e){} setView(t);})(); route(); heroLoop(); initShare();
 $('tback').onclick=closeLive; $('resume').onclick=openLive;
@@ -3100,14 +3200,19 @@ updResume();
 </script>
 <script>
 /* ===== Demo-Countdown, Basis-Version & Freischalten per Code ===== */
-const BUY={ price:'5 €', paypal:'', whatsapp:'', name:'Cem' };   // paypal: PayPal.me-Name · whatsapp: Nummer mit Ländervorwahl, z. B. 4917612345678
+/* tawk: Chat-ID aus tawk.to (Format 'xxxxxxxx/yyyyyyy'), leer = kein Chat */
+const BUY={ price:'5 €', paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/default', name:'Cem' };
+function openChat(){ window.Tawk_API=window.Tawk_API||{}; const T=window.Tawk_API;
+  if(T.maximize&&T.__ready){ T.showWidget&&T.showWidget(); T.maximize(); return; }
+  T.onLoad=function(){ T.__ready=true; try{ T.setAttributes&&T.setAttributes({app:'Muskel-Coach'},()=>{}); }catch(e){} T.maximize(); };
+  T.onChatMinimized=function(){ try{ T.hideWidget(); }catch(e){} };
+  if(!document.getElementById('tawkJs')){ window.Tawk_LoadStart=new Date(); const sc=document.createElement('script'); sc.id='tawkJs'; sc.async=true; sc.src='https://embed.tawk.to/'+BUY.tawk; sc.charset='UTF-8'; sc.setAttribute('crossorigin','*'); document.body.appendChild(sc); toast2('Chat wird geöffnet …'); } }   // paypal: PayPal.me-Name · whatsapp: Nummer mit Ländervorwahl, z. B. 4917612345678
 (function(){
-  const cyrb53=(str,seed=7)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);};
   const g=document.getElementById('gate');
   if(MC.unlocked){ g.remove(); return; }
   g.style.display='none';
   const left=MC.left;
-  const msg=encodeURIComponent('Hallo '+BUY.name+', ich möchte die Vollversion von Muskel-Coach für '+BUY.price+' kaufen. Bitte schick mir den Freischalt-Code. 💪');
+  const msg=encodeURIComponent('Vollversion');
   const waUrl=BUY.whatsapp?('https://wa.me/'+BUY.whatsapp.replace(/\D/g,'')+'?text='+msg):('https://wa.me/?text='+msg);
   const ppUrl=BUY.paypal?('https://paypal.me/'+BUY.paypal+'/'+BUY.price.replace(/[^\d,.]/g,'').replace(',','.')+'EUR'):'';
   const dots=()=>Array.from({length:MC.TRIAL},(_,i)=>`<i class="${i<left?(left<=2?'hot':'on'):''}"></i>`).join('');
@@ -3117,12 +3222,13 @@ const BUY={ price:'5 €', paypal:'', whatsapp:'', name:'Cem' };   // paypal: Pa
       ? `<div class="cd ${left<=2?'hot':''}"><b>${left}</b><span>${left===1?'Tag':'Tage'}<br>Vollversion gratis</span></div><div class="cddots">${dots()}</div>
          <p>${left<=2?'⏰ <b>Bald vorbei!</b> ':''}Du testest gerade die <b>Vollversion</b>. Danach geht es mit der kostenlosen Basis-Version weiter – oder du behältst alles für einmalig <b style="color:var(--acc)">${BUY.price}</b>.</p>`
       : `<p>${why?`🔒 <b>${String(why).replace(/[<>]/g,'')}</b> gehört zur Vollversion.<br>`:'<b style="color:#ff9a6e">Deine 10-Tage-Demo ist vorbei.</b> Du nutzt jetzt die kostenlose Basis-Version.<br>'}Hol dir alles für einmalig <b style="color:var(--acc)">${BUY.price}</b>:</p>`;
+    const via=BUY.tawk?'im Chat':'per WhatsApp';
     g.innerHTML=`<form class="box" id="gateForm" autocomplete="off">
       <img src="icon-512.png" alt="Muskel-Coach" style="width:84px;height:84px;border-radius:20px;box-shadow:0 8px 30px rgba(255,40,40,.35)">
       ${head}
       <ul class="profeat">${PRO_FEATURES.map(f=>`<li><i>${f[0]}</i><div><b>${f[1]}</b><small>${f[2]}</small></div></li>`).join('')}</ul>
-      <div class="buyrow">${ppUrl?`<a class="buy pp" href="${ppUrl}" target="_blank" rel="noopener">💳 ${BUY.price} mit PayPal zahlen</a>`:''}
-        <a class="buy wa" href="${waUrl}" target="_blank" rel="noopener">💬 Vollversion kaufen – Code anfragen</a></div>
+      <ol class="buysteps"><li><span>1</span><div>Schreib <b>„Vollversion“</b> ${via} an ${BUY.name}</div></li><li><span>2</span><div>Du bekommst die <b>PayPal-Adresse</b> und zahlst <b>${BUY.price}</b></div></li><li><span>3</span><div>Dein <b>persönlicher Freischalt-Code</b> kommt ${via} – einmal eingeben, fertig ✅</div></li></ol>
+      <div class="buyrow">${BUY.tawk?`<button type="button" class="buy chat" id="gateChat">💬 Jetzt im Chat schreiben</button>`:''}${(!BUY.tawk||BUY.whatsapp)?`<a class="buy wa${BUY.tawk?' alt':''}" href="${waUrl}" target="_blank" rel="noopener">${BUY.tawk?'oder per WhatsApp':'💬 „Vollversion“ per WhatsApp senden'}</a>`:''}</div>
       <div class="codelbl">Schon gekauft? Code einmal eingeben:</div>
       <input id="gatePw" type="password" inputmode="numeric" placeholder="Freischalt-Code" aria-label="Freischalt-Code">
       <button type="submit">Freischalten</button>
@@ -3131,10 +3237,15 @@ const BUY={ price:'5 €', paypal:'', whatsapp:'', name:'Cem' };   // paypal: Pa
     </form>`;
     document.getElementById('gateForm').addEventListener('submit',ev=>{ ev.preventDefault();
       const v=document.getElementById('gatePw').value.trim();
-      if(cyrb53(v)===MC.H){ try{localStorage.setItem('mc_unlock',MC.H)}catch(e){} g.innerHTML='<div class="box"><div style="font-size:64px">🎉</div><h2>Vollversion<br><span>freigeschaltet!</span></h2><p>Danke! Die App startet neu …</p></div>'; setTimeout(()=>location.reload(),1200); }
-      else { document.getElementById('gateErr').textContent='Falscher Code – bitte nochmal prüfen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); }
+      const okUnlock=()=>{ try{localStorage.setItem('mc_unlock',MC.H)}catch(e){} cntHit('unlocks'); g.innerHTML='<div class="box"><div style="font-size:64px">🎉</div><h2>Vollversion<br><span>freigeschaltet!</span></h2><p>Danke! Die App startet neu …</p></div>'; setTimeout(()=>location.reload(),1400); };
+      if(validCode(v)){ const err=document.getElementById('gateErr'); err.textContent='⏳ Code wird geprüft …';
+        redeemCode(v).then(r=>{ if(r==='ok') okUnlock(); else { err.textContent=r==='used'?'Dieser Code wurde schon verwendet. Jeder Code gilt nur einmal – bitte neuen Code anfragen.':'Keine Internetverbindung – bitte Internet einschalten und nochmal versuchen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } }); return; }
+      const err=document.getElementById('gateErr'); if(!v) return; err.textContent='⏳ Code wird geprüft …';
+      slowHash(v,'mc-master-v2').then(h=>{ if(h==='f74c427b5d6d3736c25a3ad218f853789d62cc0ad973360882a69d62a93faf80') okUnlock();
+        else { err.textContent='Falscher Code – bitte nochmal prüfen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } });
     });
     document.getElementById('gateLater').onclick=hide;
+    const gc=document.getElementById('gateChat'); if(gc) gc.onclick=openChat;
   }
   function hide(){ g.style.display='none'; document.body.style.overflow=''; try{ localStorage.setItem('mc_trial_pop',new Date().toDateString()); }catch(e){} pill(); }
   function pill(){ let b=document.getElementById('demoPill'); if(!b){ b=document.createElement('button'); b.id='demoPill'; b.className='demopill'; document.body.appendChild(b); }
