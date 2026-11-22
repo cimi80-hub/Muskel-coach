@@ -2893,9 +2893,9 @@ function draw(ex,ph){ if(!ok) return; resize(); const now=performance.now(), dt=
 const TH={}; let thBusy=false, thVer=0, thAgain=null;
 function thumbs(list,done){ if(!init()) return; if(thBusy){ thAgain=[list,done]; return; } thBusy=true; const myVer=thVer; let e2; try{ const c=document.createElement('canvas'); c.width=300; c.height=300; e2=Engine(c); }catch(err){ thBusy=false; return; }
   const todo=list.filter(x=>!TH[x.id]); let i=0;
-  const step=()=>{ const t0=performance.now(); while(i<todo.length&&performance.now()-t0<40){ const ex=todo[i++]; try{ PULSE=0.6; const sc=scene(ex,0.62); e2.render(sc.items,camFor(sc.view,DEF_AZ[sc.view],12,sc.fit,0.92,1),sc.shadows); TH[ex.id]=e2.canvas.toDataURL('image/png'); }catch(err){} }
+  const step=()=>{ if(myVer===thVer&&performance.now()-(window.__mcTouch||0)<700){ setTimeout(step,250); return; } const t0=performance.now(); while(i<todo.length&&performance.now()-t0<12){ const ex=todo[i++]; try{ PULSE=0.6; const sc=scene(ex,0.62); e2.render(sc.items,camFor(sc.view,DEF_AZ[sc.view],12,sc.fit,0.92,1),sc.shadows); TH[ex.id]=e2.canvas.toDataURL('image/png'); }catch(err){} }
     if(myVer!==thVer){ i=todo.length; }
-    if(i<todo.length) setTimeout(step,16); else { thBusy=false; scene.cache=null; try{e2.gl.getExtension('WEBGL_lose_context').loseContext();}catch(e){} if(myVer===thVer) done&&done(); if(thAgain){ const a=thAgain; thAgain=null; thumbs(a[0],a[1]); } } };
+    if(i<todo.length) setTimeout(step,60); else { thBusy=false; scene.cache=null; try{e2.gl.getExtension('WEBGL_lose_context').loseContext();}catch(e){} if(myVer===thVer) done&&done(); if(thAgain){ const a=thAgain; thAgain=null; thumbs(a[0],a[1]); } } };
   step(); }
 return {resetThumbs:()=>{thVer++; for(const k in TH) delete TH[k];},setLook,setCam:f=>{camOv=f;},init,mount,draw,camButtons,bindButtons,thumbs,TH,get ok(){return ok;}};
 })();
@@ -2919,7 +2919,21 @@ const COACH_LOOKS=[
 function curLookIdx(){ try{ return +(localStorage.getItem('mc_look')||0); }catch(e){ return 0; } }
 function applyLook(i,save){ const l=COACH_LOOKS[i]||COACH_LOOKS[0]; G3.setLook(l[2]); if(save){ try{localStorage.setItem('mc_look',String(i))}catch(e){} G3.resetThumbs(); start3DThumbs(); } }
 try{ applyLook(curLookIdx(),false); }catch(e){ console.warn('Look',e); }
-function start3DThumbs(){ if(!G3.init()) return; G3.thumbs(EX,()=>{ try{ renderGrid(); if(view==='plan') renderPlan(); }catch(e){} }); }
+/* Scrollen/Tippen merken: solange der Finger aktiv ist, pausiert das Zeichnen der Vorschaubilder */
+['touchstart','touchmove','scroll','wheel'].forEach(t=>addEventListener(t,()=>{ window.__mcTouch=performance.now(); },{passive:true,capture:true}));
+/* Vorschaubilder im Handy speichern (IndexedDB) – dann muss nicht bei jedem Start neu gezeichnet werden */
+const TH_DB={ key:()=> 'th|'+curLookIdx()+'|'+(typeof APP_VERSION!=='undefined'?APP_VERSION:''),
+  open(){ return new Promise((res,rej)=>{ try{ const r=indexedDB.open('mc_thumbs',1); r.onupgradeneeded=()=>r.result.createObjectStore('t'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); },
+  async load(){ try{ const db=await this.open(); return await new Promise(res=>{ const q=db.transaction('t').objectStore('t').get(this.key()); q.onsuccess=()=>res(q.result||null); q.onerror=()=>res(null); }); }catch(e){ return null; } },
+  async save(obj){ try{ const db=await this.open(); const tx=db.transaction('t','readwrite'), st=tx.objectStore('t'); st.clear(); st.put(obj,this.key()); }catch(e){} } };
+function swapThumbs(){ /* Bilder direkt austauschen statt die ganze Liste neu aufzubauen */
+  document.querySelectorAll('.card[data-id] .fig').forEach(f=>{ const id=f.parentNode.dataset.id, src=G3.TH[id]; if(!src) return; const old=f.querySelector('svg,img.th3d'); if(old&&old.tagName==='IMG'&&old.getAttribute('src')===src) return;
+    const im=document.createElement('img'); im.className='th3d'; im.alt=''; im.decoding='async'; im.src=src; if(old) old.replaceWith(im); else f.prepend(im); }); }
+async function start3DThumbs(){ if(!G3.init()) return;
+  const key=TH_DB.key(), c=await TH_DB.load();
+  if(c&&typeof c==='object'){ for(const k in c) if(!G3.TH[k]) G3.TH[k]=c[k]; try{ swapThumbs(); if(view==='plan') renderPlan(); }catch(e){} }
+  if(EX.every(x=>G3.TH[x.id])) return;
+  G3.thumbs(EX,()=>{ try{ swapThumbs(); if(view==='plan') renderPlan(); }catch(e){} if(key===TH_DB.key()){ const o={}; EX.forEach(x=>{ if(G3.TH[x.id]) o[x.id]=G3.TH[x.id]; }); TH_DB.save(o); } }); }
 
 /* =====================================================================
    ERWEITERUNGEN: Fortschritt, Körper & Fotos, Abzeichen, Rechner,
@@ -3350,7 +3364,7 @@ async function devStats(force){ if(!$('devStats')) return;
   try{ localStorage.setItem('mc_dev_stats',JSON.stringify(S)); }catch(e){}
   draw(S,'ok'); }
 
-setTimeout(()=>{ try{ start3DThumbs(); }catch(e){ console.warn('3D',e); } },400);
+setTimeout(()=>{ try{ start3DThumbs().catch(e=>console.warn('3D',e)); }catch(e){ console.warn('3D',e); } },400);
 renderSummary(); renderChips(); renderGrid(); (function(){let t='home';try{t=localStorage.getItem('mc_tab')||'home'}catch(e){} setView(t);})(); route(); heroLoop(); initShare();
 $('tback').onclick=closeLive; $('resume').onclick=openLive;
 $('restPlus').onclick=()=>{ if(restEnd){ restEnd+=15000; restTotal+=15; tickLive(); } };
@@ -3447,7 +3461,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
 .bfbanner b{color:#ffb347}
 #chatFab{position:fixed;right:12px;bottom:calc(124px + env(safe-area-inset-bottom));z-index:50;
  background:var(--acc);color:#111;border:0;border-radius:18px;padding:10px 14px;text-align:center;
- font-weight:800;font-size:14.5px;line-height:1.2;box-shadow:0 4px 18px rgba(198,255,26,.5);animation:fabPulse 1.8s ease-in-out infinite}
+ font-weight:800;font-size:14.5px;line-height:1.2;box-shadow:0 4px 18px rgba(198,255,26,.5);animation:fabPulse 1.8s ease-in-out 4}
 #chatFab small{display:block;font-weight:600;font-size:11px;margin-top:2px}
 @keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 @media (prefers-reduced-motion:reduce){#chatFab{animation:none}}
@@ -3484,11 +3498,12 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
   function paint(){
     if(row) row.classList.toggle('hasbadge',!b.hidden);
     let pro=false; try{ pro=!!MC.unlocked; }catch(e){}
-    if(pro){ b.hidden=false; b.className='pro'; b.innerHTML='<span class="gift">✓</span>Vollversion'; b.onclick=null; row&&row.classList.add('hasbadge'); return; }
+    if(pro){ if(b.className==='pro') return; b.hidden=false; b.className='pro'; b.innerHTML='<span class="gift">✓</span>Vollversion'; b.onclick=null; row&&row.classList.add('hasbadge'); return; }
     if(typeof BUY==='undefined'){ b.hidden=true; return; }
     b.hidden=false; b.className=''; row&&row.classList.add('hasbadge');
-    b.innerHTML=BUY.old? '<span class="gift">🎁</span>'+(BUY.pct?'−'+BUY.pct+' %':BUY.sale)+' · <b>'+BUY.price+'</b>'
+    const h=BUY.old? '<span class="gift">🎁</span>'+(BUY.pct?'−'+BUY.pct+' %':BUY.sale)+' · <b>'+BUY.price+'</b>'
                        : '<span class="gift">🎁</span>Vollversion · <b>'+BUY.price+'</b>';
+    if(b.dataset.h===h) return; b.dataset.h=h; b.innerHTML=h;
     b.setAttribute('aria-label',(BUY.sale?BUY.sale+': ':'')+'Vollversion für '+BUY.price+(BUY.old?' statt '+BUY.old:''));
     b.onclick=()=>{ try{ if(window.MC_GATE) MC_GATE.show(MC.trial?'trial':'basic'); else upsell(); }catch(e){ try{ upsell(); }catch(x){} } };
   }
