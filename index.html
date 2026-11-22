@@ -998,6 +998,7 @@ const T = {
 T.standF={view:'f',A:P(F),B:P(F)}; T.standB={view:'b',A:P(F),B:P(F)};
 T.pullupF.B = shift(T.pullupF.A,-36); Object.assign(T.pullupF.B, arms([64,42],[76,20])); T.pullupF.B.shL=[85,30]; T.pullupF.B.shR=[115,30];
 
+T.ropecurl=Object.assign({},T.cablecurl,{A:Object.assign({},T.cablecurl.A,{lw:[19,8]}),B:Object.assign({},T.cablecurl.B,{lw:[19,11]})});
 for(const k of ['pullupF','latpullF','shrugF','revflyF']) T[k.replace(/F$/,'B')]=Object.assign({},T[k],{view:'b'});
 const ease = x => 0.5 - 0.5*Math.cos(Math.PI*x);
 function poseAt(tp, ph){ // ph 0..1 -> Anteil Richtung B
@@ -1563,7 +1564,7 @@ EX.push(
  X('schraegbank-curls','Schrägbank-Curls',['bizeps'],'inclCurl','db','Bizeps (langer Kopf)','Unterarme','Kurzhanteln, Schrägbank','Fortgeschritten','3 × 10–12',
   ['Bank auf ca. 45–60°, zurücklehnen, Arme hängen nach unten.','Handflächen zeigen nach vorn.','Hanteln nach oben beugen, Oberarme bleiben hinten.','Langsam ablassen bis zur vollen Dehnung.'],
   ['Durch die Dehnung sehr effektiv.','Leichter beginnen als bei normalen Curls.'],['Schultern nach vorn schieben.','Halbe Bewegung.']),
- X('seil-hammercurls','Hammer-Curls am Seil',['bizeps','unterarme'],'cablecurl','handle','Bizeps, Oberarmmuskel','Unterarme','Kabelzug (Rolle unten), Seil','Anfänger','3 × 12',
+ X('seil-hammercurls','Hammer-Curls am Seil',['bizeps','unterarme'],'ropecurl','rope','Bizeps, Oberarmmuskel','Unterarme','Kabelzug (Rolle unten), Seil','Anfänger','3 × 12',
   ['Rolle unten, Seil mit neutralem Griff (Daumen oben).','Ellbogen am Körper.','Seil nach oben beugen, Enden oben leicht auseinander.','Langsam ablassen.'],
   ['Konstante Spannung durch das Kabel.','Gut für dicke Oberarme.'],['Ellbogen nach vorn.','Oberkörper lehnt zurück.']),
  X('zottman-curls','Zottman-Curls',['bizeps','unterarme'],'curl','db','Bizeps & Unterarme','Oberarmmuskel','Kurzhanteln','Fortgeschritten','3 × 10',
@@ -1610,6 +1611,7 @@ EX.push(
     backExtM:{view:'s',backPad:true,statics:MSEAT.replace('<rect x="62" y="66" width="8" height="62" rx="3" fill="#3b4249"/>',''),
       A:P(S,o(SEAT,{sh:[108,86],hd:[122,74],el:[120,104],ha:[121,90],lw:[20,-9]})),B:P(S,o(SEAT,{sh:[72,75],hd:[73,57],el:[86,92],ha:[87,79],lw:[20,-9]}))},
     hyper:{view:'s',statics:'<path d="M78 152L104 126" stroke="#3b4249" stroke-width="8" stroke-linecap="round"/><path d="M36 182L46 172" stroke="#3b4249" stroke-width="8" stroke-linecap="round"/><path d="M46 178L96 140M90 146V184M50 176V184" stroke="#3a4146" stroke-width="4"/>',
+      prone:true,dynFront:true,
       A:P(S,{ft:[42,174],to:[36,182],kn:[66,154],hp:[94,130],sh:[118,164],hd:[128,176],el:[112,150],ha:[118,156]}),
       B:P(S,{ft:[42,174],to:[36,182],kn:[66,154],hp:[94,130],sh:[134,98],hd:[148,86],el:[128,112],ha:[124,106]})},
     latSeatF:{view:'f',statics:SFST,A:P(F,o(SF,arms([80,110],[79,132]))),B:P(F,o(SF,arms([60,86],[38,86])))},
@@ -2660,6 +2662,7 @@ function joints(tp,ex,p){
     const P3=(k,lat)=>p[k]?[lat,Y(p[k][1]),(p[k][0]-100)*K]:null;
     const wide=ex.prop==='bar'||tp.barAt?0.3:0.2;
     J.H=P3('hp',0);J.S=P3('sh',0);J.hd=P3('hd',0);J.f=tp.prone?[0,-1,0]:[0,0,1];
+    if(tp.dynFront){ const d=nrm(sub(J.S,J.H)); J.f=nrm([0,-d[2],d[1]]); }
     for(const [s,sg] of [['R',-1],['L',1]]){ const two=s==='L'&&p.el2, ek=two?'el2':'el', hk=two?'ha2':'ha', lw=two&&p.lw2?p.lw2:p.lw;
       J['sh'+s]=P3('sh',0.19*sg);J['el'+s]=P3(ek,(lw?lw[0]*K:(wide>0.2?0.3:0.22))*sg);J['ha'+s]=P3(hk,(lw?lw[1]*K:wide)*sg);}
     J.hpR=P3('hp',-0.095);J.hpL=P3('hp',0.095);
@@ -2918,7 +2921,10 @@ function handProps(tp,ex,J,p){
     else for(const h of [hL,hR]) it.push(rod(add(h,[-0.07,0,0]),add(h,[0.07,0,0]),0.02,PAD,0.3));
   }
   // Seilzüge
-  if(tp.cable){ const A=AP(tp.cable),c=mix(hL,hR,.5); it.push(rod(A,c,0.005,CABLE,0.6)); it.push(ball(A,0.05,{c:STEEL,sp:0.8,sh:60})); }
+  if(tp.cable&&ex.prop==='rope'){ const A=AP(tp.cable), m=mix(hL,hR,.5), j=add(m,mul(nrm(sub(A,m)),0.1));
+    it.push(rod(A,j,0.005,CABLE,0.6)); it.push(ball(A,0.05,{c:STEEL,sp:0.8,sh:60})); it.push(ball(j,0.02,{c:STEEL,sp:0.8}));
+    for(const h of [hL,hR]){ const dir=nrm(sub(h,j)); it.push(rod(j,add(h,mul(dir,0.035)),0.012,[0.08,0.08,0.09],0.2)); it.push(ball(add(h,mul(dir,0.045)),0.026,{c:[0.08,0.08,0.09],sp:0.2})); } }
+  else if(tp.cable){ const A=AP(tp.cable),c=mix(hL,hR,.5); it.push(rod(A,c,0.005,CABLE,0.6)); it.push(ball(A,0.05,{c:STEEL,sp:0.8,sh:60})); }
   if(tp.cables){ const ps=tp.cables.map(AP).sort((a,b)=>a[0]-b[0]), hs=[hL,hR].sort((a,b)=>a[0]-b[0]); ps.forEach((A,i)=>{it.push(rod(A,hs[i],0.005,CABLE,0.6));it.push(ball(A,0.045,{c:STEEL,sp:0.8}));}); }
   if(tp.cableMid){ const A=AP(tp.cableMid); it.push(rod(A,mix(hL,hR,.5),0.005,CABLE,0.6)); }
   if(tp.cableFoot&&J.ftL){ const A=AP(tp.cableFoot); it.push(rod(A,J.ftL,0.005,CABLE,0.6)); it.push(ball(A,0.045,{c:STEEL,sp:0.8})); }
@@ -3271,7 +3277,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-22o';
+const APP_VERSION='2026-11-22p';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🦾','Bewegungen überarbeitet','Alle 90 Übungen geprüft: Dips, Butterfly, Kabel-Crossover, Sitz-Maschinen, Klimmzüge u. a. jetzt realistischer und besser nachzumachen'],
