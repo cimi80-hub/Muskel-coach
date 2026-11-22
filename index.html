@@ -3279,5 +3279,18 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
 })();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+<style>
+#chatFab{position:fixed;right:12px;bottom:calc(124px + env(safe-area-inset-bottom));z-index:50;
+ background:var(--acc);color:#111;border:0;border-radius:18px;padding:10px 14px;text-align:center;
+ font-weight:800;font-size:14.5px;line-height:1.2;box-shadow:0 4px 18px rgba(198,255,26,.5);animation:fabPulse 1.8s ease-in-out infinite}
+#chatFab small{display:block;font-weight:600;font-size:11px;margin-top:2px}
+@keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+</style>
+<button id="chatFab" type="button" onclick="openChat()">💬 Vollversion 5 €<small>Schreib mir im Chat!</small></button>
+<script>
+(function(){ const b=document.getElementById('chatFab');
+  function check(){ try{ if(MC.unlocked){ b.remove(); clearInterval(t); } }catch(e){} }
+  const t=setInterval(check,3000); check(); })();
+</script>
 </body>
 </html>
