@@ -812,13 +812,21 @@ async function slowHash(pw,salt){ try{ const k=await crypto.subtle.importKey('ra
 const CODE_SALT='mc|cem|2026|x7q';
 function validCode(v){ v=String(v||'').trim(); if(!/^\d{6}$/.test(v)) return false; return String(fnv(v.slice(0,4)+CODE_SALT)%100).padStart(2,'0')===v.slice(4); }
 function makeCode(){ const a=new Uint32Array(1); let first; do{ crypto.getRandomValues(a); first=String(1000+a[0]%9000); }while(false); return first+String(fnv(first+CODE_SALT)%100).padStart(2,'0'); }
-async function redeemCode(v){ const n=await cntHit('c-'+v);
-  if(n===null){ /* Zähl-Dienst nicht erreichbar: bei echtem Internet trotzdem freischalten (Kunde hat bezahlt), Code später nachmelden */
-    if(navigator.onLine===false) return 'offline';
-    try{ localStorage.setItem('mc_pending_code',v); }catch(e){} return 'ok'; }
-  return n===1?'ok':'used'; }
+/* Reserve-Zähler (zweiter Dienst), falls Abacus ausfällt */
+async function cntHit2(key){ try{ const r=await cntFetch('https://countapi.mileshilliard.com/api/v1/hit/'+CNT.ns+'-'+key,15000); if(!r.ok) throw 0; const n=parseInt((await r.json()).value,10); return isNaN(n)?null:n; }catch(e){ return null; } }
+async function redeemCode(v){
+  /* beide Dienste gleichzeitig fragen: kennt EINER den Code schon (>1), gilt er als benutzt */
+  const [a,b]=await Promise.all([cntHit('c-'+v),cntHit2('c-'+v)]);
+  if((a!==null&&a>1)||(b!==null&&b>1)) return 'used';
+  if(a===1||b===1){ if(a===null||b===null){ try{ localStorage.setItem('mc_pending_code',v); localStorage.setItem('mc_pending_done',a!==null?'a':'b'); }catch(e){} } return 'ok'; }
+  /* beide nicht erreichbar: bei echtem Internet trotzdem freischalten (Kunde hat bezahlt), Code später nachmelden */
+  if(navigator.onLine===false) return 'offline';
+  try{ localStorage.setItem('mc_pending_code',v); localStorage.removeItem('mc_pending_done'); }catch(e){} return 'ok'; }
 /* nachgemeldete Codes beim nächsten Start registrieren */
-(function(){ try{ const v=localStorage.getItem('mc_pending_code'); if(v) cntHit('c-'+v).then(n=>{ if(n!==null) localStorage.removeItem('mc_pending_code'); }); }catch(e){} })();
+(function(){ try{ const v=localStorage.getItem('mc_pending_code'); if(!v) return; let k='mc_pending_done'; let done=(localStorage.getItem(k)||'').split(',');
+  const fin=()=>{ if(done.includes('a')&&done.includes('b')){ localStorage.removeItem('mc_pending_code'); localStorage.removeItem(k); } else localStorage.setItem(k,done.join(',')); };
+  if(!done.includes('a')) cntHit('c-'+v).then(n=>{ if(n!==null){ done.push('a'); fin(); } });
+  if(!done.includes('b')) cntHit2('c-'+v).then(n=>{ if(n!==null){ done.push('b'); fin(); } }); }catch(e){} })();
 (function track(){ const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
   try{ if(!localStorage.getItem('mc_counted')){ cntHit('users').then(v=>{ if(v!==null) localStorage.setItem('mc_counted','1'); }); }
     if(localStorage.getItem('mc_day')!==today){ cntHit('d-'+today).then(v=>{ if(v!==null) localStorage.setItem('mc_day',today); }); }
