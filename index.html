@@ -3452,7 +3452,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-23p';
+const APP_VERSION='2026-11-23q';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🧢','Pro Athlet ist Standard','Die 3D-Figur startet jetzt im Look „Pro Athlet“. Andere Looks kannst du weiter im Profil wählen.'],
@@ -3683,6 +3683,8 @@ updResume();
 /* Angebot: old = alter Preis (durchgestrichen), sale = Name der Aktion. Angebot beenden: old:'' und sale:'' setzen. */
 /* stripe: Zahlungslink aus Stripe (Preis dort einstellen – bei Preisänderung neuen Link eintragen) */
 const BUY={ price:'4,99 €', old:'9,99 €', sale:'Black Friday', pct:50, stripe:'https://buy.stripe.com/cNi6oAe2337f7KobOv8so02', paypal:'', whatsapp:'', tawk:'6b02bbae04d1f13cac8bfb30/1k81aq8bi', name:'Dr. Muskel Coach' };
+function mcOrderNo(){ let o=''; try{ o=localStorage.getItem('mc_order')||''; }catch(e){} if(!/^MC-\d{5}$/.test(o)){ const a=new Uint32Array(1); crypto.getRandomValues(a); o='MC-'+String(10000+a[0]%90000); try{ localStorage.setItem('mc_order',o); }catch(e){} } return o; }
+function mcBuyUrl(){ return BUY.stripe?BUY.stripe+(BUY.stripe.includes('?')?'&':'?')+'client_reference_id='+encodeURIComponent(mcOrderNo())+'&locale='+(LANG==='en'?'en':'de'):''; }
 /* Black Friday endet automatisch: ab 1.12.2026 wieder Normalpreis 9,99 € */
 const SALE_END=new Date(2026,11,1,0,0,0);
 if(Date.now()>=SALE_END.getTime()){ BUY.price='9,99 €'; BUY.old=''; BUY.sale=''; BUY.pct=0; }
@@ -3703,7 +3705,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
   const ppUrl=BUY.paypal?('https://paypal.me/'+BUY.paypal+'/'+BUY.price.replace(/[^\d,.]/g,'').replace(',','.')+'EUR'):'';
   const dots=()=>Array.from({length:MC.TRIAL},(_,i)=>`<i class="${i<left?(left<=2?'hot':'on'):''}"></i>`).join('');
   /* persönliche Bestellnummer pro Gerät – damit Cem die Zahlung zuordnen kann */
-  const orderNo=(()=>{ let o=''; try{ o=localStorage.getItem('mc_order')||''; }catch(e){} if(!/^MC-\d{5}$/.test(o)){ const a=new Uint32Array(1); crypto.getRandomValues(a); o='MC-'+String(10000+a[0]%90000); try{ localStorage.setItem('mc_order',o); }catch(e){} } return o; })();
+  const orderNo=mcOrderNo();
   const stripeUrl=()=>BUY.stripe?BUY.stripe+(BUY.stripe.includes('?')?'&':'?')+'client_reference_id='+encodeURIComponent(orderNo)+'&locale='+(LANG==='en'?'en':'de'):'';
   function show(mode,why){
     g.style.display='flex'; document.body.style.overflow='hidden';
@@ -3816,8 +3818,8 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
 (function(){
   if(typeof BUY==='undefined'||!BUY.sale) return;
   let pro=false; try{ pro=!!MC.unlocked; }catch(e){} if(pro) return;
-  const b=document.createElement('button'); b.id='chatFab'; b.type='button'; b.onclick=()=>openChat();
-  b.innerHTML='💬 Vollversion '+BUY.price+'<small><s>'+BUY.old+'</s> · '+BUY.sale+' −'+BUY.pct+' %</small>';
+  const b=document.createElement('button'); b.id='chatFab'; b.type='button'; b.onclick=()=>{ const u=mcBuyUrl(); if(u) window.open(u,'_blank','noopener'); else openChat(); };
+  b.innerHTML=(BUY.stripe?'💳 ':'💬 ')+LX('Vollversion ','Full version ')+BUY.price+'<small><s>'+BUY.old+'</s> · '+BUY.sale+' −'+BUY.pct+' %</small>';
   document.body.appendChild(b);
   const t=setInterval(()=>{ try{ if(MC.unlocked){ b.remove(); clearInterval(t); } }catch(e){} },3000);
 })();
