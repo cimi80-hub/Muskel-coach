@@ -3336,7 +3336,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-23f';
+const APP_VERSION='2026-11-23g';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['💳','Einfach bezahlen','Vollversion jetzt direkt mit Karte, Apple Pay oder Google Pay kaufen – der Freischalt-Code kommt per E-Mail'],
@@ -3474,7 +3474,7 @@ function devRender(){ const ov=$('devSheet');
     <div class="pc">
       <label class="f2">Name (optional)<input id="devWho" placeholder="z. B. Max Mustermann"></label>
       <label class="f2">E-Mail des Kunden (aus Stripe)<input id="devMail" type="email" inputmode="email" autocapitalize="off" placeholder="kunde@beispiel.de"></label>
-      <label class="f2">Bestellnummer (optional)<input id="devOrd" autocapitalize="characters" placeholder="MC-12345"></label>
+      <input id="devOrd" type="hidden" value="">
       <div class="devlang"><span>Sprache der Mail:</span><button type="button" data-ml="de" class="on">🇩🇪 Deutsch</button><button type="button" data-ml="en">🇬🇧 English</button></div>
       <button class="savebtn" id="devGen">🎲 Neuen 6-stelligen Code erzeugen</button>
       <div id="devNew"></div>
@@ -3587,7 +3587,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
       <button type="submit">Freischalten</button>
       <div class="err" id="gateErr"></div>
       <div class="codelbl" style="margin-top:14px">Noch keinen Code? Vollversion für ${BUY.price}${BUY.old?' statt <s>'+BUY.old+'</s>':''}:</div>
-      ${BUY.stripe?`<a class="buy pay" href="${stripeUrl()}" target="_blank" rel="noopener">💳 Jetzt kaufen · ${BUY.price}</a><div class="ordno">Bestellnummer: <b>${orderNo}</b></div>`:''}${BUY.tawk?`<button type="button" class="buy chat${BUY.stripe?' alt2':''}" id="gateChat">💬 ${BUY.stripe?'Fragen? Im Chat schreiben':'Im Chat kaufen'}</button>`:''}
+      ${BUY.stripe?`<a class="buy pay" href="${stripeUrl()}" target="_blank" rel="noopener">💳 Jetzt kaufen · ${BUY.price}</a>`:''}${BUY.tawk?`<button type="button" class="buy chat${BUY.stripe?' alt2':''}" id="gateChat">💬 ${BUY.stripe?'Fragen? Im Chat schreiben':'Im Chat kaufen'}</button>`:''}
       <button type="button" class="later" id="gateLater">Abbrechen</button>
     </form>`;
     g.innerHTML=mode==='code'?codeForm():`<form class="box" id="gateForm" autocomplete="off">
@@ -3595,7 +3595,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
       ${head}
       <ul class="profeat">${PRO_FEATURES.map(f=>`<li><i>${f[0]}</i><div><b>${f[1]}</b><small>${f[2]}</small></div></li>`).join('')}</ul>
       ${BUY.stripe?`<ol class="buysteps"><li><span>1</span><div>Sicher bezahlen mit <b>Karte, Apple Pay oder Google Pay</b> – <b>${BUY.price}</b> für 1 Jahr</div></li><li><span>2</span><div>Dein <b>persönlicher Freischalt-Code</b> kommt per <b>E-Mail</b> an die Adresse, die du beim Bezahlen angibst (meist innerhalb weniger Stunden)</div></li><li><span>3</span><div>Code einmal eingeben – fertig ✅</div></li></ol>
-      <div class="ordno">Deine Bestellnummer: <b>${orderNo}</b></div>`
+`
       :`<ol class="buysteps"><li><span>1</span><div>Schreib <b>„Vollversion“</b> ${via} an ${BUY.name}</div></li><li><span>2</span><div>Du bekommst die <b>PayPal-Adresse</b> und zahlst <b>${BUY.price}</b></div></li><li><span>3</span><div>Dein <b>persönlicher Freischalt-Code</b> kommt ${via} – einmal eingeben, fertig ✅</div></li></ol>`}
       <div class="buyrow">${BUY.stripe?`<a class="buy pay" href="${stripeUrl()}" target="_blank" rel="noopener">💳 Jetzt kaufen · ${BUY.price}</a>`:''}${BUY.tawk?`<button type="button" class="buy chat${BUY.stripe?' alt2':''}" id="gateChat">💬 ${BUY.stripe?'Fragen? Im Chat schreiben':'Jetzt im Chat schreiben'}</button>`:''}${(!BUY.tawk||BUY.whatsapp)?`<a class="buy wa${BUY.tawk?' alt':''}" href="${waUrl}" target="_blank" rel="noopener">${BUY.tawk?'oder per WhatsApp':'💬 „Vollversion“ per WhatsApp senden'}</a>`:''}</div>
       <div class="codelbl">Schon gekauft? Code einmal eingeben:</div>
