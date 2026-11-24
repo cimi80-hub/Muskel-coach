@@ -505,6 +505,7 @@
   .comsgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}
   .comsg{max-width:86%;padding:10px 13px;border-radius:18px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;animation:up .18s ease}
   .comsg.a{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+  .coai{align-self:flex-start;font-size:11px;color:var(--mut,#888);margin:-4px 0 4px 6px;opacity:.8}
   .comsg.u{align-self:flex-end;background:linear-gradient(135deg,#c6ff3d,#9be61f);color:#111;font-weight:600;border-bottom-right-radius:6px}
   .comsg.typing{display:flex;gap:4px} .comsg.typing i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:coDot 1s infinite} .comsg.typing i:nth-child(2){animation-delay:.15s} .comsg.typing i:nth-child(3){animation-delay:.3s}
   @keyframes coDot{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
@@ -2565,7 +2566,7 @@ function vcCmd(raw){
   const t=vcWordsToDigits(vcNorm(raw)); let cmd=null; for(const [k,re] of VC_CMDS) if(re.test(t)){ cmd=k; break; }
   const exId=vcFindEx(t), ps=vcParseSet(t), hasSet=ps.kg!==null||ps.reps!==null;
   const isQ=/^(wie|was|warum|wieso|weshalb|wann|welche\w*|soll|sollte|kann|ist|sind|brauche|bringt|hilft|how|what|why|when|which|should|can|is|are|do|does)\b/.test(t)||/\b(abnehmen|zunehmen|lose|gain)\b/.test(t);
-  if(!cmd&&isQ){ coAnswer(raw).then(a=>vcSay(a||CO_UNK())); return; }
+  if(!cmd&&isQ){ coAnswer(raw).then(a=>a||coAI(raw)).then(a=>vcSay(a||CO_UNK())); return; }
   if(hasSet&&cmd!=='plan'&&cmd!=='record'&&cmd!=='lastt'){ vcLogSet(exId,ps); return; }
   if(exId&&!cmd){ vcGoEx(exId,true); return; }
   const it=LIVE.items[LIVE.idx];
@@ -2744,6 +2745,14 @@ async function coAnswer(raw){
   if(/\b(schwanger\w*|stillzeit|medikament\w*|diabetes|herz\w*|blutdruck\w*|niere\w*|krankheit\w*|vorerkrank\w*|pregnan\w*|medication\w*|heart|blood pressure|kidney\w*)\b/.test(t)&&!/arzt|doctor/.test(out)) out+=LX(' Bei Vorerkrankungen, Medikamenten oder in der Schwangerschaft sprich das bitte mit deinem Arzt ab.',' With existing conditions, medication or pregnancy please check with your doctor.');
   return (small||out.length<90?'':coOpen())+out; }
 const CO_UNK=()=>coPick(LX(['Dazu weiß ich leider noch nichts. Frag mich zu Übungen, Training, Ernährung, Supplements oder deinen Werten – zum Beispiel „Wie viel Eiweiß brauche ich?“','Hm, das kann ich (noch) nicht beantworten. Probier zum Beispiel: „Was bringt Kreatin?“ oder „Wie mache ich Kniebeugen?“'],['I don\'t know about that yet. Ask me about exercises, training, nutrition, supplements or your numbers – e.g. “How much protein do I need?”','Hmm, I can\'t answer that (yet). Try e.g.: “What does creatine do?” or “How do I do squats?”']));
+/* Online-KI als Ersatz: nur wenn die Offline-Wissensbasis keine Antwort hat.
+   CO_AI_URL = Adresse deines Cloudflare-Workers (siehe worker/ANLEITUNG.md). Leer = KI aus. */
+const CO_AI_URL='';
+async function coAI(q){ if(!CO_AI_URL||(navigator.onLine===false)) return null;
+  try{ const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),15000);
+    const hist=CO.hist.slice(-7,-1).filter(x=>x.txt).map(x=>({r:x.who,t:x.txt}));
+    const r=await fetch(CO_AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:String(q).slice(0,500),lang:coL(),hist}),signal:ctl.signal});
+    clearTimeout(to); if(!r.ok) return null; const d=await r.json(); return d&&d.a?String(d.a).slice(0,1500):null; }catch(e){ return null; } }
 /* Muskel-Lexikon: Frage nach einem Muskel → Anleitung + Muskelbild + passende Übungen */
 const CO_Q={up:/^(ober|oben|upper|top|hoch|schluesselbein)/,down:/^(unter|unten|lower|bottom|tief)/,in:/^(inner|innen|mid|mitte|mittler|inside|zentr)/,out:/^(aeuss|aussen|outer|outside|seitl|seite|side|lateral)/,front:/^(vord|vorn|front|anterior)/,rear:/^(hint|rear|posterior)/};
 const CO_QX=/^(oberarm|oberschenkel|oberkoerper|unterarm|unterschenkel|unterstuetz|untergriff|obergriff|hintern$)/;
@@ -2784,7 +2793,7 @@ function coRender(){ const m=$('coMsgs'); if(!m) return; m.innerHTML=CO.hist.map
   const sugg=muC&&muC.length?muC:CO.ctx&&CO.ctx.type==='supp'?LX(['Wie viel davon?','Wann nehmen?','Nebenwirkungen?'],['How much?','When to take it?','Side effects?']):CO.ctx&&CO.ctx.type==='ex'?LX(['Tipps','Typische Fehler','Welche Muskeln?'],['Tips','Common mistakes','Which muscles?']):LX(['Wie trainiere ich die untere Brust?','Übungen für breite Schultern','Wie viel Eiweiß brauche ich?','Was bringt Kreatin?','Ich will 10 Kilo abnehmen','Wie bekomme ich einen runden Po?','Wie mache ich Kniebeugen?','Mein BMI','Wann ist mein nächstes Training?','Motivier mich!'],['How do I train my lower chest?','Exercises for wide shoulders','How much protein do I need?','What does creatine do?','I want to lose 10 kilos','How do I grow my glutes?','How do I do squats?','My BMI','When is my next workout?','Motivate me!']);
   $('coChips').innerHTML=sugg.map(s=>`<button type="button">${esc(s)}</button>`).join('');
   requestAnimationFrame(()=>{ m.scrollTop=m.scrollHeight; }); }
-async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=null; let a=null; try{ a=await coAnswer(q); }catch(e){} await new Promise(r=>setTimeout(r,350)); CO.typing=false; let h=''; if(a&&CO.pendMu){ try{ h=coMuCard(CO.pendMu); }catch(e){} } CO.pendMu=null; coPush('a',a||CO_UNK(),false,h); coRender(); }
+async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=null; let a=null; let ai=false; try{ a=await coAnswer(q); }catch(e){} if(!a){ a=await coAI(q); ai=!!a; } await new Promise(r=>setTimeout(r,350)); CO.typing=false; let h=ai?'<div class="coai">🌐 '+LX('KI-Antwort – ohne Gewähr, keine ärztliche Beratung','AI answer – no guarantee, not medical advice')+'</div>':''; if(a&&CO.pendMu){ try{ h=coMuCard(CO.pendMu); }catch(e){} } CO.pendMu=null; coPush('a',a||CO_UNK(),false,h); coRender(); }
 function coListen(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
   if(VC.on){ try{ VC.rec&&VC.rec.stop(); }catch(e){} return; }
   const SR=vcSR(), b=$('coMic'); if(!SR){ coPush('a',LX('Spracherkennung wird hier nicht unterstützt – tipp deine Frage einfach ein.','Speech recognition isn\'t supported here – just type your question.'),true); coRender(); return; }
