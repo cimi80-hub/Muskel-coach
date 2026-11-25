@@ -229,6 +229,11 @@
   .devin{margin-top:14px;text-align:center;letter-spacing:6px;font-size:22px}
   .devcode{margin:14px 0 8px;text-align:center;font-family:Oswald,sans-serif;font-size:46px;letter-spacing:10px;color:var(--acc);background:var(--bg);border:2px dashed #5b7a1f;border-radius:14px;padding:8px}
   .devbtns{display:flex;flex-direction:column;gap:8px}
+  .secst{display:grid;grid-template-columns:repeat(4,1fr);gap:6px} .secst div{background:var(--card2,#1b2126);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center}
+  .secst b{display:block;font-family:Oswald,sans-serif;font-size:24px;color:var(--acc)} .secst small{font-size:10.5px;color:var(--mut)}
+  .secmsg{margin-top:10px;padding:9px 11px;border-radius:12px;font-size:13px;line-height:1.4} .secmsg.ok{background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.4)} .secmsg.bad{background:rgba(255,138,61,.12);border:1px solid rgba(255,138,61,.5)}
+  .seclist{margin-top:8px} .seclist div{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:13px} .seclist span{flex:none;width:86px;color:var(--mut)}
+  .seclist em{font-style:normal;display:flex;flex-wrap:wrap;gap:5px} .seclist i{font-style:normal;padding:2px 8px;border-radius:999px;font-size:12px;background:var(--card2,#1b2126)} .seclist i.m{color:#c6ff3d} .seclist i.c{color:#8ab4f8} .seclist i.b{color:#ffb38a}
   .devlist div{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)} .devlist div:first-child{border-top:0}
   .devlist code{font-family:Oswald,sans-serif;font-size:19px;letter-spacing:2px;color:var(--txt)} .devlist span{flex:1;font-size:13.5px} .devlist small{display:block;color:var(--mut);font-size:11.5px} .devlist .st{font-style:normal;font-size:12px}
   .buy.mail{display:block;text-align:center;background:#2a6df4;color:#fff} .devlang{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:2px 0 10px;font-size:12.5px;color:var(--mut)} .devlang button{padding:7px 10px;border-radius:9px;background:var(--card2);border:1px solid var(--line);font-weight:700;font-size:12.5px;color:var(--txt)} .devlang button.on{background:#2a6df4;border-color:#2a6df4;color:#fff}
@@ -973,6 +978,9 @@ function validCode(v){ v=String(v||'').trim(); if(!/^\d{6}$/.test(v)) return fal
 function makeCode(){ const a=new Uint32Array(1); let first; do{ crypto.getRandomValues(a); first=String(1000+a[0]%9000); }while(false); return first+String(fnv(first+CODE_SALT)%100).padStart(2,'0'); }
 /* Reserve-Zähler (zweiter Dienst), falls Abacus ausfällt */
 async function cntHit2(key){ try{ const r=await cntFetch('https://countapi.mileshilliard.com/api/v1/hit/'+CNT.ns+'-'+key,15000); if(!r.ok) throw 0; const n=parseInt((await r.json()).value,10); return isNaN(n)?null:n; }catch(e){ return null; } }
+/* Sicherheits-Protokoll: Freischaltungen und Fehlversuche mit Datum zählen (anonym) */
+const SEC_START='20261125';
+function secHit(ev){ try{ cntHit(ev+'-'+bDay()); cntHit(ev+'-all'); }catch(e){} }
 async function redeemCode(v){
   /* beide Dienste gleichzeitig fragen: kennt EINER den Code schon (>1), gilt er als benutzt */
   const [a,b]=await Promise.all([cntHit('c-'+v),cntHit2('c-'+v)]);
@@ -2615,23 +2623,26 @@ function vcLogSet(exId,ps){
 const VREC={r:null,on:false,finish:null,tm:[]};
 function vcRecKill(){ VREC.tm.forEach(clearTimeout); VREC.tm=[]; const r=VREC.r; if(r){ try{ r.onstart=r.onresult=r.onerror=r.onend=null; r.abort(); }catch(e){} } VREC.r=null; VREC.finish=null; VREC.on=false; VC.on=false; VC.rec=null; }
 function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
-  vcRecKill(); let wait=0;
-  try{ const ss=window.speechSynthesis; if(ss&&(ss.speaking||ss.pending)){ ss.cancel(); wait=400; } else if(ss) ss.cancel(); }catch(e){}
+  vcRecKill(); const wait=0; /* iPhone: Mikrofon MUSS direkt im Tipp starten – jede Verzögerung (z. B. nach der Sprachausgabe) blockiert iOS still */
+  try{ const ss=window.speechSynthesis; if(ss) ss.cancel(); }catch(e){}
   const go=()=>{ let r; try{ r=new SR(); }catch(e){ o.onError('start-failed'); return; }
-    VREC.r=r; VC.rec=r; let heard='', fin='', handled=false, started=false;
+    VREC.r=r; VC.rec=r; let heard='', fin='', handled=false, started=false, softing=false;
     const T=(f,ms)=>{ const t=setTimeout(f,ms); VREC.tm.push(t); return t; }; let silence=0;
     const finish=(why)=>{ if(handled) return; handled=true; VREC.tm.forEach(clearTimeout); VREC.tm=[];
-      try{ r.onstart=r.onresult=r.onerror=r.onend=null; r.abort(); }catch(e){} if(VREC.r===r){ VREC.r=null; VREC.finish=null; } VREC.on=false; VC.on=false; o.onState(false);
+      try{ r.onstart=r.onresult=r.onerror=r.onend=r.onaudiostart=r.onsoundstart=r.onspeechstart=r.onspeechend=null; r.abort(); }catch(e){} if(VREC.r===r){ VREC.r=null; VREC.finish=null; } VREC.on=false; VC.on=false; o.onState(false);
       const t=(fin||heard).trim(); if(t) o.onFinal(t); else o.onError(why||'no-speech'); };
-    VREC.finish=finish;
+    /* sanft beenden: stop() statt abort(), damit das iPhone den gesprochenen Text noch liefern kann (kommt dort oft erst nach dem Stopp) */
+    const soft=(why)=>{ if(handled) return; if(fin){ finish(); return; } if(softing) return; softing=true; try{ r.stop(); }catch(e){} T(()=>finish(why),2000); };
+    VREC.finish=()=>soft();
     r.lang=LANG==='en'?'en-US':'de-DE'; r.interimResults=true; r.continuous=false; try{ r.maxAlternatives=1; }catch(e){}
-    r.onstart=()=>{ started=true; };
+    r.onstart=r.onaudiostart=r.onsoundstart=r.onspeechstart=()=>{ started=true; };
+    r.onspeechend=()=>{ T(()=>soft(),900); };
     r.onresult=e=>{ let h='', f=''; for(let i=0;i<e.results.length;i++){ const x=(e.results[i][0]||{}).transcript||''; h+=x; if(e.results[i].isFinal) f+=x; } heard=h; if(f) fin=f; o.onText(heard.trim());
-      clearTimeout(silence); if(fin) silence=T(()=>finish(),250); else silence=T(()=>finish(),1400); };
-    r.onerror=e=>{ const er=(e&&e.error)||'error'; if(er==='aborted') return; finish(heard?null:er); };
+      clearTimeout(silence); if(fin) silence=T(()=>finish(),300); else silence=T(()=>soft(),1500); };
+    r.onerror=e=>{ const er=(e&&e.error)||'error'; if(er==='aborted') return; if(er==='no-speech'&&softing) return; finish(heard?null:er); };
     r.onend=()=>finish(null);
-    T(()=>{ if(!started&&!heard) finish('start-timeout'); },4000);   // Start kommt nicht → nicht hängen bleiben
-    T(()=>finish(null),9000);                                        // höchstens 9 Sekunden zuhören
+    T(()=>{ if(!started&&!heard) soft('start-timeout'); },8000);    // Start kommt nicht → nicht hängen bleiben
+    T(()=>soft(),12000);                                            // höchstens 12 Sekunden zuhören
     VREC.on=true; VC.on=true; o.onState(true);
     try{ r.start(); }catch(e){ finish('start-failed'); } };
   if(wait) setTimeout(go,wait); else go(); }
@@ -3887,7 +3898,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25b';
+const APP_VERSION='2026-11-25d';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
@@ -4020,7 +4031,7 @@ function devLogin(){ if(sessionStorage.getItem('mc_dev')==='1') return devOpen()
 let DEVC=[]; try{ DEVC=JSON.parse(localStorage.getItem('mc_dev_codes')||'[]'); }catch(e){}
 const saveDevC=()=>{ try{ localStorage.setItem('mc_dev_codes',JSON.stringify(DEVC)); }catch(e){} };
 function devOpen(){ try{ localStorage.setItem('mc_isdev','1'); }catch(e){} let ov=$('devSheet'); if(!ov){ ov=document.createElement('div'); ov.id='devSheet'; ov.className='devsheet'; document.body.appendChild(ov); }
-  ov.classList.add('on'); document.body.style.overflow='hidden'; devRender(); devStats(); }
+  ov.classList.add('on'); document.body.style.overflow='hidden'; devRender(); devStats(); setTimeout(devSec,1200); }
 function devClose(){ const ov=$('devSheet'); if(ov) ov.classList.remove('on'); document.body.style.overflow=''; }
 function devRender(){ const ov=$('devSheet');
   ov.innerHTML=`<div class="devtop"><button class="iconbtn" id="devBack">← Zurück</button><b>🛠️ Entwickler</b><button class="iconbtn" id="devLock">🔒 Sperren</button></div>
@@ -4045,6 +4056,9 @@ function devRender(){ const ov=$('devSheet');
       <div id="devNew"></div>
       <p class="muted">Jeder Code funktioniert <b>genau einmal</b> – danach ist er verbraucht. Für jeden Käufer einen neuen Code erzeugen.</p>
     </div>
+    <h3 class="vh">🛡️ Freischaltungen &amp; Sicherheit</h3>
+    <div class="pc" id="devSec"><p class="muted" style="margin:0">Lade Protokoll …</p></div>
+    <p class="muted">Gezählt ab 25.11.2026, pro Tag nach deutscher Zeit. Master-Code-Freischaltungen sollten nur deine eigenen Geräte sein. Fehlversuche = falsche Codes; „doppelt“ = jemand wollte einen schon benutzten Code nochmal einlösen.</p>
     <h3 class="vh">📋 Vergebene Codes <small style="text-transform:none;letter-spacing:0">${DEVC.length}</small></h3>
     <div class="pc">${DEVC.length?`<div class="devlist">${DEVC.slice().reverse().map(c=>`<div data-c="${c.code}"><code>${c.code}</code><span>${esc(c.who||c.mail||'–')}<small>${fmtD(parseD(c.date))}${c.ord?' · '+esc(c.ord):''}${c.mail&&c.who?' · '+esc(c.mail):''}</small></span><em class="st">${c.used?'✅ eingelöst':'⏳ offen'}</em></div>`).join('')}</div>
       <button class="savebtn sec2" id="devCheck">🔄 Status aller Codes prüfen</button>`:'<p class="muted" style="margin:0">Noch keine Codes erzeugt.</p>'}</div>
@@ -4086,6 +4100,29 @@ async function devCC(){ const box=$('devCC'); if(!box) return;
   draw('load'); const keys=[...CC_LIST,'XX'], v={}; let any=false;
   for(let i=0;i<keys.length;i+=6){ const r=await Promise.all(keys.slice(i,i+6).map(k=>cntGet('cc-'+k,0))); r.forEach((n,j)=>{ if(n!==null){ any=true; v[keys[i+j]]=n; } }); if(!$('devCC')) return; }
   if(!any){ draw('err'); return; } C={v,at:Date.now()}; try{ localStorage.setItem('mc_dev_cc',JSON.stringify(C)); }catch(e){} draw('ok'); }
+async function devSec(){ const box=$('devSec'); if(!box) return; box.innerHTML='<p class="muted" style="margin:0">⏳ Lade Protokoll …</p>';
+  const EV=['um','uc','bad','reuse'], tot={}; const r=await Promise.all([...EV.map(e=>cntGet(e+'-all',0)),cntGet('unlocks',0)]); if(!$('devSec')) return;
+  if(r.every(v=>v===null)){ box.innerHTML='<p class="muted" style="margin:0">⚠️ Zähldienst antwortet gerade nicht – später nochmal öffnen.</p>'; return; }
+  EV.forEach((e,i)=>tot[e]=r[i]||0); const old=Math.max(0,(r[4]||0)-tot.um-tot.uc);
+  /* sold codes laut eigener Liste aktualisieren */
+  for(const c of DEVC){ const v=await cntGet('c-'+c.code,0); if(v!==null) c.used=v>0; if(!$('devSec')) return; } saveDevC();
+  const sold=DEVC.filter(c=>c.used).length;
+  /* Tage seit Start rückwärts durchsuchen, bis alle Ereignisse gefunden sind (max. 90 Tage) */
+  const need=EV.reduce((a,e)=>a+tot[e],0), rows=[]; let found=0;
+  const start=new Date(2026,10,25); for(let d=new Date(), n=0; need>0&&found<need&&d>=start&&n<90; d=new Date(d.getTime()-864e5), n++){
+    const key=bDay(d), v=await Promise.all(EV.map(e=>cntGet(e+'-'+key,0))); if(!$('devSec')) return;
+    const o={d:new Date(d)}; let any=0; EV.forEach((e,i)=>{ o[e]=v[i]||0; any+=o[e]; }); found+=any; if(any) rows.push(o); }
+  const warn=[];
+  if(tot.uc>sold) warn.push(`⚠️ <b>${tot.uc} Freischaltungen mit Verkaufs-Codes</b>, aber nur <b>${sold}</b> Codes aus deiner Liste sind eingelöst. Möglich: Codes auf einem anderen Handy erzeugt – sonst wurden fremde Codes benutzt.`);
+  if(tot.bad>=20) warn.push(`⚠️ <b>${tot.bad} falsche Code-Versuche</b> – auffällig viele. Die App sperrt nach 5 Fehlversuchen pro Gerät automatisch.`);
+  if(tot.reuse>0) warn.push(`🔁 <b>${tot.reuse}×</b> wurde versucht, einen schon benutzten Code nochmal einzulösen – wurde blockiert. Evtl. wurde ein Code weitergegeben.`);
+  const ok=!warn.length;
+  box.innerHTML=`<div class="secst"><div><b>${tot.um}</b><small>🔑 Master-Code</small></div><div><b>${tot.uc}</b><small>💳 Verkaufs-Codes</small></div><div><b>${tot.bad}</b><small>❌ falsche Codes</small></div><div><b>${tot.reuse}</b><small>🔁 doppelt</small></div></div>
+    <div class="secmsg ${ok?'ok':'bad'}">${ok?'✅ Alles unauffällig – keine Hinweise auf Missbrauch.':warn.join('<br>')}</div>
+    ${rows.length?`<div class="seclist">${rows.map(o=>`<div><span>${fmtD(o.d)}</span><em>${o.um?`<i class="m">🔑 ${o.um}× Master</i>`:''}${o.uc?`<i class="c">💳 ${o.uc}× Code</i>`:''}${o.bad?`<i class="b">❌ ${o.bad}× falsch</i>`:''}${o.reuse?`<i class="b">🔁 ${o.reuse}× doppelt</i>`:''}</em></div>`).join('')}</div>`:'<p class="muted" style="margin:6px 0 0">Seit 25.11. noch keine Freischaltungen oder Fehlversuche.</p>'}
+    ${old?`<p class="muted" style="margin:8px 0 0">Dazu ${old} ältere Freischaltung${old===1?'':'en'} von vor dem 25.11. (ohne Datum).</p>`:''}
+    <button class="savebtn sec2" id="devSecRef" style="margin-top:10px">🔄 Protokoll neu laden</button>`;
+  $('devSecRef').onclick=devSec; }
 async function devStats(force){ if(force!=='auto'){ setTimeout(devCC,600); devLive(); } if(!$('devStats')) return;
   const today=new Date(); const k=d=>'d-'+bDay(d);
   const days=[...Array(7)].map((_,i)=>new Date(today.getTime()-(6-i)*864e5));
@@ -4192,12 +4229,12 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
       if(F.u>Date.now()){ document.getElementById('gateErr').textContent='Zu viele falsche Versuche – bitte in '+Math.ceil((F.u-Date.now())/60000)+' Min. erneut versuchen.'; return; }
       const failAdd=()=>{ F.n++; if(F.n>=5) F.u=Date.now()+3*60000*(F.n-4); try{ localStorage.setItem('mc_code_fail',JSON.stringify(F)); }catch(e){} };
       const failReset=()=>{ try{ localStorage.removeItem('mc_code_fail'); }catch(e){} };
-      const okUnlock=(k)=>{ failReset(); const u=MC.grant(k==='master'?'master':'code'); cntHit('unlocks'); g.style.display='none'; celebrateUnlock(u,true); };
+      const okUnlock=(k)=>{ failReset(); const u=MC.grant(k==='master'?'master':'code'); cntHit('unlocks'); secHit(k==='master'?'um':'uc'); g.style.display='none'; celebrateUnlock(u,true); };
       if(validCode(v)){ const err=document.getElementById('gateErr'); err.textContent='⏳ Code wird geprüft …';
-        redeemCode(v).then(r=>{ if(r==='ok') okUnlock(); else { if(r==='used') failAdd(); err.textContent=r==='used'?'Dieser Code wurde schon verwendet. Jeder Code gilt nur einmal – bitte neuen Code anfragen.':'Keine Internetverbindung – bitte Internet einschalten und nochmal versuchen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } }); return; }
+        redeemCode(v).then(r=>{ if(r==='ok') okUnlock(); else { if(r==='used'){ failAdd(); secHit('reuse'); } err.textContent=r==='used'?'Dieser Code wurde schon verwendet. Jeder Code gilt nur einmal – bitte neuen Code anfragen.':'Keine Internetverbindung – bitte Internet einschalten und nochmal versuchen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } }); return; }
       const err=document.getElementById('gateErr'); if(!v) return; err.textContent='⏳ Code wird geprüft …';
       slowHash(v,'mc-master-v2').then(h=>{ if(h==='f74c427b5d6d3736c25a3ad218f853789d62cc0ad973360882a69d62a93faf80') okUnlock('master');
-        else { failAdd(); err.textContent='Falscher Code – bitte nochmal prüfen.'+(F.n>=3&&F.n<5?' (noch '+(5-F.n)+(5-F.n===1?' Versuch)':' Versuche)'):''); g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } });
+        else { failAdd(); secHit('bad'); err.textContent='Falscher Code – bitte nochmal prüfen.'+(F.n>=3&&F.n<5?' (noch '+(5-F.n)+(5-F.n===1?' Versuch)':' Versuche)'):''); g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } });
     });
     { const gl=document.getElementById('gateLater'); if(gl) gl.onclick=hide; const gt=document.getElementById('gateTry'); if(gt) gt.onclick=hide; }
     if(mode==='code') setTimeout(()=>{ try{ document.getElementById('gatePw').focus(); }catch(e){} },250);
