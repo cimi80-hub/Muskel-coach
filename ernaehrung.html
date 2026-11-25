@@ -250,6 +250,12 @@ const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = (v,d=0) => F.fmt(v,d);
+// Einheiten: g, ml oder Portion (Restaurantprodukte ohne Gewichtsangabe: intern 100 = 1 Portion)
+const isP = (f) => f && f.unit==='portion';
+const UL = (f) => isP(f) ? 'Portion(en)' : (f.unit==='ml'?'ml':'g');
+const toV = (f,g) => isP(f) ? Math.round(g)/100 : Math.round(g);
+const fromV = (f,v) => isP(f) ? v*100 : v;
+const amt = (f,g) => isP(f) ? `${fmt(g/100,2)} Port.` : `${fmt(g)} ${f.unit==='ml'?'ml':'g'}`;
 let day = F.today(), filter = 'alle', tts = localStorage.getItem('dmc_food_tts') !== '0';
 
 // ---------- Texte DE/EN ----------
@@ -292,7 +298,7 @@ async function renderDay(){
     const es=list.filter(e=>e.meal===m).sort((a,b)=>a.ts-b.ts); const sm=F.sumEntries(es);
     const div=document.createElement('div'); div.className='card meal';
     div.innerHTML=`<div class="hd"><b>${mealName(m)}</b><span class="mut small">${fmt(sm.kcal)} kcal</span></div>
-      <div>${es.map(e=>{const n=F.entryNutr(e);return `<div class="entry" data-id="${e.id}"><div class="nm"><div>${esc(F.lang==='en'&&e.en?e.en:e.name)}${e.q==='est'?' <span class="badge est">≈</span>':''}</div><div class="small mut">${fmt(e.grams)} ${e.unit==='ml'?'ml':'g'}${e.label&&!/^[\d.,]+\s?(g|ml|kg|l|cl)$/.test(e.label)?' · '+esc(e.label):''} · E ${fmt(n.p)} · K ${fmt(n.c)} · F ${fmt(n.f)}</div></div><div class="kc">${fmt(n.kcal)}</div></div>`}).join('')}</div>
+      <div>${es.map(e=>{const n=F.entryNutr(e);return `<div class="entry" data-id="${e.id}"><div class="nm"><div>${esc(F.lang==='en'&&e.en?e.en:e.name)}${e.q==='est'?' <span class="badge est">≈</span>':''}</div><div class="small mut">${amt(e,e.grams)}${e.label&&!/^[\d.,]+\s?(g|ml|kg|l|cl)$/.test(e.label)?' · '+esc(e.label):''} · E ${fmt(n.p)} · K ${fmt(n.c)} · F ${fmt(n.f)}</div></div><div class="kc">${fmt(n.kcal)}</div></div>`}).join('')}</div>
       <div class="row" style="margin-top:8px"><button class="sm" data-add="${m}">${t('add')}</button><button class="sm ghost" data-copy="${m}">⧉ ${t('yesterday')}</button></div>`;
     box.appendChild(div);
   }
@@ -309,14 +315,14 @@ $('#copyDay').onclick=async()=>{const n=await F.copyDay(F.addDays(day,-1),day);t
 function editEntry(e){
   const f={...e.n100,n:e.name,unit:e.unit};
   openSheet(`<h2>${esc(e.name)}</h2><div class="small mut">${qBadge({q:e.q})}</div>
-   <label>Menge (${e.unit==='ml'?'ml':'g'})</label><input id="eG" type="number" inputmode="decimal" value="${e.grams}">
+   <label>Menge (${UL(e)})</label><input id="eG" type="number" inputmode="decimal" step="any" value="${toV(e,e.grams)}">
    <label>Mahlzeit</label><select id="eM">${F.MEALS.map(m=>`<option value="${m}" ${m===e.meal?'selected':''}>${mealName(m)}</option>`).join('')}</select>
    <div id="eN" class="small" style="margin:10px 0"></div>
    <div class="row"><button id="eDel">🗑 Löschen</button><button class="pri sp" id="eSave">${t('save')}</button></div>`);
-  const upd=()=>{const n=F.nutrients(f,parseFloat($('#eG').value)||0);$('#eN').textContent=`${fmt(n.kcal)} kcal · Eiweiß ${fmt(n.p,1)} g · KH ${fmt(n.c,1)} g · Fett ${fmt(n.f,1)} g`;};
+  const upd=()=>{const n=F.nutrients(f,fromV(e,parseFloat($('#eG').value)||0));$('#eN').textContent=`${fmt(n.kcal)} kcal · Eiweiß ${fmt(n.p,1)} g · KH ${fmt(n.c,1)} g · Fett ${fmt(n.f,1)} g`;};
   $('#eG').oninput=upd; upd();
   $('#eDel').onclick=async()=>{await F.removeEntry(e.id);closeSheet();renderDay();toast('Gelöscht');};
-  $('#eSave').onclick=async()=>{e.grams=Math.round(parseFloat($('#eG').value)||e.grams);e.meal=$('#eM').value;e.label=null;await F.updateEntry(e);closeSheet();renderDay();};
+  $('#eSave').onclick=async()=>{e.grams=Math.round(fromV(e,parseFloat($('#eG').value))||e.grams);e.meal=$('#eM').value;e.label=null;await F.updateEntry(e);closeSheet();renderDay();};
 }
 
 // ---------- SUCHE ----------
@@ -324,7 +330,7 @@ $('#addMeal').innerHTML=F.MEALS.map(m=>`<option value="${m}">${mealName(m)}</opt
 function renderFilters(){ $('#filt').innerHTML=[['alle',t('all')],['favs','★ '+t('favs')],['recent',t('recent')],['frequent',t('frequent')],['mine',t('mine')]].map(([k,l])=>`<span class="chip ${filter===k?'on':''}" data-f="${k}">${l}</span>`).join('');
   $$('#filt .chip').forEach(c=>c.onclick=()=>{filter=c.dataset.f;renderFilters();renderResults();}); }
 let qTimer; $('#q').oninput=()=>{clearTimeout(qTimer);qTimer=setTimeout(renderResults,90);};
-function resRow(f){ const p=F.defaultPortion(f); return `<div class="res" data-id="${esc(f.id)}"><div class="nm"><b>${esc(fname(f))}</b><span class="small mut">${f.brand?esc(f.brand)+' · ':''}${esc(F.catName(f.cat))} ${qBadge(f)}</span></div><div class="kc"><b>${f.kcal==null?'?':fmt(f.kcal)}</b> kcal<div class="small mut">/100 ${f.unit==='ml'?'ml':'g'} · E ${f.p==null?'?':fmt(f.p,1)}</div></div></div>`; }
+function resRow(f){ const p=F.defaultPortion(f); return `<div class="res" data-id="${esc(f.id)}"><div class="nm"><b>${esc(fname(f))}</b><span class="small mut">${f.brand?esc(f.brand)+' · ':''}${esc(F.catName(f.cat))} ${qBadge(f)}</span></div><div class="kc"><b>${f.kcal==null?'?':fmt(f.kcal)}</b> kcal<div class="small mut">${isP(f)?'/Portion':'/100 '+(f.unit==='ml'?'ml':'g')} · E ${f.p==null?'?':fmt(f.p,1)}</div></div></div>`; }
 let lastList=[];
 async function renderResults(){
   const q=$('#q').value.trim(); let list;
@@ -351,14 +357,15 @@ async function onlineSearch(){
 }
 
 function nutRows(f,g){
-  const n=F.nutrients(f,g), u=f.unit==='ml'?'ml':'g';
+  const n=F.nutrients(f,g), u=f.unit==='ml'?'ml':'g', P=isP(f);
   const row=(lbl,k,unit,d=1,sub)=>`<tr class="${sub?'sub':''}"><td>${lbl}</td><td>${f[k]==null?'<span class="unk">unbekannt</span>':fmt(f[k],d)+' '+unit}</td><td>${n[k]==null?'<span class="unk">–</span>':fmt(n[k],d)+' '+unit}</td></tr>`;
-  return `<table class="nt"><tr><td></td><td class="small mut">pro 100 ${u}</td><td class="small mut">${fmt(g)} ${u}</td></tr>${row('Energie','kcal','kcal',0)}${row('','kj','kJ',0,1)}${row('Eiweiß','p','g')}${row('Kohlenhydrate','c','g')}${row('davon Zucker','sug','g',1,1)}${row('Fett','f','g')}${row('davon gesättigt','sat','g',1,1)}${row('Ballaststoffe','fib','g')}${row('Salz','salt','g',2)}</table>`;
+  return `<table class="nt"><tr><td></td><td class="small mut">${P?'pro Portion':'pro 100 '+u}</td><td class="small mut">${amt(f,g)}</td></tr>${row('Energie','kcal','kcal',0)}${row('','kj','kJ',0,1)}${row('Eiweiß','p','g')}${row('Kohlenhydrate','c','g')}${row('davon Zucker','sug','g',1,1)}${row('Fett','f','g')}${row('davon gesättigt','sat','g',1,1)}${row('Ballaststoffe','fib','g')}${row('Salz','salt','g',2)}</table>`;
 }
 function sourceText(f){
   if(f.src==='bls') return `Quelle: Bundeslebensmittelschlüssel 4.0 (Max Rubner-Institut, 2025) · BLS-Code ${esc(f.id.slice(4))} · Referenzwert, kein Markenprodukt.`;
   if(f.src==='est') return `<b>Schätzwert</b> – rechnerisch aus BLS-4.0-Zutaten:<br>${(f.ings||[]).map(i=>`${fmt(i[1])} g ${esc(i[2])}`).join('<br>')}<br>Echte Portionen variieren je nach Imbiss/Restaurant.`;
   if(f.src==='off') return `Quelle: Open Food Facts${f.ean?' · Barcode '+esc(f.ean):''}${f.updated?' · Stand '+esc(f.updated):''} · Herstellerangabe laut Community-Daten · Lizenz ODbL (© Open Food Facts contributors).${f.allergens?'<br>Allergene: '+esc(f.allergens):''}${f.ingredients?'<br>Zutaten: '+esc(f.ingredients.slice(0,400)):''}`;
+  if(f.src==='chain') return `<b>Herstellerangabe</b> ${esc(f.brand)} · Stand ${esc(f.updated||'')}<br>Quelle: ${esc(f.source||'')}${isP(f)?'<br>Der Hersteller nennt kein Portionsgewicht – Werte gelten je Portion.':''}`;
   if(f.src==='recipe') return `Eigenes Rezept: ${(f.ings||[]).map(i=>`${fmt(i[1])} g ${esc(i[2])}`).join(', ')}`;
   return 'Eigenes Lebensmittel (nur auf deinem Gerät gespeichert).';
 }
@@ -366,20 +373,20 @@ function foodSheet(f, presetG){
   if(!f) return;
   const ps=F.portionsFor(f); const def=presetG?{g:presetG,label:null}:(ps.find(p=>p.key==='portion')||ps[0]);
   openSheet(`<div class="row"><h2 class="sp" style="margin:0">${esc(fname(f))}</h2><button class="sm ghost" id="fav" style="font-size:22px">${F.isFav(f.id)?'★':'☆'}</button></div>
-   <div class="small mut" style="margin:4px 0 10px">${f.brand?esc(f.brand)+' · ':''}${esc(F.catName(f.cat))} ${qBadge(f)}</div>
-   <div class="chips" id="pChips"><span class="chip" data-g="100">100 ${f.unit==='ml'?'ml':'g'}</span>${ps.map(p=>`<span class="chip" data-g="${p.g}" data-l="${esc(p.label)}">${esc(p.label)}${/\d\s?(g|ml|l)\)?$/.test(p.label)?'':' ('+fmt(p.g)+(f.unit==='ml'?' ml':' g')+')'}${p.est?' ≈':''}</span>`).join('')}</div>
-   <div class="grid2"><div><label>Menge (${f.unit==='ml'?'ml':'g'})</label><input id="fG" type="number" inputmode="decimal" value="${Math.round(def.g)}"></div>
+   <div class="small mut" style="margin:4px 0 10px">${f.brand?esc(f.brand)+' · ':''}${esc(f.grp?f.grp+' · '+F.catName(f.cat):F.catName(f.cat))} ${qBadge(f)}</div>
+   <div class="chips" id="pChips">${isP(f)?'<span class="chip" data-g="100">1 Portion</span><span class="chip" data-g="200">2 Portionen</span>':`<span class="chip" data-g="100">100 ${f.unit==='ml'?'ml':'g'}</span>`}${(isP(f)?[]:ps).map(p=>`<span class="chip" data-g="${p.g}" data-l="${esc(p.label)}">${esc(p.label)}${/\d\s?(g|ml|l)\)?$/.test(p.label)?'':' ('+fmt(p.g)+(f.unit==='ml'?' ml':' g')+')'}${p.est?' ≈':''}</span>`).join('')}</div>
+   <div class="grid2"><div><label>Menge (${UL(f)})</label><input id="fG" type="number" inputmode="decimal" step="any" value="${toV(f,def.g)}"></div>
    <div><label>Mahlzeit</label><select id="fM">${F.MEALS.map(m=>`<option value="${m}" ${m===$('#addMeal').value?'selected':''}>${mealName(m)}</option>`).join('')}</select></div></div>
    <div id="fN" style="margin-top:10px"></div>
    <div class="small mut" style="margin:10px 0">${sourceText(f)}${ps.some(p=>p.est)?'<br>≈ Portionsgrößen sind Vorschläge (Schätzwerte).':''}${f.unit==='ml'?'<br>Getränke: 100 ml ≈ 100 g gerechnet.':''}</div>
    <div class="row">${(f.src==='user'||f.src==='recipe')?'<button id="fDel">🗑</button>':''}<button class="pri sp" id="fAdd">Hinzufügen zu ${esc(dayLabel(day))}</button></div>`);
   let label=def.label;
-  const upd=()=>{$('#fN').innerHTML=nutRows(f,parseFloat($('#fG').value)||0);};
+  const upd=()=>{$('#fN').innerHTML=nutRows(f,fromV(f,parseFloat($('#fG').value)||0));};
   $('#fG').oninput=()=>{label=null;upd();}; upd();
-  $$('#pChips .chip').forEach(c=>c.onclick=()=>{$('#fG').value=c.dataset.g;label=c.dataset.l||null;upd();});
+  $$('#pChips .chip').forEach(c=>c.onclick=()=>{$('#fG').value=toV(f,+c.dataset.g);label=c.dataset.l||null;upd();});
   $('#fav').onclick=async()=>{const on=await F.toggleFav(f.id);$('#fav').textContent=on?'★':'☆';toast(on?'Zu Favoriten hinzugefügt':'Aus Favoriten entfernt');};
   const del=$('#fDel'); if(del) del.onclick=async()=>{if(confirm('Eigenes Lebensmittel löschen?')){await F.deleteCustom(f.id);closeSheet();renderResults();}};
-  $('#fAdd').onclick=async()=>{const g=parseFloat($('#fG').value); if(!(g>0)){toast('Menge eingeben');return;}
+  $('#fAdd').onclick=async()=>{const g=fromV(f,parseFloat($('#fG').value)); if(!(g>0)){toast('Menge eingeben');return;}
     await F.addEntry({food:f,grams:g,meal:$('#fM').value,date:day,label}); closeSheet(); toast(`✓ ${fmt(F.nutrients(f,g).kcal)} kcal eingetragen`); if($('#v-heute').classList.contains('on')) renderDay(); };
 }
 
@@ -483,11 +490,11 @@ function reviewCard(p){
       const n=F.nutrients(it.food,it.grams); tk+=n.kcal||0; tp+=n.p||0;
       const fl=[]; if(it.flags.includes('menge')||it.est) fl.push('Menge = Portionsvorschlag (geschätzt)'); if(it.flags.includes('rohgekocht')) fl.push('roh oder gekocht? Bitte Auswahl prüfen'); if(it.flags.includes('schaetzwert')) fl.push('Nährwerte sind Schätzwerte'); if(it.flags.includes('generisch')) fl.push('Sorte nicht einzeln im BLS – allgemeiner Wert');
       return `<div class="it"><div class="small mut">„${esc(it.query)}“</div><select data-alt="${ix}">${it.alts.map(a=>`<option value="${esc(a.id)}" ${a.id===it.food.id?'selected':''}>${esc(fname(a))}${a.q==='est'&&!/Schätz/.test(a.n)?' (Schätzung)':''}</option>`).join('')}</select>
-        <div class="row" style="margin-top:6px"><input type="number" inputmode="decimal" data-g="${ix}" value="${Math.round(it.grams)}" style="width:100px"><span>${it.food.unit==='ml'?'ml':'g'}</span><span class="sp small mut">${esc(it.label||'')}</span><b>${fmt(n.kcal)} kcal</b><button class="sm ghost" data-x="${ix}">✕</button></div>
+        <div class="row" style="margin-top:6px"><input type="number" inputmode="decimal" step="any" data-g="${ix}" value="${toV(it.food,it.grams)}" style="width:100px"><span>${isP(it.food)?'Port.':(it.food.unit==='ml'?'ml':'g')}</span><span class="sp small mut">${esc(it.label||'')}</span><b>${fmt(n.kcal)} kcal</b><button class="sm ghost" data-x="${ix}">✕</button></div>
         ${fl.map(x=>`<div class="flag">⚠ ${x}</div>`).join('')}</div>`;}).join('')+
     `<div class="row" style="margin-top:10px"><b class="sp">Gesamt: ${fmt(tk)} kcal · ${fmt(tp)} g Eiweiß</b></div><div class="row" style="margin-top:10px"><button class="sp" data-cancel>Verwerfen</button><button class="pri sp" data-ok>✓ Speichern</button></div>`;
     $$('[data-alt]',box).forEach(s=>s.onchange=()=>{const it=p.items[s.dataset.alt]; it.food=it.alts.find(a=>a.id===s.value); it.label=null; it.flags=it.flags.filter(f=>f!=='rohgekocht'); draw();});
-    $$('[data-g]',box).forEach(i=>i.onchange=()=>{const it=p.items[i.dataset.g]; it.grams=parseFloat(i.value)||0; it.label=null; it.est=false; it.flags=it.flags.filter(f=>f!=='menge'); draw();});
+    $$('[data-g]',box).forEach(i=>i.onchange=()=>{const it=p.items[i.dataset.g]; it.grams=it.water?(parseFloat(i.value)||0):fromV(it.food,parseFloat(i.value)||0); it.label=null; it.est=false; it.flags=it.flags.filter(f=>f!=='menge'); draw();});
     $$('[data-x]',box).forEach(b=>b.onclick=()=>{p.items.splice(b.dataset.x,1); draw();});
     $('#rvMeal',box).onchange=(e)=>{p.meal=e.target.value;};
     $('[data-cancel]',box).onclick=()=>{F.clearPending(); box.remove(); bubble('Okay, verworfen.','co');};
@@ -541,8 +548,8 @@ async function renderGoals(){
   const g=await F.getGoals(); $('#profNote').textContent=g.src==='app'?'Ziele kommen aus „Mein Bedarf“ im Dr. Muskel Coach. Eigene Werte speichern überschreibt sie.':''; $('#gK').value=g.kcal; $('#gP').value=g.p; $('#gC').value=g.c; $('#gF').value=g.f; $('#gW').value=g.water;
   const ws=await F.getWeights(); if(ws.length&&!$('#pKg').value) $('#pKg').value=ws.at(-1).kg;
   const pr=await F.kvGet('profile',null); if(pr){ $('#pKg').value=$('#pKg').value||pr.kg; $('#pCm').value=pr.cm; $('#pAge').value=pr.age; $('#pSex').value=pr.sex; $('#pAct').value=pr.activity; $('#pAim').value=pr.aim; $('#pPk').value=pr.proteinPerKg; }
-  const c=F.countBy(); $('#dbInfo').innerHTML=`Offline verfügbar: <b>${fmt(F.count())}</b> Lebensmittel<br>· BLS 4.0 (Referenzwerte): ${fmt(c.bls||0)}<br>· Imbiss-Schätzwerte: ${fmt(c.est||0)}<br>· Markenprodukte (Open Food Facts): ${fmt(c.off||0)}<br>· Eigene Lebensmittel/Rezepte: ${fmt((c.user||0)+(c.recipe||0))}`;
-  $('#lic').innerHTML=`<b>Quellen & Lizenzen</b><br>Bundeslebensmittelschlüssel (BLS) 4.0 © Max Rubner-Institut 2025 – frei nutzbar, auch für Apps.<br>Markenprodukte: Open Food Facts, Open Database License (ODbL) – © Open Food Facts contributors, openfoodfacts.org.<br>Schätzwerte (≈) wurden aus BLS-Zutaten berechnet und sind als solche markiert.<br>Deine Einträge bleiben nur auf diesem Gerät.<br>Engine v${F.VERSION}`;
+  const c=F.countBy(); $('#dbInfo').innerHTML=`Offline verfügbar: <b>${fmt(F.count())}</b> Lebensmittel<br>· BLS 4.0 (Referenzwerte): ${fmt(c.bls||0)}<br>· Restaurant- & Fastfood-Ketten (Herstellerangaben): ${fmt(c.chain||0)}<br>· Imbiss-Schätzwerte: ${fmt(c.est||0)}<br>· Markenprodukte (Open Food Facts): ${fmt(c.off||0)}<br>· Eigene Lebensmittel/Rezepte: ${fmt((c.user||0)+(c.recipe||0))}`;
+  $('#lic').innerHTML=`<b>Quellen & Lizenzen</b><br>Bundeslebensmittelschlüssel (BLS) 4.0 © Max Rubner-Institut 2025 – frei nutzbar, auch für Apps.<br>Markenprodukte: Open Food Facts, Open Database License (ODbL) – © Open Food Facts contributors, openfoodfacts.org.<br>Restaurantketten: offizielle Nährwertangaben von KFC Deutschland (10/2026), Subway Deutschland (03/2026) und McDonald's Deutschland (10/2026). Marken gehören den jeweiligen Inhabern.<br>Schätzwerte (≈) wurden aus BLS-Zutaten berechnet und sind als solche markiert.<br>Deine Einträge bleiben nur auf diesem Gerät.<br>Engine v${F.VERSION}`;
   $('#lang').value=F.lang;
 }
 $('#gSave').onclick=async()=>{const n=(id)=>Math.round(parseFloat($('#'+id).value)||0); await F.setGoals({kcal:n('gK'),p:n('gP'),c:n('gC'),f:n('gF'),water:n('gW')}); toast('Ziele gespeichert');};

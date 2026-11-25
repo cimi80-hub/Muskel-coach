@@ -1,0 +1,66 @@
+{
+ "datum": "2026-11-25",
+ "uebernommen": 365,
+ "doppelt_entfernt": 0,
+ "abgelehnt": 3,
+ "pro_kette": {
+  "KFC": 108,
+  "Subway": 155,
+  "McDonald's": 102
+ },
+ "pro_kategorie": {
+  "KFC · Hähnchen": 10,
+  "KFC · Burger": 17,
+  "KFC · Wraps": 2,
+  "KFC · Veggie": 1,
+  "KFC · Salate": 3,
+  "KFC · Beilagen": 5,
+  "KFC · Extras": 3,
+  "KFC · Pommes": 4,
+  "KFC · Eis": 5,
+  "KFC · Milchshakes": 6,
+  "KFC · Kaffee": 5,
+  "KFC · Getränke": 33,
+  "KFC · Saucen": 9,
+  "KFC · Dressings": 3,
+  "KFC · Desserts": 2,
+  "Subway · Subs": 50,
+  "Subway · Wraps": 17,
+  "Subway · Salate": 16,
+  "Subway · Kartoffelprodukte": 18,
+  "Subway · Beilagen": 10,
+  "Subway · Getränke": 11,
+  "Subway · Desserts": 7,
+  "Subway · Saucen": 11,
+  "Subway · Zutaten": 8,
+  "Subway · Brot": 7,
+  "McDonald's · Burger": 17,
+  "McDonald's · Nuggets": 6,
+  "McDonald's · Wraps": 1,
+  "McDonald's · Pommes": 3,
+  "McDonald's · Salate": 2,
+  "McDonald's · Saucen": 10,
+  "McDonald's · Frühstück": 14,
+  "McDonald's · Desserts": 20,
+  "McDonald's · Milchshakes": 3,
+  "McDonald's · Getränke": 13,
+  "McDonald's · Kaffee": 13
+ },
+ "abgelehnt_details": [
+  [
+   "Subway",
+   "Spicy Vegan Patty Salat",
+   "kcal 149 ≠ Makros 207"
+  ],
+  [
+   "Subway",
+   "Guacamole",
+   "kcal 24 ≠ Makros 62"
+  ],
+  [
+   "McDonald's",
+   "Lipton Ice Tea Peach 0,5 l",
+   "kcal 95 ≠ Makros 120"
+  ]
+ ]
+}

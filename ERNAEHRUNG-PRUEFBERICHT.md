@@ -56,3 +56,24 @@ Ziel „mindestens 10.000“ ist **erreicht**. Der Open-Food-Facts-Import lief a
 - Bekannte Schwäche: Manche Produkte heißen in der Sprache des Herstellers (z. B. Französisch bei Lidl-Importware), weil der Export nur einen Namen liefert. Barcode und Marke stimmen trotzdem.
 - Suche mit 32.156 Lebensmitteln bei 4-fach gedrosselter CPU (≈ Mittelklasse-Handy): 8–70 ms; erster Start ca. 3 s, danach aus dem Gerätespeicher.
 - Nicht getestet: echtes iPhone/Android, Kamera-Scanner, Mikrofon (nur am echten Gerät möglich).
+
+## Restaurant- und Fastfood-Ketten (restaurants.json, Stand 2026-11-25)
+
+| Kette | Produkte | Quelle | Stand |
+|---|---:|---|---|
+| KFC | 108 | Offizielles PDF „Allergene & Zusatzinformationen“ (static.kfc.de) | 10/2026 |
+| Subway | 155 | Offizielles PDF „Nährwertinformationen Deutschland“ (subway.com) | 03/2026 |
+| McDonald's | 102 | Werte von McDonald's Deutschland, übernommen über nutriscan.app (abgerufen 21.10.2026) | 10/2026 |
+| **Gesamt** | **365** | | |
+
+- Jede Zeile wurde geprüft: Kalorien müssen zu Eiweiß, Kohlenhydraten und Fett passen. **3 Zeilen abgelehnt:** Subway Spicy Vegan Patty Salat (kcal 149 ≠ Makros 207); Subway Guacamole (kcal 24 ≠ Makros 62); McDonald's Lipton Ice Tea Peach 0,5 l (kcal 95 ≠ Makros 120).
+- Größen sind eigene Produkte (z. B. 6/9/20 McNuggets, Subway 15 cm und 30 cm, Getränke 0,3/0,4/0,5 l, Pommes klein/mittel/groß).
+- Subway 30 cm: laut Subway gelten die doppelten 15-cm-Werte.
+- Subway-Getränke und Fruchtmousse: In der PDF-Auslesung waren die Spalten verschoben (Zucker stand in der Fett-Spalte). Korrigiert wurde nur dort, wo die Kalorien eindeutig zur Korrektur passen.
+- McDonald's nennt kein Portionsgewicht → Werte gelten pro Portion. Zucker, Salz, gesättigte Fette und Ballaststoffe sind unbekannt (null).
+- **Nicht enthalten, weil keine belastbaren Daten abrufbar waren:** Burger King (Nährwerttabelle nur per JavaScript), Five Guys, Domino's, Pizza Hut, Nordsee, BackWerk, Dunkin', Starbucks, L'Osteria, Vapiano, Hans im Glück, Peter Pane, dean&david, Burgermeister, Kochlöffel, Simit Sarayı. darf-ich-das-essen.de enthält für diese Ketten überwiegend nur Allergene, keine Nährwerte. linupapp.de nennt für Döner nur Richtwerte (Kalorien und Eiweiß).
+
+### Nutzungsrechte
+- KFC und Subway: offizielle, öffentlich bereitgestellte Verbraucherinformationen. Nährwerte sind Fakten. Markennamen werden nur zur Bezeichnung der Produkte genannt.
+- McDonald's über nutriscan.app: Die Werte stammen von McDonald's. Die Seite selbst trägt „© NutriScan, alle Rechte vorbehalten“. Deren Nutzungsbedingungen konnte ich nicht prüfen. Empfehlung: später direkt durch die McDonald's-Werte (z. B. Screenshots aus der McDonald's-App) ersetzen.
+- Keine Rechtsberatung.

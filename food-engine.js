@@ -89,6 +89,7 @@
     for (let i = 0; i < nameTok.length - 1; i++) { toks.add(nameTok[i] + nameTok[i + 1]); if (i < nameTok.length - 2) toks.add(nameTok[i] + nameTok[i + 1] + nameTok[i + 2]); }
     f._t = [...toks]; f._n = nameTok.filter((t) => /[a-z]/.test(t)).length; f._first = nameTok[0] || '';
     f._b = f.brand ? words(f.brand) : [];
+    f._a = f.src === 'chain' ? words(f.calias || '').filter((w) => w.length > 2) : [];
     f._state = STATE_RE.test(' ' + nameTok.join(' ') + ' ');
     f._t.forEach((t) => { const a = vocab.get(t); if (a) a.push(f); else vocab.set(t, [f]); });
     tsCache.clear();
@@ -114,6 +115,20 @@
   function loadEst(d) {
     sources.est = d.meta;
     for (const r of d.rows) indexFood(Object.assign({ src: 'est', q: 'est', unit: 'g' }, r));
+  }
+  function loadRest(d) {
+    sources.chain = d.meta;
+    const c = d.cols;
+    for (const r of d.rows) {
+      const f = { src: 'chain', q: 'mfr' };
+      c.forEach((k, i) => { f[k] = r[i]; });
+      f.source = (d.meta.sources || [])[f.src_ix != null ? f.src_ix : r[c.indexOf('src')]] || '';
+      f.src = 'chain'; f.updated = f.stand; f.cat = 'FF';
+      if (f.unit === 'portion') f.portion = { g: 100, label: '1 Portion' };
+      else if (f.pg) f.portion = { g: f.pg, label: '1 Portion (' + f.pg + ' ' + (f.unit === 'ml' ? 'ml' : 'g') + ')' };
+      f.calias = f.alias || ''; f.alias = [f.alias, f.grp].filter(Boolean).join(' ');
+      indexFood(f);
+    }
   }
   function loadOFF(d) {
     sources.off = d.meta;
@@ -160,6 +175,7 @@
       api.lang = opts.lang || (await kvGet('lang', null)) || detectLang();
       await cachedFetch('lebensmittel-bls.json', loadBLS);
       await cachedFetch('gerichte-schaetzwerte.json', loadEst, true);
+      await cachedFetch('restaurants.json', loadRest, true);
       await cachedFetch('off-de.json', loadOFF, true);
       (await tx(pubDB, 'offcache', 'readonly', (s) => s.getAll()) || []).forEach(indexFood);
       (await tx(perDB, 'custom', 'readonly', (s) => s.getAll()) || []).forEach(indexFood);
@@ -223,7 +239,7 @@
   ];
   function expandQuery(q) { let n = norm(q); for (const [re, rep] of SYN) n = n.replace(re, rep); return n.trim(); }
 
-  const STOP = new Set(['mit', 'und', 'von', 'vom', 'der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'einen', 'einem', 'einer', 'zum', 'zur', 'im', 'in', 'am', 'auf', 'aus', 'fuer', 'stueck', 'portion', 'the', 'a', 'of', 'oder']);
+  const STOP = new Set(['bei', 'beim', 'mit', 'und', 'von', 'vom', 'der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'einen', 'einem', 'einer', 'zum', 'zur', 'im', 'in', 'am', 'auf', 'aus', 'fuer', 'stueck', 'portion', 'the', 'a', 'of', 'oder']);
 
   const tsCache = new Map();
   function tokenScores(q) {
@@ -281,6 +297,8 @@
       }
       if (f.src === 'user' || f.src === 'recipe') score += 0.4;
       if (f.src === 'est') score += 0.2;
+      if (f.src === 'chain') score += (opt.brand && f.brand === opt.brand) ? 2 : f._a.concat(f._b).some((b) => qt.some((q) => q.length > 2 && b.startsWith(stem(q)))) ? 0.5 : -0.8;
+      if (opt.brand && f.brand && f.brand !== opt.brand) score -= 1;
       if (f.src === 'off') score -= f._b.some((b) => qt.some((q) => b.startsWith(stem(q)))) ? 0 : 1.0;
       if (f.cat === 'X' || f.cat === 'Y') score -= 0.25;
       const u = usage[f.id]; if (u) score += Math.min(1, 0.2 * Math.log2(1 + u));
@@ -381,10 +399,11 @@
     [/wasser/, { glas: [250, '1 Glas'], flasche: [500, '1 Flasche (0,5 l)'], portion: [250, '1 Glas'] }, 'N'],
     [/suppe|eintopf/, { teller: [300, '1 Teller'], portion: [300, '1 Teller'] }, 'XY'],
   ];
-  const CAT_DEFAULT = { F: 125, G: 150, N: 250, P: 250, X: 350, Y: 350, Z: 300, B: 50, D: 80, M: 150, S: 30, Q: 10, R: 15, T: 150, U: 150, V: 150, W: 30, C: 60, E: 60, H: 30, K: 200, O: 100 };
+  const CAT_DEFAULT = { FF: 100, F: 125, G: 150, N: 250, P: 250, X: 350, Y: 350, Z: 300, B: 50, D: 80, M: 150, S: 30, Q: 10, R: 15, T: 150, U: 150, V: 150, W: 30, C: 60, E: 60, H: 30, K: 200, O: 100 };
 
   function portionsFor(f) {
     const out = [];
+    if (f.unit === 'portion') return [{ key: 'portion', g: 100, label: '1 Portion', est: false }];
     if (f.portion && f.portion.g) out.push({ key: 'portion', g: f.portion.g, label: f.portion.label || '1 Portion', est: f.src !== 'off' && f.src !== 'user' && f.src !== 'recipe' });
     const n = norm(f.n);
     for (const [re, p, cats] of PORTIONS) {
@@ -412,7 +431,7 @@
   const AMOUNT = new RegExp('(?:^|\\s)' + NUM_RE + '\\s*' + UNIT_RE + '?(?=\\s|$)');
   const UNIT_ONLY = new RegExp('(?:^|\\s)' + UNIT_RE + '(?=\\s|$)');
   const SIZE_RE = /\b(klein|kleine|kleinen|kleiner|kleines|mittel|mittlere|mittleren|mittlerer|mittleres|gross|grosse|grossen|grosser|grosses|small|medium|large)\b/;
-  const FILLER = /\b(ich|hab|habe|hatte|heute|gerade|eben|gestern|morgen|abends|mittags|morgens|gegessen|getrunken|essen|trinken|trage|tragen|trag|eintragen|ein ?getragen|notiere|notier|speicher|speichere|bitte|mal|noch|dazu|ausserdem|zusaetzlich|auch|so|etwa|ungefaehr|circa|ca|zum|zur|fuer|als|frueh?stueck|fruehstueck|mittagessen|mittag|abendessen|abendbrot|abend|snack|zwischendurch|nachmittag|vormittag|i|had|ate|drank|for|breakfast|lunch|dinner|today)\b/g;
+  const FILLER = /\b(ich|hab|habe|hatte|war|waren|bin|heute|gerade|eben|gestern|morgen|abends|mittags|morgens|gegessen|getrunken|essen|trinken|trage|tragen|trag|eintragen|ein ?getragen|notiere|notier|speicher|speichere|bitte|mal|noch|dazu|ausserdem|zusaetzlich|auch|so|etwa|ungefaehr|circa|ca|zum|zur|fuer|als|frueh?stueck|fruehstueck|mittagessen|mittag|abendessen|abendbrot|abend|snack|zwischendurch|nachmittag|vormittag|i|had|ate|drank|for|breakfast|lunch|dinner|today)\b/g;
 
   function detectMeal(n) {
     if (/fruehstueck|breakfast|morgens/.test(n)) return 'fruehstueck';
@@ -453,6 +472,11 @@
   function amountFor(f, qty, uk, size) {
     const ps = portionsFor(f); const get = (k) => ps.find((p) => p.key === k);
     const q = qty == null ? 1 : qty;
+    if (f.unit === 'portion') { // Restaurantprodukt ohne Gewicht: nur Portionen
+      if (uk && /^(g|kg|ml|l|cl)$/.test(uk)) return { grams: 100, label: '1 Portion (Gramm-Angabe nicht möglich)', est: true, unsure: true };
+      return { grams: q * 100, label: q === 1 ? '1 Portion' : fmt(q, 1) + ' Portionen', est: false };
+    }
+    if (f.src === 'chain' && f.portion && !uk && !size) return { grams: q * f.portion.g, label: q === 1 ? '1 Portion' : fmt(q, 1) + ' Portionen', est: false };
     if (uk === 'g') return { grams: q, label: fmt(q) + (f.unit === 'ml' ? ' g' : ' g'), est: false };
     if (uk === 'kg') return { grams: q * 1000, label: fmt(q, 2) + ' kg', est: false };
     if (uk === 'ml') return { grams: q, label: fmt(q) + ' ml', est: false };
@@ -476,10 +500,12 @@
     return { grams: q * p.g, label: (q !== 1 ? fmt(q, 1) + '× ' : '') + p.label, est: true, unsure };
   }
 
+  const CHAINS = [[/\bmc ?donald|\bmecces\b|\bmaces\b|\bmcd\b|\bmc ?cafe/, "McDonald's", 'mcdonalds'], [/\bburger ?king\b|\bbk\b/, 'Burger King', 'burgerking'], [/\bkfc\b|kentucky/, 'KFC', 'kfc'], [/\bsubway\b/, 'Subway', 'subway']];
   function parseMeal(text) {
     let n = ' ' + norm(text) + ' ';
     const meal = detectMeal(n);
-    n = n.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
+    const ch = CHAINS.find(([re]) => re.test(n)); const brand = ch && foods.some((f) => f.brand === ch[1]) ? ch[1] : null;
+    n = n.replace(/(\d)\s*,\s*(\d)/g, '$1.$2').replace(/\b30 ?cm\b|\bfootlong\b/g, ' footlong ').replace(/\b15 ?cm\b/g, ' 15cm ');
     const segs = n.split(/,|;|\bund\b|\bsowie\b|\bplus\b|\bdazu\b|\bdanach\b|\bdann\b|\bausserdem\b|\band\b/).map((s) => s.trim()).filter(Boolean);
     const items = [];
     for (let seg of segs) {
@@ -499,13 +525,28 @@
       seg = seg.replace(FILLER, ' ').replace(/\b(von|vom|mit dem|mit der)\b(?=\s)/, ' ').replace(/\s+/g, ' ').trim();
       seg = seg.replace(/[.,!?]+/g, ' ').replace(/\s+ein\s*$/, '').replace(/\s+/g, ' ').trim();
       seg = seg.replace(/^(der|die|das|den|dem|ein|eine|einen|einem|einer|mit)\s+/, '').trim();
-      if (!seg || seg.length < 2) continue;
+      if (brand) seg = seg.replace(/\b(mc ?donald\w*|mecces|maces|mcd|burger ?king|bk|kfc|kentucky( fried chicken)?|subway)\b/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!seg || seg.length < 2 || seg.split(' ').every((w) => STOP.has(w))) continue;
       if (/^(wasser|leitungswasser|trinkwasser)$/.test(seg)) {
         const a = uk ? amountFor({ n: 'wasser', cat: 'N', unit: 'ml' }, qty, uk, size) : { grams: (qty || 1) * 250 };
         items.push({ water: true, query: seg, grams: a.grams });
         continue;
       }
-      const found = search(seg, { limit: 8 });
+      let found = null;
+      if (brand) { // Kette genannt: zuerst dort suchen, Größe (klein/mittel/groß) gehört zum Produktnamen
+        const sz = size ? (/^(klein|small)/.test(size) ? ' klein' : /^(mittl|mittel|medium)/.test(size) ? ' mittel' : ' gross') : '';
+        let cand = [];
+        if (qty && qty > 1 && !uk) { // „9 McNuggets“ → Variante „9 Chicken McNuggets“
+          const cq = search(qty + ' ' + seg + sz, { limit: 8, brand }).filter((f) => f.brand === brand && norm(f.n).startsWith(String(qty) + ' '));
+          if (cq.length) { cand = cq; qty = 1; }
+        }
+        if (!cand.length) cand = search(seg + sz, { limit: 8, brand }).filter((f) => f.brand === brand);
+        if (cand.length) { found = cand.concat(search(seg, { limit: 4 }).filter((f) => !cand.includes(f))); if (sz && norm(cand[0].n).includes(sz.trim())) size = null; }
+      }
+      if (!found) {
+        found = search(seg, { limit: 8 });
+        if (qty && qty > 1 && !uk) { const cq = search(qty + ' ' + seg, { limit: 8 }).filter((f) => norm(f.n).startsWith(String(qty) + ' ')); if (cq.length) { found = cq.concat(found.filter((f) => !cq.includes(f))); qty = 1; } }
+      }
       const item = { query: seg, qty, unit: uk, size, alts: found, food: found[0] || null, flags: [] };
       if (item.food) {
         Object.assign(item, amountFor(item.food, qty, uk, size));
@@ -664,8 +705,8 @@
     [/salz|salt/, 'salt', 'Salz', 'g'],
   ];
   const nutrOf = (n) => { for (const w of NUT_WORDS) if (w[0].test(n)) return w; return null; };
-  const disp = (f) => f.n.split(/,\s/)[0];
-  const qualNote = (f) => f.q === 'est' ? ' (Schätzwert)' : f.src === 'off' ? ' (Herstellerangabe)' : '';
+  const disp = (f) => f.n.split(/,\s/)[0] + (f.src === 'chain' && f.brand ? ' von ' + f.brand : '');
+  const qualNote = (f) => f.q === 'est' ? ' (Schätzwert)' : (f.src === 'off' || f.src === 'chain') ? ' (Herstellerangabe)' : '';
 
   async function daySummaryText() {
     const list = await getDay(today()); const t = sumEntries(list); const g = await getGoals(); const w = await getWater();
@@ -754,6 +795,12 @@
       const nu = nutrients(f, grams); const w = nq.w;
       const per100 = f[w[1]]; const unitW = f.unit === 'ml' ? 'Milliliter' : 'Gramm';
       if (per100 == null && w[1] !== 'kcal') return { kind: 'nutr', text: `Für ${disp(f)} ist der Wert für ${w[2]} unbekannt.` };
+      if (f.unit === 'portion') {
+        const v = nutrients(f, grams);
+        let t = `${disp(f)} (Herstellerangabe): ${fmt(v[w[1]], w[1] === 'kcal' ? 0 : 1)} ${w[3] === 'kcal' ? 'Kalorien' : 'Gramm ' + w[2]}${grams !== 100 ? ' bei ' + fmt(grams / 100, 1) + ' Portionen' : ' pro Portion'}.`;
+        if (nq.all || w[1] === 'kcal') t += ` Dazu ${fmt(v.p)} g Eiweiß, ${fmt(v.c)} g Kohlenhydrate und ${fmt(v.f)} g Fett.`;
+        return { kind: 'nutr', text: t, food: f };
+      }
       let s = `${disp(f)}${qualNote(f)}: ${fmt(per100, w[1] === 'kcal' ? 0 : 1)} ${w[3] === 'kcal' ? 'Kalorien' : 'Gramm ' + w[2]} pro 100 ${unitW}. `;
       s += `${hasAmount ? 'Bei deiner Menge' : 'Bei ' + (it.label || '1 Portion').replace(/^1 /, '1 ')} (${fmt(grams)} ${f.unit === 'ml' ? 'ml' : 'g'}) sind das ${fmt(nu[w[1]], w[1] === 'kcal' ? 0 : 1)} ${w[3] === 'kcal' ? 'Kalorien' : 'Gramm'}.`;
       if (nq.all || w[1] === 'kcal') s += ` Dazu ${fmt(nu.p)} g Eiweiß, ${fmt(nu.c)} g Kohlenhydrate und ${fmt(nu.f)} g Fett.`;
@@ -797,7 +844,7 @@
     VERSION, MEALS, MEAL_DE, MEAL_EN, base: './', lang: 'de', ready: false,
     init, search, getFood: (id) => byId.get(id), byEan: (c) => byEan.get(String(c)), count: () => foods.length,
     countBy: () => foods.reduce((a, f) => { a[f.src] = (a[f.src] || 0) + 1; return a; }, {}),
-    catName: (c) => catNames[c] || (c === 'O' ? 'Markenprodukte' : c === 'Z' ? 'Imbiss & Fast Food (Schätzwerte)' : c),
+    catName: (c) => catNames[c] || (c === 'FF' ? 'Restaurant & Fast Food' : c === 'O' ? 'Markenprodukte' : c === 'Z' ? 'Imbiss & Fast Food (Schätzwerte)' : c),
     sources, norm, nutrients, portionsFor, defaultPortion, parseMeal, answer, getPending: () => pending, clearPending: () => { pending = null; },
     addEntry, updateEntry, removeEntry, getDay, getRange, entryNutr, sumEntries, copyDay,
     getWater, addWater, getWeights, addWeight, getGoals, setGoals, calcGoals, findProfile, appBedarf,
