@@ -2523,13 +2523,19 @@ const vcSR=()=>window.SpeechRecognition||window.webkitSpeechRecognition;
 const vcTTSon=()=>{ try{ return localStorage.getItem('mc_vc_tts')!=='0'; }catch(e){ return true; } };
 const vcNorm=t=>String(t||'').toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9,.\s]/g,' ').replace(/\s+/g,' ').trim();
 const VC_NUM={null:0,zero:0,ein:1,eins:1,eine:1,einen:1,one:1,zwei:2,zwo:2,two:2,drei:3,three:3,vier:4,four:4,fuenf:5,five:5,sechs:6,six:6,sieben:7,seven:7,acht:8,eight:8,neun:9,nine:9,zehn:10,ten:10,elf:11,eleven:11,zwoelf:12,twelve:12,dreizehn:13,thirteen:13,vierzehn:14,fourteen:14,fuenfzehn:15,fifteen:15,sechzehn:16,sixteen:16,siebzehn:17,seventeen:17,achtzehn:18,eighteen:18,neunzehn:19,nineteen:19,zwanzig:20,twenty:20,dreissig:30,thirty:30,vierzig:40,forty:40,fuenfzig:50,fifty:50,sechzig:60,sixty:60,siebzig:70,seventy:70,achtzig:80,eighty:80,neunzig:90,ninety:90,hundert:100,hundred:100};
+/* Zahlwörter 1–999 (deutsch, auch „hundertzwanzig“, „zwo“, „einhundertfünf“) */
+const VC_DE=(()=>{ const u=['','ein','zwei','drei','vier','fuenf','sechs','sieben','acht','neun'], te=['zehn','elf','zwoelf','dreizehn','vierzehn','fuenfzehn','sechzehn','siebzehn','achtzehn','neunzehn'], tn=['','','zwanzig','dreissig','vierzig','fuenfzig','sechzig','siebzig','achtzig','neunzig'], m={};
+  const sub=n=>{ if(n<10) return [n===1?'eins':u[n]].concat(n===2?['zwo']:[]); if(n<20) return [te[n-10]]; const t=Math.floor(n/10), x=n%10; if(!x) return [tn[t]]; return [u[x]+'und'+tn[t]].concat(x===2?['zwound'+tn[t]]:[]); };
+  for(let n=1;n<100;n++) for(const w of sub(n)) m[w]=n;
+  for(let h=1;h<=9;h++){ const hs=h===1?['hundert','einhundert']:[u[h]+'hundert']; for(const H of hs){ m[H]=h*100; for(let r=1;r<100;r++) for(const w of sub(r)){ m[H+w]=h*100+r; m[H+'und'+w]=h*100+r; } } }
+  m.null=0; delete m.ein; return m; })();
+const VC_EN={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100};
 function vcWordsToDigits(t){
-  t=t.replace(/([a-z])einhalb\b/g,'$1 einhalb');
-  // deutsche Zusammensetzungen: "zweiundzwanzig", "siebenundsiebzig"
-  t=t.replace(/\b(ein|zwei|drei|vier|fuenf|sechs|sieben|acht|neun)und(zwanzig|dreissig|vierzig|fuenfzig|sechzig|siebzig|achtzig|neunzig)\b/g,(m,a,b)=>String(VC_NUM[a]+VC_NUM[b]));
-  t=t.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[\s-](one|two|three|four|five|six|seven|eight|nine)\b/g,(m,a,b)=>String(VC_NUM[a]+VC_NUM[b]));
-  t=t.replace(/\b(ein|eins|zwei|drei|vier|fuenf)hundert(\w*)\b/g,(m,a,b)=>String(VC_NUM[a]*100+(VC_NUM[b]||0)));
-  t=t.split(' ').map(w=>VC_NUM[w]!==undefined&&!/^(ein|eine|einen)$/.test(w)?String(VC_NUM[w]):w).join(' ');
+  t=t.replace(/([a-z])einhalb\b/g,'$1 einhalb').replace(/\b([a-z]+)mal\b/g,(m,a)=>VC_DE[a]!==undefined?a+' mal':m);
+  t=t.replace(/\b(ein )?halbes kilo\w*/g,'0.5 kilo').replace(/\bhalf a (kilo|kg)\b/g,'0.5 kilo');
+  t=t.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[\s-](one|two|three|four|five|six|seven|eight|nine)\b/g,(m,a,b)=>String(VC_EN[a]+VC_EN[b]));
+  t=t.replace(/\b(?:(one|two|three|four|five|six|seven|eight|nine|a) )?hundred(?: and)?(?: (\d{1,2}|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|one|two|three|four|five|six|seven|eight|nine)\b)?/g,(m,a,b)=>String((a&&a!=='a'?VC_EN[a]:1)*100+(b?(/\d/.test(b)?+b:VC_EN[b]):0)));
+  t=t.split(' ').map(w=>VC_DE[w]!==undefined?String(VC_DE[w]):VC_EN[w]!==undefined?String(VC_EN[w]):w).join(' ');
   t=t.replace(/(\d+)\s*(?:komma|point|punkt)\s*(\d+)/g,'$1.$2').replace(/(\d+),(\d+)/g,'$1.$2');
   t=t.replace(/(\d+)\s*(?:einhalb|and a half)/g,(m,a)=>String(+a+0.5));
   return t; }
@@ -2543,7 +2549,13 @@ function vcFindEx(t){ const sq=vcNorm(t).replace(/[\d.,]/g,'').replace(/\s+/g,''
   const inLive=new Set(LIVE?LIVE.items.map(x=>x.id):[]); let best=null;
   for(const o of vcExKeys()){ if(!sq.includes(o.k)) continue; const sc=o.k.length+(o.full?5:0)+(inLive.has(o.id)?3:0); if(!best||sc>best.sc) best={id:o.id,sc}; }
   return best&&best.id; }
+/* iPhone macht aus „zwanzig fünfundzwanzig“ gern eine Jahreszahl „2025“ – solche Zahlen in Gewicht + Wiederholungen trennen */
+function vcSplitNum(x){ const c=[]; const ok=(k,r)=>k[0]!=='0'&&r[0]!=='0'&&+k>=1&&+k<=190&&+r>=1&&+r<=50;
+  if(x.length===4){ for(const [a,b] of [[2,2],[3,1],[1,3]]){ const k=x.slice(0,a), r=x.slice(a); if(ok(k,r)) c.push(k+' '+r); } }
+  else if(x.length===3&&+x>190){ for(const [a,b] of [[2,1],[1,2]]){ const k=x.slice(0,a), r=x.slice(a); if(ok(k,r)) c.push(k+' '+r); } }
+  return c[0]||x; }
 function vcParseSet(t){ let kg=null, reps=null; const n='(\\d+(?:\\.\\d+)?)';
+  t=t.replace(/\b(satz|set|runde|round)\s*(nummer\s*)?\d+\b/g,' ').replace(/\b(\d{3,4})\b(?!\.\d)(?!\s*(?:kilo|kg|pfund|lbs|pounds?|km))/g,(m,x)=>vcSplitNum(x));
   const mx=t.match(new RegExp(n+'\\s*(?:mal|x|times)\\s*'+n+'(?!\\s*(?:kilo|kg))'));
   if(mx&&!/kilo|kg|pfund|pound|lbs/.test(t)){ return {kg:parseFloat(mx[1]),reps:Math.round(parseFloat(mx[2]))}; }
   let m=t.match(new RegExp(n+'\\s*(?:kilo\\w*|kg|k\\b|kilogramm)'))||t.match(new RegExp(n+'\\s*(?:pfund|pounds?|lbs?)'));
@@ -2554,7 +2566,7 @@ function vcParseSet(t){ let kg=null, reps=null; const n='(\\d+(?:\\.\\d+)?)';
   if(kg===null&&reps===null&&rest.length>=2){ kg=rest[0]; reps=rest[1]; }
   else if(kg!==null&&reps===null&&rest.length) reps=rest[0];
   else if(reps!==null&&kg===null&&rest.length) kg=rest[0];
-  else if(kg===null&&reps===null&&rest.length===1) reps=rest[0];
+  else if(kg===null&&reps===null&&rest.length===1){ if(rest[0]%1||rest[0]>50) kg=rest[0]; else reps=rest[0]; }
   if(reps!==null) reps=Math.round(reps);
   return {kg,reps}; }
 const VC_CMDS=[
@@ -2625,6 +2637,9 @@ function vcLogSet(exId,ps){
 /* Robuste Spracherkennung (iPhone-sicher): neue Instanz pro Tipp, Watchdogs, Stille-Erkennung, nie „hängen bleiben“ */
 const VREC={r:null,on:false,finish:null,tm:[]};
 function vcRecKill(){ VREC.tm.forEach(clearTimeout); VREC.tm=[]; const r=VREC.r; if(r){ try{ r.onstart=r.onresult=r.onerror=r.onend=null; r.abort(); }catch(e){} } VREC.r=null; VREC.finish=null; VREC.on=false; VC.on=false; VC.rec=null; }
+/* iPhone liefert Teil-Ergebnisse teils doppelt oder aufbauend („20“, „20 Kilo“) – nicht ohne Leerzeichen aneinanderkleben */
+function vcAddPart(arr,x){ const l=arr[arr.length-1]; if(l&&(x.startsWith(l)||x.includes(l))) arr[arr.length-1]=x; else if(l&&l.includes(x)) return; else arr.push(x); }
+function vcDedup(t){ const w=t.split(/\s+/), n=w.length; if(n>=2&&n%2===0){ const a=w.slice(0,n/2).join(' '), b=w.slice(n/2).join(' '); if(a.toLowerCase()===b.toLowerCase()) return a; } return t; }
 function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
   vcRecKill(); vcAudioKick(); const wait=0; /* iPhone: Mikrofon MUSS direkt im Tipp starten – jede Verzögerung (z. B. nach der Sprachausgabe) blockiert iOS still */
   try{ const ss=window.speechSynthesis; if(ss) ss.cancel(); }catch(e){}
@@ -2640,7 +2655,7 @@ function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
     r.lang=LANG==='en'?'en-US':'de-DE'; r.interimResults=true; r.continuous=false; try{ r.maxAlternatives=1; }catch(e){}
     r.onstart=r.onaudiostart=r.onsoundstart=r.onspeechstart=()=>{ started=true; };
     r.onspeechend=()=>{ T(()=>soft(),900); };
-    r.onresult=e=>{ let h='', f=''; for(let i=0;i<e.results.length;i++){ const x=(e.results[i][0]||{}).transcript||''; h+=x; if(e.results[i].isFinal) f+=x; } heard=h; if(f) fin=f; o.onText(heard.trim());
+    r.onresult=e=>{ const H=[], F=[]; for(let i=0;i<e.results.length;i++){ const x=((e.results[i][0]||{}).transcript||'').trim(); if(!x) continue; vcAddPart(H,x); if(e.results[i].isFinal) vcAddPart(F,x); } const h=vcDedup(H.join(' ')), f=vcDedup(F.join(' ')); heard=h; if(f) fin=f; o.onText(heard.trim());
       clearTimeout(silence); if(fin) silence=T(()=>finish(),300); else silence=T(()=>soft(),1500); };
     r.onerror=e=>{ const er=(e&&e.error)||'error'; if(er==='aborted') return; if(er==='no-speech'&&softing) return; finish(heard?null:er); };
     r.onend=()=>finish(null);
@@ -4042,7 +4057,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25j';
+const APP_VERSION='2026-11-25k';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
