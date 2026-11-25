@@ -2819,7 +2819,11 @@ function coOpenSheet(){ if(!MC.pro){ upsell(LX('Personal Trainer','Personal trai
       <form class="cobar" id="coForm" autocomplete="off"><input id="coIn" type="text" enterkeyhint="send" placeholder="${LX('Frag deinen Coach …','Ask your coach …')}" aria-label="${LX('Frage','Question')}"><button type="button" class="comic" id="coMic" aria-label="${LX('Sprechen','Speak')}">🎙️</button><button type="submit" class="cosend" aria-label="${LX('Senden','Send')}">➤</button></form>`;
     document.body.appendChild(sh);
     $('coBack').onclick=coClose; $('coForm').onsubmit=e=>{ e.preventDefault(); const v=$('coIn').value.trim(); if(v){ $('coIn').value=''; coSend(v); } };
-    $('coMic').onclick=coListen; $('coTts').onclick=()=>{ try{ localStorage.setItem('mc_vc_tts',vcTTSon()?'0':'1'); }catch(e){} coTtsBtn(); if(!vcTTSon()&&window.speechSynthesis) speechSynthesis.cancel(); };
+    (()=>{ const mb=$('coMic'); let lp=0, lpT=0;
+      mb.addEventListener('touchstart',()=>{ lp=0; clearTimeout(lpT); lpT=setTimeout(()=>{ lp=1; if(vcKbMode()){ vcKbSet(false); coPush('a',LX('Direkte Spracherkennung wieder an – tippe auf 🎙️.','Direct speech recognition back on – tap 🎙️.'),true); coRender(); } },1500); },{passive:true});
+      /* iPhone öffnet die Tastatur nur, wenn focus() direkt im Touch-Ereignis passiert */
+      mb.addEventListener('touchend',e=>{ clearTimeout(lpT); if(lp){ e.preventDefault(); return; } if(vcKbMode()&&!(VREC.on&&VREC.finish)){ e.preventDefault(); coDictate(); } });
+      mb.onclick=()=>{ if(lp){ lp=0; return; } if(vcKbMode()&&!(VREC.on&&VREC.finish)){ coDictate(); return; } coListen(); }; })(); $('coTts').onclick=()=>{ try{ localStorage.setItem('mc_vc_tts',vcTTSon()?'0':'1'); }catch(e){} coTtsBtn(); if(!vcTTSon()&&window.speechSynthesis) speechSynthesis.cancel(); };
     $('coMsgs').onclick=e=>{ const b=e.target.closest('[data-ex]'); if(!b) return; CO.back=true; coClose(); openEx(b.dataset.ex); };
     $('coChips').onclick=e=>{ const b=e.target.closest('button'); if(b) coSend(b.textContent); }; }
   coTtsBtn(); sh.classList.add('open'); document.body.style.overflow='hidden'; coLoadKB();
@@ -2838,11 +2842,12 @@ async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=n
 /* iPhone-Home-Bildschirm-App: Apples Spracherkennung liefert dort oft nichts → Tastatur-Diktat als sicherer Ersatz */
 const vcIOS=()=>/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const vcStandalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
-const vcKbKey=()=>'mc_vc_kb_'+(vcStandalone()?'s':'b');
-const vcKbMode=()=>{ try{ const v=localStorage.getItem(vcKbKey()); if(v!==null) return v==='1'; }catch(e){} return vcIOS()&&vcStandalone(); };
+const vcKbKey=()=>'mc_vc_kb2_'+(vcStandalone()?'s':'b');
+const vcKbMode=()=>{ try{ return localStorage.getItem(vcKbKey())==='1'; }catch(e){ return false; } };
 const vcKbSet=on=>{ try{ localStorage.setItem(vcKbKey(),on?'1':'0'); }catch(e){} };
-function coDictate(){ const i=$('coIn'); if(!i) return; i.value=''; i.placeholder=LX('🎙️ Tippe unten auf der Tastatur aufs Mikrofon und sprich …','🎙️ Tap the microphone on the keyboard and speak …'); i.focus();
-  if(!coDictate.hint){ coDictate.hint=1; coPush('a',LX('Auf dem iPhone nutze ich die Diktierfunktion der Tastatur: Tippe unten rechts auf der Tastatur auf 🎙️, sprich deine Frage und tippe dann auf ➤ Senden.','On iPhone I use the keyboard dictation: tap 🎙️ on the keyboard, say your question and then tap ➤ send.'),true); coRender(); i.focus(); } }
+function coDictate(){ const i=$('coIn'); if(!i) return; i.value=''; i.placeholder=LX('Tastatur-🎙️ antippen und sprechen …','Tap keyboard 🎙️ and speak …');
+  try{ i.focus({preventScroll:true}); }catch(e){ i.focus(); } try{ i.click(); }catch(e){}
+  if(!coDictate.hint){ coDictate.hint=1; coPush('a',LX('Die Tastatur geht auf – tippe dort unten auf 🎙️ (Diktieren), sprich und dann ➤. Falls keine Tastatur erscheint: einfach ins Textfeld tippen. Halte den grünen Knopf 2 Sek. gedrückt, um die direkte Spracherkennung nochmal zu probieren.','The keyboard opens – tap 🎙️ (dictation) there, speak, then ➤. If no keyboard appears: just tap the text field. Hold the green button for 2 s to try direct speech recognition again.'),true); coRender(); } }
 function coListen(){
   if(VREC.on&&VREC.finish){ VREC.finish(); return; }
   if(vcKbMode()){ coDictate(); return; }
@@ -2852,7 +2857,7 @@ function coListen(){
     onText:t=>{ const i=$('coIn'); if(i) i.value=t; },
     onFinal:t=>{ const i=$('coIn'); if(i) i.value=''; vcKbSet(false); coSend(t); },
     onError:er=>{ const i=$('coIn'); if(i){ i.value=''; i.placeholder=ph; }
-      if(vcIOS()&&er!=='audio-capture'&&er!=='network'){ vcKbSet(true); coPush('a',LX('Die iPhone-Spracherkennung hat nichts geliefert. Ab jetzt nutze ich die Diktierfunktion der Tastatur – tippe nochmal auf 🎙️.','iPhone speech recognition returned nothing. From now on I use the keyboard dictation – tap 🎙️ again.'),true); coRender(); return; }
+      if(vcIOS()&&er!=='audio-capture'&&er!=='network'){ vcKbSet(true); coPush('a',LX('Die iPhone-Spracherkennung hat nichts geliefert. Ab jetzt öffnet 🎙️ die Tastatur – dort auf das Diktier-Mikrofon tippen. (Grünen Knopf 2 Sek. halten = direkte Erkennung wieder probieren.)','iPhone speech recognition returned nothing. From now on I use the keyboard dictation – tap 🎙️ again.'),true); coRender(); return; }
       coPush('a',vcErrTxt(er),true); coRender(); } }); }
 
 function finishLive(){
@@ -3909,7 +3914,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25e';
+const APP_VERSION='2026-11-25f';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
