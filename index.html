@@ -2774,24 +2774,32 @@ async function coAnswer(raw){
   else if(/wer bist du|who are you|was bist du/.test(t)) small=true, out=LX('Ich bin dein Personal Trainer in der App. Ich kenne deinen Plan, deine Rekorde und deine Werte und beantworte Fragen zu Übungen, Training, Ernährung und Supplements.','I\'m your personal trainer in the app. I know your plan, records and numbers and answer questions about exercises, training, nutrition and supplements.');
   if(!out) out=coWeight(t,r);
   if(!out) out=coPersonal(t);
+  if(!out&&kb){ const tp=coPriTopic(t,toks); if(tp){ CO.ctx={type:'topic',id:tp.id}; CO.asp=null; out=coTopicAns(tp,r); } }
   if(!out&&kb){ // Supplements
     let best=null; for(const s of kb.supps){ let sc=0; for(const n of s.n) sc=Math.max(sc,coHas(t,toks,n)); if(sc&&(!best||sc>best.sc)) best={s,sc}; }
     if(best){ if(!asp&&follow&&(CO.asp==='dosis'||CO.asp==='wann')) asp=CO.asp; CO.ctx={type:'supp',id:best.s.id}; CO.asp=asp; out=coSuppAns(best.s,asp,r); } }
   if(!out){ const id=vcFindEx(t); if(id){ if(!asp&&follow&&CO.asp&&CO.asp!=='was') asp=CO.asp; CO.ctx={type:'ex',id}; CO.asp=asp; out=coExAns(id,asp); } }
   if(!out&&kb){ let best=null; for(const tp of kb.topics){ let sc=0; for(const k of tp.k) sc+=coHas(t,toks,k); if(sc&&(!best||sc>best.sc)) best={tp,sc}; }
     const mu=coMuscle(t,toks);
-    if(mu){ const ms=mu.sc+(CO_INTENT.test(t)?3:0); if(!best||ms>=best.sc||best.tp.id==='beine'||(CO_INTENT.test(t)&&best.sc<15)){ const m=mu.m; CO.ctx={type:'mu',id:m.id}; CO.asp=null; CO.pendMu=m.id;
+    if(mu){ const ms=mu.sc+(CO_INTENT.test(t)?3:0); if(!(best&&best.tp.inj&&CO_INJ.test(t))&&(!best||ms>=best.sc||best.tp.id==='beine'||(CO_INTENT.test(t)&&best.sc<15))){ const m=mu.m; CO.ctx={type:'mu',id:m.id}; CO.asp=null; CO.pendMu=m.id;
       out=coMuName(m)+': '+m[coL()]+((m.ex||[]).length?' '+LX('Unten siehst du die passenden Übungen – tipp drauf für die 3D-Vorführung.','Below are the matching exercises – tap one for the 3D demo.'):''); best=null; } }
-    if(best){ const tp=best.tp; CO.ctx={type:'topic',id:tp.id}; CO.asp=null; out=tp[coL()]+(tp.p&&r?' '+coFill(tp.p[coL()],r):'');
+    if(best){ const tp=best.tp; CO.ctx={type:'topic',id:tp.id}; CO.asp=null; out=coTopicAns(tp,r);
       if(tp.id==='motivation') out+=' '+coPick(kb.motiv[coL()]); } }
   if(!out&&CO.ctx&&(toks.length<=5||follow)&&(asp||/\b(mehr|genauer|nochmal|details|more|again)\b/.test(t))){ // Nachfrage zum letzten Thema
     if(CO.ctx.type==='supp'&&kb){ const s=kb.supps.find(x=>x.id===CO.ctx.id); if(s){ CO.asp=asp; out=coSuppAns(s,asp,r); } }
     else if(CO.ctx.type==='mu'&&kb&&kb.muscles){ const m=kb.muscles.find(x=>x.id===CO.ctx.id); if(m){ CO.pendMu=m.id; out=coMuName(m)+': '+m[coL()]; } }
     else if(CO.ctx.type==='ex') out=coExAns(CO.ctx.id,asp==='muskeln'||asp==='fehler'||asp==='tipps'?asp:(asp?null:'tipps'));
-    else if(CO.ctx.type==='topic'&&kb){ const tp=kb.topics.find(x=>x.id===CO.ctx.id); if(tp) out=tp[coL()]+(tp.p&&r?' '+coFill(tp.p[coL()],r):''); } }
+    else if(CO.ctx.type==='topic'&&kb){ const tp=kb.topics.find(x=>x.id===CO.ctx.id); if(tp) out=tp.x?tp.x[coL()]:tp[coL()]+(tp.p&&r?' '+coFill(tp.p[coL()],r):''); } }
   if(!out) return null;
   if(/\b(schwanger\w*|stillzeit|medikament\w*|diabetes|herz\w*|blutdruck\w*|niere\w*|krankheit\w*|vorerkrank\w*|pregnan\w*|medication\w*|heart|blood pressure|kidney\w*)\b/.test(t)&&!/arzt|doctor/.test(out)) out+=LX(' Bei Vorerkrankungen, Medikamenten oder in der Schwangerschaft sprich das bitte mit deinem Arzt ab.',' With existing conditions, medication or pregnancy please check with your doctor.');
   return (small||out.length<90?'':coOpen())+out; }
+/* Verletzungs-Wörter: Verletzungsthemen gewinnen nur, wenn wirklich nach Schmerz/Verletzung gefragt wird (nicht bei „Wade trainieren“) */
+const CO_INJ=/(schmerz|weh\b|verletz|zerr|riss|verstauch|umgeknick|verklemm|verspann|krampf|kraempf|hexenschuss|blockier|entzuend|geschwollen|schwellung|stech|ziept|zwickt|gezogen|prellung|bluterguss|ischias|taub|kribbel|steif|arzt|erste hilfe|kuehl|waerm|eis\b|verletzung|comeback|wieder trainieren|seitenstechen|blockade|hexenschuss|tennis|golfer|ischias|pain|hurt|injur|strain|sprain|cramp|pulled|stiff|swollen|tear|bruise|doctor|first aid|\bice\b|heat|numb|tingl|stitch)/;
+function coPriTopic(t,toks){ const K=CO.kb; if(!K) return null; const inj=CO_INJ.test(t); let best=null;
+  for(const tp of K.topics){ if(!tp.pri) continue; if(tp.inj&&!inj&&CO_INTENT.test(t)) continue; let sc=0; for(const k of tp.k) sc+=coHas(t,toks,k);
+    if(tp.inj&&inj) sc+=2; if(tp.inj&&!inj&&sc<11) continue; if(sc&&(!best||sc>best.sc)) best={tp,sc}; }
+  return best&&best.sc>=6?best.tp:null; }
+function coTopicAns(tp,r){ let o=tp[coL()]+(tp.p&&r?' '+coFill(tp.p[coL()],r):''); if(tp.x) o+=LX(' Sag „mehr“ für Details.',' Say “more” for details.'); return o; }
 const CO_UNK=()=>coPick(LX(['Dazu weiß ich leider noch nichts. Frag mich zu Übungen, Training, Ernährung, Supplements oder deinen Werten – zum Beispiel „Wie viel Eiweiß brauche ich?“','Hm, das kann ich (noch) nicht beantworten. Probier zum Beispiel: „Was bringt Kreatin?“ oder „Wie mache ich Kniebeugen?“'],['I don\'t know about that yet. Ask me about exercises, training, nutrition, supplements or your numbers – e.g. “How much protein do I need?”','Hmm, I can\'t answer that (yet). Try e.g.: “What does creatine do?” or “How do I do squats?”']));
 /* Online-KI als Ersatz: nur wenn die Offline-Wissensbasis keine Antwort hat.
    CO_AI_URL = Adresse deines Cloudflare-Workers (siehe worker/ANLEITUNG.md). Leer = KI aus. */
@@ -2842,7 +2850,8 @@ function coPush(who,txt,silent,html){ CO.hist.push({who,txt,html:html||''}); if(
 function coSpeak(txt){ if(!vcTTSon()) return; vcTTS(txt.replace(/[💪🔥🏆🧠🌐]/gu,'').replace(/×/g,LX(' mal ',' times ')).replace(/\bkg\b/g,LX('Kilo','kilos')).replace(/kcal/g,LX('Kilokalorien','calories'))); }
 function coRender(){ const m=$('coMsgs'); if(!m) return; m.innerHTML=CO.hist.map(x=>`<div class="comsg ${x.who}">${esc(x.txt)}</div>${x.html||''}`).join('')+(CO.typing?'<div class="comsg a typing"><i></i><i></i><i></i></div>':'');
   const muC=CO.ctx&&CO.ctx.type==='mu'&&CO.kb&&CO.kb.muscles?(()=>{ const me=CO.kb.muscles.find(x=>x.id===CO.ctx.id); return me?CO.kb.muscles.filter(x=>x.grp===me.grp&&x.id!==me.id).slice(0,6).map(x=>{ const n=coMuName(x).replace(/\s*\(.*?\)/g,''); return LX(n+' trainieren','Train '+n.toLowerCase()); }):null; })():null;
-  const sugg=muC&&muC.length?muC:CO.ctx&&CO.ctx.type==='supp'?LX(['Wie viel davon?','Wann nehmen?','Nebenwirkungen?'],['How much?','When to take it?','Side effects?']):CO.ctx&&CO.ctx.type==='ex'?LX(['Tipps','Typische Fehler','Welche Muskeln?'],['Tips','Common mistakes','Which muscles?']):LX(['Wie trainiere ich die untere Brust?','Übungen für breite Schultern','Wie viel Eiweiß brauche ich?','Was bringt Kreatin?','Ich will 10 Kilo abnehmen','Wie bekomme ich einen runden Po?','Wie mache ich Kniebeugen?','Mein BMI','Wann ist mein nächstes Training?','Motivier mich!'],['How do I train my lower chest?','Exercises for wide shoulders','How much protein do I need?','What does creatine do?','I want to lose 10 kilos','How do I grow my glutes?','How do I do squats?','My BMI','When is my next workout?','Motivate me!']);
+  const tpC=CO.ctx&&CO.ctx.type==='topic'&&CO.kb?(()=>{ const tp=CO.kb.topics.find(x=>x.id===CO.ctx.id); if(!tp) return null; const a=(tp.x?[LX('Mehr dazu','More')]:[]).concat(tp.s?tp.s[coL()]:[]); return a.length?a:null; })():null;
+  const sugg=muC&&muC.length?muC:tpC?tpC:CO.ctx&&CO.ctx.type==='supp'?LX(['Wie viel davon?','Wann nehmen?','Nebenwirkungen?'],['How much?','When to take it?','Side effects?']):CO.ctx&&CO.ctx.type==='ex'?LX(['Tipps','Typische Fehler','Welche Muskeln?'],['Tips','Common mistakes','Which muscles?']):LX(['Wie trainiere ich die untere Brust?','Übungen für breite Schultern','Wie viel Eiweiß brauche ich?','Eiweißquellen','Gute Fette','Zerrung – was tun?','Rücken verklemmt','Abnehm-Plan','Was bringt Kreatin?','Ich will 10 Kilo abnehmen','Wie bekomme ich einen runden Po?','Wie mache ich Kniebeugen?','Mein BMI','Wann ist mein nächstes Training?','Motivier mich!'],['How do I train my lower chest?','Exercises for wide shoulders','How much protein do I need?','Protein sources','Good fats','Pulled muscle – what to do?','Back locked up','Weight loss plan','What does creatine do?','I want to lose 10 kilos','How do I grow my glutes?','How do I do squats?','My BMI','When is my next workout?','Motivate me!']);
   $('coChips').innerHTML=sugg.map(s=>`<button type="button">${esc(s)}</button>`).join('');
   requestAnimationFrame(()=>{ m.scrollTop=m.scrollHeight; }); }
 async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=null; let a=null; let ai=false; try{ a=await coAnswer(q); }catch(e){} if(!a){ a=await coAI(q); ai=!!a; } await new Promise(r=>setTimeout(r,350)); CO.typing=false; let h=ai?'<div class="coai">🌐 '+LX('KI-Antwort – ohne Gewähr, keine ärztliche Beratung','AI answer – no guarantee, not medical advice')+'</div>':''; if(a&&CO.pendMu){ try{ h=coMuCard(CO.pendMu); }catch(e){} } CO.pendMu=null; coPush('a',a||CO_UNK(),false,h); coRender(); }
@@ -3925,7 +3934,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25g';
+const APP_VERSION='2026-11-25h';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
