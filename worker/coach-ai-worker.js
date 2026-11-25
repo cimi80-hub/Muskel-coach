@@ -3,8 +3,9 @@
    Die API-Schlüssel liegen geheim in Cloudflare (nicht in der App, nicht auf GitHub).
 
    Geheime Variablen in Cloudflare (Settings › Variables and Secrets):
-     GROQ_API_KEY    – kostenloser Schlüssel von console.groq.com   (Pflicht, Anbieter 1)
-     GEMINI_API_KEY  – kostenloser Schlüssel von aistudio.google.com (optional, Ersatz wenn Groq ausfällt)
+     GROQ_API_KEY    – kostenloser Schlüssel von console.groq.com   (optional, Anbieter 1)
+     GEMINI_API_KEY  – kostenloser Schlüssel von aistudio.google.com (reicht allein; Ersatz wenn Groq ausfällt)
+   Mindestens einer der beiden Schlüssel muss gesetzt sein.
    Optional (normale Variablen):
      GROQ_MODEL      – Standard: llama-3.3-70b-versatile
      GEMINI_MODEL    – Standard: gemini-flash-latest
@@ -63,6 +64,23 @@ async function ask(url, key, model, messages) {
   return t.replace(/\*\*?/g, '').trim();
 }
 
+/* Gemini direkt (eigenes Google-Format, Schlüssel im Header x-goog-api-key) */
+async function askGemini(key, model, messages) {
+  const sys = messages.find(m => m.role === 'system');
+  const contents = messages.filter(m => m.role !== 'system').map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+    method: 'POST',
+    headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemInstruction: { parts: [{ text: sys ? sys.content : '' }] }, contents, generationConfig: { maxOutputTokens: 400, temperature: 0.5 } })
+  });
+  if (!r.ok) throw new Error(model + ' ' + r.status);
+  const d = await r.json();
+  const parts = d && d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts;
+  const t = parts && parts.map(p => p.text || '').join('');
+  if (!t) throw new Error(model + ' leer');
+  return t.replace(/\*\*?/g, '').trim();
+}
+
 export default {
   async fetch(req, env) {
     const origin = req.headers.get('Origin') || '', h = cors(origin, env);
@@ -87,7 +105,7 @@ export default {
 
     const tries = [];
     if (env.GROQ_API_KEY) tries.push(() => ask('https://api.groq.com/openai/v1/chat/completions', env.GROQ_API_KEY, env.GROQ_MODEL || 'llama-3.3-70b-versatile', messages));
-    if (env.GEMINI_API_KEY) tries.push(() => ask('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', env.GEMINI_API_KEY, env.GEMINI_MODEL || 'gemini-flash-latest', messages));
+    if (env.GEMINI_API_KEY) tries.push(() => askGemini(env.GEMINI_API_KEY, env.GEMINI_MODEL || 'gemini-flash-latest', messages));
     if (!tries.length) return json({ error: 'kein Schlüssel' }, 500, h);
 
     for (const t of tries) { try { return json({ a: await t() }, 200, h); } catch (e) { /* nächster Anbieter */ } }
