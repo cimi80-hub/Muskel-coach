@@ -498,6 +498,8 @@
   .vcintro{color:#d6dde1;font-size:14px;margin:8px 0 10px;line-height:1.4}
   .vclist{display:grid;gap:7px} .vclist>div{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:9px 11px}
   .vclist i{font-style:normal;font-size:19px} .vclist b{display:block;font-size:14px} .vclist small{display:block;color:var(--mut);font-size:12.5px;line-height:1.35;margin-top:1px}
+  .vvhd{margin:14px 2px 6px;font-size:12.5px;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.04em}
+  .vvrow{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:14px;margin-bottom:6px}.vvrow input{width:20px;height:20px;accent-color:#c6ff3d}.vvrow span{flex:1;display:flex;flex-direction:column;line-height:1.25}.vvrow small{opacity:.6;font-size:12px}.vvplay{background:#c6ff3d;color:#111;border:0;border-radius:50%;width:34px;height:34px;font-size:13px;font-weight:700}
   .vctts{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px} .vctts input{width:20px;height:20px;accent-color:#c6ff3d}
   .vcnote{color:var(--mut);font-size:12px;margin-top:8px;line-height:1.4}
   .restbar.on~.vcwrap,.restbar.on~.vcbub{bottom:calc(150px + env(safe-area-inset-bottom))}
@@ -2652,10 +2654,69 @@ function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
 let vcAC=null, vcSil=null;
 function vcAudioKick(){ try{ const ss=window.speechSynthesis; if(ss){ ss.cancel(); } }catch(e){}
   try{ const AC=window.AudioContext||window.webkitAudioContext; if(AC){ vcAC=vcAC||new AC(); if(vcAC.state!=='running') vcAC.resume(); const b=vcAC.createBuffer(1,1,22050), src=vcAC.createBufferSource(); src.buffer=b; src.connect(vcAC.destination); src.start(0); } }catch(e){}
-  try{ if(!vcSil){ vcSil=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='); vcSil.setAttribute('playsinline',''); }
+  VCV.seq++;
+  try{ if(!vcSil){ vcSil=new Audio(); vcSil.setAttribute('playsinline',''); } vcSil.onended=vcSil.onerror=null; vcSil.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
     const pr=vcSil.play(); if(pr&&pr.then) pr.then(()=>{ try{ vcSil.pause(); vcSil.currentTime=0; }catch(e){} }).catch(()=>{}); }catch(e){} }
-function vcTTS(txt,lang){ VC.ttsAt=Date.now(); try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
-  setTimeout(()=>{ try{ ss.resume(); const u=new SpeechSynthesisUtterance(txt); u.lang=lang||(LANG==='en'?'en-US':'de-DE'); u.rate=1.05; const v=ss.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith(LANG==='en'?'en':'de')); if(v) u.voice=v; ss.speak(u); }catch(e){} },120); }catch(e){} }
+/* ===== Stimme des Coachs =====
+   1) KI-Stimme (Gemini-Sprachausgabe über deinen Cloudflare-Worker): warm, natürlich, locker
+   2) Ersatz: beste Handy-Stimme (Premium/Enhanced/Google bevorzugt, Roboter-Stimmen ausgeschlossen) */
+const VC_AIV=[['Sulafat','warm & herzlich','warm & caring','w'],['Achird','freundlich & locker','friendly & relaxed','m'],['Algieba','ruhig & angenehm','smooth & calm','m'],['Umbriel','entspannt & lässig','easy-going','m'],['Charon','sachlich & sicher','confident & informative','m'],['Puck','munter & motivierend','upbeat & motivating','m'],['Despina','sanft & klar','smooth & clear','w'],['Vindemiatrix','sanft & beruhigend','gentle & soothing','w'],['Kore','klar & bestimmt','clear & firm','w'],['Leda','jung & frisch','youthful & fresh','w'],['Aoede','leicht & luftig','light & breezy','w'],['Orus','kräftig & bestimmt','strong & firm','m']];
+const VCV={seq:0,cache:new Map(),fail:0};
+const vcVoicePref=()=>{ try{ return localStorage.getItem('mc_vc_voice')||''; }catch(e){ return ''; } };
+const vcVoiceSet=v=>{ try{ localStorage.setItem('mc_vc_voice',v); }catch(e){} };
+const vcUseAI=()=>!!CO_AI_URL&&!/^local:/.test(vcVoicePref())&&Date.now()>VCV.fail;
+const vcAIVoice=()=>{ const v=vcVoicePref(); return VC_AIV.some(x=>x[0]===v)?v:'Sulafat'; };
+/* Text sprechbar machen: keine Emojis/Aufzählungszeichen, Abkürzungen ausschreiben */
+function vcSpeakable(t){ t=String(t||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/[•●▪︎]/g,'').replace(/\n+/g,'. ').replace(/\s[–—-]\s/g,', ').replace(/×/g,LX(' mal ',' times '));
+  if(LANG!=='en') t=t.replace(/\bz\. ?B\./g,'zum Beispiel').replace(/\bca\./g,'circa').replace(/\bu\. ?a\./g,'unter anderem').replace(/\bbzw\./g,'beziehungsweise').replace(/\bMin\./g,'Minuten').replace(/\bSek\./g,'Sekunden').replace(/\bWdh\./g,'Wiederholungen').replace(/(\d)\s?g\b/g,'$1 Gramm').replace(/\bkg\b/g,'Kilo').replace(/\bkcal\b/g,'Kilokalorien').replace(/\bTL\b/g,'Teelöffel').replace(/\bEL\b/g,'Esslöffel').replace(/\bml\b/g,'Milliliter');
+  else t=t.replace(/\be\.g\./g,'for example').replace(/\bapprox\./g,'about').replace(/\bmin\b/g,'minutes').replace(/(\d)\s?g\b/g,'$1 grams').replace(/\bkg\b/g,'kilos').replace(/\bkcal\b/g,'calories').replace(/\btbsp\b/g,'tablespoons').replace(/\btsp\b/g,'teaspoons');
+  return t.replace(/([:;,!?])\s*\./g,'$1').replace(/\.\s*\./g,'.').replace(/\s{2,}/g,' ').trim(); }
+function vcStopSpeak(){ VCV.seq++; try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} try{ if(vcSil&&!vcSil.paused) vcSil.pause(); }catch(e){} }
+function vcPcmToWav(b64,rate){ const bin=atob(b64), n=bin.length, buf=new ArrayBuffer(44+n), v=new DataView(buf); const w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+n,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n,true);
+  const u=new Uint8Array(buf,44); for(let i=0;i<n;i++) u[i]=bin.charCodeAt(i); return URL.createObjectURL(new Blob([buf],{type:'audio/wav'})); }
+async function vcAIUrl(txt,voice){ const key=voice+'|'+LANG+'|'+txt; if(VCV.cache.has(key)) return VCV.cache.get(key);
+  const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),12000);
+  try{ const r=await fetch(CO_AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tts:txt.slice(0,1200),voice,lang:coL()}),signal:ctl.signal}); clearTimeout(to);
+    if(!r.ok) throw new Error(r.status); const d=await r.json(); if(!d||!d.pcm) throw new Error('leer'); const url=vcPcmToWav(d.pcm,d.rate||24000);
+    if(VCV.cache.size>40){ const k=VCV.cache.keys().next().value; try{ URL.revokeObjectURL(VCV.cache.get(k)); }catch(e){} VCV.cache.delete(k); } VCV.cache.set(key,url); return url; }
+  finally{ clearTimeout(to); } }
+function vcPlayUrl(url){ return new Promise(res=>{ try{ if(!vcSil){ vcSil=new Audio(); vcSil.setAttribute('playsinline',''); } const a=vcSil; a.onended=a.onerror=()=>res(); a.src=url; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>res('blocked')); }catch(e){ res('blocked'); } }); }
+function vcLocalVoice(lang){ const ss=window.speechSynthesis; if(!ss) return null; const pref=vcVoicePref(), all=ss.getVoices()||[];
+  if(/^local:/.test(pref)){ const v=all.find(x=>x.voiceURI===pref.slice(6)||x.name===pref.slice(6)); if(v) return v; }
+  const L=(lang||'de').slice(0,2), vs=all.filter(v=>v.lang&&v.lang.toLowerCase().replace('_','-').startsWith(L)); let best=null, bs=-1e9;
+  for(const v of vs){ const n=(v.name+' '+v.voiceURI); let sc=0;
+    if(/premium/i.test(n)) sc+=60; if(/enhanced|erweitert|natural|neural|online|wavenet/i.test(n)) sc+=45; if(/google/i.test(n)) sc+=35; if(/siri/i.test(n)) sc+=40;
+    if(/\b(anna|helena|petra|markus|yannick|viktor|martin|katja|conrad|amala|samantha|ava|allison|daniel|serena|karen|moira|tom|evan|zoe|nicky)\b/i.test(n)) sc+=20;
+    if(/eloquence|grandma|grandpa|oma|opa|rocko|shelley|sandy|reed|\bflo\b|eddy|albert|fred|junior|ralph|kathy|zarvox|whisper|wobble|trinoids|superstar|organ|jester|cellos|bubbles|boing|bells|bahh|bad news|good news/i.test(n)) sc-=200;
+    if(v.lang.toLowerCase().replace('_','-')===(L==='de'?'de-de':'en-us')) sc+=6; if(v.localService) sc+=2; if(sc>bs){ bs=sc; best=v; } }
+  return best; }
+function vcLocalSpeak(txt,lang){ try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
+  setTimeout(()=>{ try{ ss.resume(); const u=new SpeechSynthesisUtterance(txt); u.lang=lang||(LANG==='en'?'en-US':'de-DE'); u.rate=1.0; u.pitch=1.0; const v=vcLocalVoice(u.lang); if(v){ u.voice=v; u.lang=v.lang; } ss.speak(u); }catch(e){} },120); }catch(e){} }
+async function vcTTS(txt,lang){ VC.ttsAt=Date.now(); const say=vcSpeakable(txt); if(!say) return; const my=++VCV.seq;
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  if(vcUseAI()){ try{ const url=await vcAIUrl(say,vcAIVoice()); if(my!==VCV.seq) return; const r=await vcPlayUrl(url); if(r!=='blocked') return; }catch(e){ VCV.fail=Date.now()+10*60e3; } if(my!==VCV.seq) return; }
+  vcLocalSpeak(say,lang); }
+try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices(); } }catch(e){}
+try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+/* Stimmen-Menü im Personal Trainer */
+function coVoiceSheet(){ let o=$('coVoice'); if(!o){ o=document.createElement('div'); o.id='coVoice'; o.className='vchelp'; document.body.appendChild(o); }
+  const pref=vcVoicePref(), cur=/^local:/.test(pref)?pref:(CO_AI_URL?(pref||'Sulafat'):'auto');
+  const locals=(()=>{ try{ const L=LANG==='en'?'en':'de'; return (speechSynthesis.getVoices()||[]).filter(v=>v.lang&&v.lang.toLowerCase().startsWith(L)&&!/eloquence|grandma|grandpa|rocko|shelley|sandy|reed|\bflo\b|eddy|albert|fred|junior|ralph|kathy|zarvox|whisper|wobble|trinoids|superstar|organ|jester|cellos|bubbles|boing|bells|bahh|news/i.test(v.name+' '+v.voiceURI)).slice(0,8); }catch(e){ return []; } })();
+  const row=(val,title,sub)=>`<label class="vvrow"><input type="radio" name="vv" value="${esc(val)}" ${cur===val?'checked':''}><span><b>${esc(title)}</b><small>${esc(sub)}</small></span><button type="button" class="vvplay" data-v="${esc(val)}">▶</button></label>`;
+  o.innerHTML=`<div class="vcbox"><div class="vchd"><b>🔊 ${LX('Stimme des Coachs','Coach voice')}</b><button class="vcx" id="vvX">✕</button></div>
+    <label class="vctts"><input type="checkbox" id="vvOn" ${vcTTSon()?'checked':''}> ${LX('Coach antwortet laut','Coach answers out loud')}</label>
+    ${CO_AI_URL?`<div class="vvhd">✨ ${LX('KI-Stimmen – natürlich & locker (Internet)','AI voices – natural & relaxed (internet)')}</div>${VC_AIV.map(x=>row(x[0],x[0]+(x[3]==='w'?' ♀':' ♂'),LX(x[1],x[2]))).join('')}`:`<p class="vcnote">✨ ${LX('Natürliche KI-Stimmen werden freigeschaltet, sobald der Coach-Server eingerichtet ist.','Natural AI voices unlock once the coach server is set up.')}</p>`}
+    <div class="vvhd">📱 ${LX('Handy-Stimmen (offline)','Phone voices (offline)')}</div>
+    ${CO_AI_URL?'':row('auto',LX('Automatisch – beste Stimme','Automatic – best voice'),LX('wählt die natürlichste verfügbare Stimme','picks the most natural available voice'))}
+    ${locals.map(v=>row('local:'+v.voiceURI,v.name.replace(/com\.apple\.[\w.-]+\./,''),v.lang+(/premium|enhanced|natural|neural|google|online/i.test(v.name)?' · '+LX('hohe Qualität','high quality'):''))).join('')}
+    <p class="vcnote">${LX('Tipp Android: In Chrome klingen die Google-Stimmen am natürlichsten. Auf dem iPhone lässt Apple im Browser nur die Basis-Stimmen zu – deshalb die KI-Stimmen.','Tip Android: Google voices in Chrome sound most natural. On iPhone Apple only allows basic voices in the browser – that\'s why there are AI voices.')}</p>
+    <button class="savebtn" id="vvOk">${LX('Fertig','Done')}</button></div>`;
+  o.classList.add('on'); const cl=()=>{ o.classList.remove('on'); coTtsBtn(); }; $('vvX').onclick=cl; $('vvOk').onclick=cl; o.onclick=e=>{ if(e.target===o) cl(); };
+  $('vvOn').onchange=e=>{ try{ localStorage.setItem('mc_vc_tts',e.target.checked?'1':'0'); }catch(x){} if(!e.target.checked) vcStopSpeak(); };
+  o.querySelectorAll('input[name=vv]').forEach(r=>r.onchange=()=>{ vcVoiceSet(r.value==='auto'?'':r.value); VCV.fail=0; });
+  o.querySelectorAll('.vvplay').forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); const v=b.dataset.v; vcVoiceSet(v==='auto'?'':v); VCV.fail=0; const r=o.querySelector(`input[value="${CSS.escape(v)}"]`); if(r) r.checked=true; vcAudioKick();
+    const nm=(prof.name||'').trim(); vcTTS(LX(`Hey${nm?' '+nm:''}! Ich bin dein Coach. Lass uns heute zusammen richtig stark trainieren – ich bin bei jedem Satz an deiner Seite.`,`Hey${nm?' '+nm:''}! I'm your coach. Let's train really strong together today – I've got your back on every set.`)); }); }
 const vcErrTxt=er=>er==='not-allowed'||er==='service-not-allowed'?LX('Mikrofon nicht erlaubt. Bitte in den Einstellungen erlauben (iPhone: Einstellungen › Safari › Mikrofon). Auf dem iPhone klappt die Spracherkennung manchmal nur, wenn die App in Safari geöffnet ist.','Microphone not allowed. Please allow it in settings (iPhone: Settings › Safari › Microphone). On iPhone speech recognition sometimes only works when the app is opened in Safari.')
   :er==='no-speech'||er==='start-timeout'?LX('Nichts gehört – tippe nochmal und sprich direkt los.','Didn’t hear anything – tap again and speak right away.')
   :er==='audio-capture'?LX('Das Mikrofon ist gerade belegt (z. B. durch einen Anruf oder eine andere App).','The microphone is busy right now (e.g. a call or another app).')
@@ -2879,21 +2940,21 @@ function coOpenSheet(){ if(!MC.pro){ upsell(LX('Personal Trainer','Personal trai
       <div class="cochips" id="coChips"></div>
       <form class="cobar" id="coForm" autocomplete="off"><input id="coIn" type="text" enterkeyhint="send" placeholder="${LX('Frag deinen Coach …','Ask your coach …')}" aria-label="${LX('Frage','Question')}"><button type="button" class="comic" id="coMic" aria-label="${LX('Sprechen','Speak')}">🎙️</button><button type="submit" class="cosend" aria-label="${LX('Senden','Send')}">➤</button></form>`;
     document.body.appendChild(sh);
-    $('coBack').onclick=coClose; $('coForm').onsubmit=e=>{ e.preventDefault(); const v=$('coIn').value.trim(); if(v){ $('coIn').value=''; coSend(v); } };
+    $('coBack').onclick=coClose; $('coForm').onsubmit=e=>{ e.preventDefault(); const v=$('coIn').value.trim(); if(v){ vcAudioKick(); $('coIn').value=''; coSend(v); } };
     (()=>{ const mb=$('coMic'); let lp=0, lpT=0;
       mb.addEventListener('touchstart',()=>{ lp=0; clearTimeout(lpT); lpT=setTimeout(()=>{ lp=1; if(vcKbMode()){ vcKbSet(false); coPush('a',LX('Direkte Spracherkennung wieder an – tippe auf 🎙️.','Direct speech recognition back on – tap 🎙️.'),true); coRender(); } },1500); },{passive:true});
       /* iPhone öffnet die Tastatur nur, wenn focus() direkt im Touch-Ereignis passiert */
       mb.addEventListener('touchend',e=>{ clearTimeout(lpT); if(lp){ e.preventDefault(); return; } if(vcKbMode()&&!(VREC.on&&VREC.finish)){ e.preventDefault(); coDictate(); } });
-      mb.onclick=()=>{ if(lp){ lp=0; return; } if(vcKbMode()&&!(VREC.on&&VREC.finish)){ coDictate(); return; } coListen(); }; })(); $('coTts').onclick=()=>{ try{ localStorage.setItem('mc_vc_tts',vcTTSon()?'0':'1'); }catch(e){} coTtsBtn(); if(!vcTTSon()&&window.speechSynthesis) speechSynthesis.cancel(); };
-    $('coMsgs').onclick=e=>{ const fm=e.target.closest('[data-meal]'); if(fm){ const x=(CO.kb&&CO.kb.meals||[]).find(y=>y.id===fm.dataset.meal); if(x){ coPush('u',LX('Rezept: ','Recipe: ')+coMealN(x)); coPush('a',coRecipe(x)); coRender(); } return; } const b=e.target.closest('[data-ex]'); if(!b) return; CO.back=true; coClose(); openEx(b.dataset.ex); };
-    $('coChips').onclick=e=>{ const b=e.target.closest('button'); if(b) coSend(b.textContent); }; }
+      mb.onclick=()=>{ if(lp){ lp=0; return; } if(vcKbMode()&&!(VREC.on&&VREC.finish)){ coDictate(); return; } coListen(); }; })(); $('coTts').onclick=()=>{ vcAudioKick(); coVoiceSheet(); };
+    $('coMsgs').onclick=e=>{ const fm=e.target.closest('[data-meal]'); if(fm){ const x=(CO.kb&&CO.kb.meals||[]).find(y=>y.id===fm.dataset.meal); if(x){ vcAudioKick(); coPush('u',LX('Rezept: ','Recipe: ')+coMealN(x)); coPush('a',coRecipe(x)); coRender(); } return; } const b=e.target.closest('[data-ex]'); if(!b) return; CO.back=true; coClose(); openEx(b.dataset.ex); };
+    $('coChips').onclick=e=>{ const b=e.target.closest('button'); if(b){ vcAudioKick(); coSend(b.textContent); } }; }
   coTtsBtn(); sh.classList.add('open'); document.body.style.overflow='hidden'; coLoadKB();
   if(!CO.hist.length){ const nm=(prof.name||'').trim(); coPush('a',LX(`Hey${nm?' '+nm:''}! 💪 Ich bin dein Personal Trainer. Frag mich zu jedem Muskel (z. B. „untere Brust“, „hintere Schulter“, „Waden“), zu Übungen, Ernährung, Supplements oder deinen Werten – per Text oder Mikrofon.`,`Hey${nm?' '+nm:''}! 💪 I'm your personal trainer. Ask me about any muscle (e.g. “lower chest”, “rear delts”, “calves”), exercises, nutrition, supplements or your numbers – by text or microphone.`),true); }
   coRender(); }
-function coClose(){ const sh=$('coSheet'); if(sh) sh.classList.remove('open'); if(!document.querySelector('.sheet.open')) document.body.style.overflow=''; try{ if(window.speechSynthesis) speechSynthesis.cancel(); vcRecKill(); }catch(e){} }
+function coClose(){ const sh=$('coSheet'); if(sh) sh.classList.remove('open'); if(!document.querySelector('.sheet.open')) document.body.style.overflow=''; try{ vcStopSpeak(); vcRecKill(); }catch(e){} }
 function coTtsBtn(){ const b=$('coTts'); if(b) b.textContent=vcTTSon()?'🔊':'🔇'; }
 function coPush(who,txt,silent,html){ CO.hist.push({who,txt,html:html||''}); if(CO.hist.length>60) CO.hist.splice(0,CO.hist.length-60); if(who==='a'&&!silent) coSpeak(txt); }
-function coSpeak(txt){ if(!vcTTSon()) return; vcTTS(txt.replace(/[💪🔥🏆🧠🌐]/gu,'').replace(/×/g,LX(' mal ',' times ')).replace(/\bkg\b/g,LX('Kilo','kilos')).replace(/kcal/g,LX('Kilokalorien','calories'))); }
+function coSpeak(txt){ if(!vcTTSon()) return; vcTTS(txt); }
 function coRender(){ const m=$('coMsgs'); if(!m) return; m.innerHTML=CO.hist.map(x=>`<div class="comsg ${x.who}">${esc(x.txt)}</div>${x.html||''}`).join('')+(CO.typing?'<div class="comsg a typing"><i></i><i></i><i></i></div>':'');
   const muC=CO.ctx&&CO.ctx.type==='mu'&&CO.kb&&CO.kb.muscles?(()=>{ const me=CO.kb.muscles.find(x=>x.id===CO.ctx.id); return me?CO.kb.muscles.filter(x=>x.grp===me.grp&&x.id!==me.id).slice(0,6).map(x=>{ const n=coMuName(x).replace(/\s*\(.*?\)/g,''); return LX(n+' trainieren','Train '+n.toLowerCase()); }):null; })():null;
   const tpC=CO.ctx&&CO.ctx.type==='topic'&&CO.kb?(()=>{ const tp=CO.kb.topics.find(x=>x.id===CO.ctx.id); if(!tp) return null; const a=(tp.x?[LX('Mehr dazu','More')]:[]).concat(tp.s?tp.s[coL()]:[]); return a.length?a:null; })():null;
@@ -3981,7 +4042,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25i';
+const APP_VERSION='2026-11-25j';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
