@@ -2835,14 +2835,25 @@ function coRender(){ const m=$('coMsgs'); if(!m) return; m.innerHTML=CO.hist.map
   $('coChips').innerHTML=sugg.map(s=>`<button type="button">${esc(s)}</button>`).join('');
   requestAnimationFrame(()=>{ m.scrollTop=m.scrollHeight; }); }
 async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=null; let a=null; let ai=false; try{ a=await coAnswer(q); }catch(e){} if(!a){ a=await coAI(q); ai=!!a; } await new Promise(r=>setTimeout(r,350)); CO.typing=false; let h=ai?'<div class="coai">🌐 '+LX('KI-Antwort – ohne Gewähr, keine ärztliche Beratung','AI answer – no guarantee, not medical advice')+'</div>':''; if(a&&CO.pendMu){ try{ h=coMuCard(CO.pendMu); }catch(e){} } CO.pendMu=null; coPush('a',a||CO_UNK(),false,h); coRender(); }
+/* iPhone-Home-Bildschirm-App: Apples Spracherkennung liefert dort oft nichts → Tastatur-Diktat als sicherer Ersatz */
+const vcIOS=()=>/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const vcStandalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+const vcKbKey=()=>'mc_vc_kb_'+(vcStandalone()?'s':'b');
+const vcKbMode=()=>{ try{ const v=localStorage.getItem(vcKbKey()); if(v!==null) return v==='1'; }catch(e){} return vcIOS()&&vcStandalone(); };
+const vcKbSet=on=>{ try{ localStorage.setItem(vcKbKey(),on?'1':'0'); }catch(e){} };
+function coDictate(){ const i=$('coIn'); if(!i) return; i.value=''; i.placeholder=LX('🎙️ Tippe unten auf der Tastatur aufs Mikrofon und sprich …','🎙️ Tap the microphone on the keyboard and speak …'); i.focus();
+  if(!coDictate.hint){ coDictate.hint=1; coPush('a',LX('Auf dem iPhone nutze ich die Diktierfunktion der Tastatur: Tippe unten rechts auf der Tastatur auf 🎙️, sprich deine Frage und tippe dann auf ➤ Senden.','On iPhone I use the keyboard dictation: tap 🎙️ on the keyboard, say your question and then tap ➤ send.'),true); coRender(); i.focus(); } }
 function coListen(){
   if(VREC.on&&VREC.finish){ VREC.finish(); return; }
+  if(vcKbMode()){ coDictate(); return; }
   const b=$('coMic'); if(!vcSR()){ coPush('a',LX('Spracherkennung wird hier nicht unterstützt – tipp deine Frage einfach ein.','Speech recognition isn\'t supported here – just type your question.'),true); coRender(); return; }
   const ph=LX('Frag deinen Coach …','Ask your coach …');
   vcRec({ onState:on=>{ b&&b.classList.toggle('on',on); const i=$('coIn'); if(i) i.placeholder=on?LX('Ich höre zu … (nochmal tippen = fertig)','Listening … (tap again = done)'):ph; },
     onText:t=>{ const i=$('coIn'); if(i) i.value=t; },
-    onFinal:t=>{ const i=$('coIn'); if(i) i.value=''; coSend(t); },
-    onError:er=>{ const i=$('coIn'); if(i){ i.value=''; i.placeholder=ph; } coPush('a',vcErrTxt(er),true); coRender(); } }); }
+    onFinal:t=>{ const i=$('coIn'); if(i) i.value=''; vcKbSet(false); coSend(t); },
+    onError:er=>{ const i=$('coIn'); if(i){ i.value=''; i.placeholder=ph; }
+      if(vcIOS()&&er!=='audio-capture'&&er!=='network'){ vcKbSet(true); coPush('a',LX('Die iPhone-Spracherkennung hat nichts geliefert. Ab jetzt nutze ich die Diktierfunktion der Tastatur – tippe nochmal auf 🎙️.','iPhone speech recognition returned nothing. From now on I use the keyboard dictation – tap 🎙️ again.'),true); coRender(); return; }
+      coPush('a',vcErrTxt(er),true); coRender(); } }); }
 
 function finishLive(){
   if(!LIVE) return;
@@ -3898,7 +3909,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25d';
+const APP_VERSION='2026-11-25e';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
