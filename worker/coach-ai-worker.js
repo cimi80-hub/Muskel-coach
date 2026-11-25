@@ -7,7 +7,7 @@
      GEMINI_API_KEY  – kostenloser Schlüssel von aistudio.google.com (optional, Ersatz wenn Groq ausfällt)
    Optional (normale Variablen):
      GROQ_MODEL      – Standard: llama-3.3-70b-versatile
-     GEMINI_MODEL    – Standard: gemini-2.5-flash
+     GEMINI_MODEL    – Standard: gemini-flash-latest
      ALLOWED_ORIGIN  – Standard: https://cimi80-hub.github.io
 */
 
@@ -87,7 +87,7 @@ export default {
 
     const tries = [];
     if (env.GROQ_API_KEY) tries.push(() => ask('https://api.groq.com/openai/v1/chat/completions', env.GROQ_API_KEY, env.GROQ_MODEL || 'llama-3.3-70b-versatile', messages));
-    if (env.GEMINI_API_KEY) tries.push(() => ask('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', env.GEMINI_API_KEY, env.GEMINI_MODEL || 'gemini-2.5-flash', messages));
+    if (env.GEMINI_API_KEY) tries.push(() => ask('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', env.GEMINI_API_KEY, env.GEMINI_MODEL || 'gemini-flash-latest', messages));
     if (!tries.length) return json({ error: 'kein Schlüssel' }, 500, h);
 
     for (const t of tries) { try { return json({ a: await t() }, 200, h); } catch (e) { /* nächster Anbieter */ } }
