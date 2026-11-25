@@ -5,6 +5,10 @@
  "unvollstaendig": 181606,
  "unplausibel": 4049,
  "doppelt": 7269,
+ "stufe_de": 25000,
+ "stufe_dach": 0,
+ "stufe_rest": 0,
+ "spalten_lc": false,
  "exportiert": 25000,
  "datum": "2026-11-25"
 }
