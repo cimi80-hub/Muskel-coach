@@ -76,7 +76,7 @@
 
   // ---------------- Datenbestand ----------------
   const foods = []; const byId = new Map(); const byEan = new Map();
-  let vocab = new Map(); // token -> true (Vokabular für Fuzzy-Suche)
+  const vocab = new Map(); // Suchindex: Token -> Lebensmittel[]
   let catNames = {};
   const sources = {};
 
@@ -88,8 +88,10 @@
     nameTok.forEach(add); extra.forEach(add);
     for (let i = 0; i < nameTok.length - 1; i++) { toks.add(nameTok[i] + nameTok[i + 1]); if (i < nameTok.length - 2) toks.add(nameTok[i] + nameTok[i + 1] + nameTok[i + 2]); }
     f._t = [...toks]; f._n = nameTok.filter((t) => /[a-z]/.test(t)).length; f._first = nameTok[0] || '';
+    f._b = f.brand ? words(f.brand) : [];
     f._state = STATE_RE.test(' ' + nameTok.join(' ') + ' ');
-    f._t.forEach((t) => vocab.set(t, true));
+    f._t.forEach((t) => { const a = vocab.get(t); if (a) a.push(f); else vocab.set(t, [f]); });
+    tsCache.clear();
     if (byId.has(f.id)) { const i = foods.indexOf(byId.get(f.id)); if (i >= 0) foods.splice(i, 1); }
     foods.push(f); byId.set(f.id, f);
     if (f.ean) byEan.set(String(f.ean), f);
@@ -223,19 +225,27 @@
 
   const STOP = new Set(['mit', 'und', 'von', 'vom', 'der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'einen', 'einem', 'einer', 'zum', 'zur', 'im', 'in', 'am', 'auf', 'aus', 'fuer', 'stueck', 'portion', 'the', 'a', 'of', 'oder']);
 
+  const tsCache = new Map();
   function tokenScores(q) {
-    const qs = stem(q); const m = new Map();
-    const maxD = q.length >= 7 ? 2 : 1;
-    for (const t of vocab.keys()) {
+    if (tsCache.has(q)) return tsCache.get(q);
+    const qs = stem(q); const m = new Map(); let strong = 0;
+    for (const t of vocab.keys()) { // 1. schnell: exakt, Wortanfang, enthalten
       let s = 0;
       if (t === q || t === qs) s = 3;
       else if (qs.length >= 3 && t.startsWith(qs)) s = 2.2 - Math.min(0.6, (t.length - qs.length) * 0.04);
       else if (qs.length >= 5 && t.includes(qs)) s = 1.5;
-      else if (q.length >= 4 && Math.abs(t.length - q.length) <= maxD && lev(q, t, maxD) <= maxD) s = 1.2;
-      else if (q.length >= 5 && t.length > q.length && lev(q, t.slice(0, q.length), 1) <= 1) s = 1.0;
-      if (s) m.set(t, s);
+      if (s) { m.set(t, s); if (s >= 2) strong++; }
     }
-    return m;
+    if (!strong && q.length >= 4) { // 2. nur ohne Treffer: Tippfehler-Toleranz
+      const maxD = q.length >= 7 ? 2 : 1;
+      for (const t of vocab.keys()) {
+        if (m.has(t)) continue;
+        if (Math.abs(t.length - q.length) <= maxD && lev(q, t, maxD) <= maxD) m.set(t, 1.2);
+        else if (q.length >= 5 && t.length > q.length && t[0] === q[0] && lev(q, t.slice(0, q.length), 1) <= 1) m.set(t, 1.0);
+      }
+    }
+    if (tsCache.size > 300) tsCache.clear();
+    tsCache.set(q, m); return m;
   }
 
   let usage = {}; let favs = new Set();
@@ -246,19 +256,24 @@
     if (!qt.length) return [];
     const maps = qt.map(tokenScores);
     const hasState = qt.some((t) => STATE_WORDS.includes(t) || STATE_WORDS.includes(stem(t)));
+    // pro Suchwort: beste Trefferstärke je Lebensmittel (über den Index, statt alle Lebensmittel zu prüfen)
+    const per = maps.map((m) => { const fm = new Map(); for (const [t, sc] of m) { const arr = vocab.get(t); if (!arr) continue; for (const f of arr) { const c = fm.get(f); if (!c || sc > c.s) fm.set(f, { s: sc, t }); } } return fm; });
+    const allowMiss = qt.length >= 3 ? 1 : 0;
+    const poolSet = opt.pool ? new Set(opt.pool.map((f) => f.id)) : null;
+    const cand = new Set(); per.forEach((fm) => fm.forEach((_, f) => cand.add(f)));
     const res = [];
-    const pool = opt.pool || foods;
-    for (const f of pool) {
+    for (const f of cand) {
+      if (byId.get(f.id) !== f) continue;
+      if (poolSet && !poolSet.has(f.id)) continue;
       if (opt.src && f.src !== opt.src) continue;
       let sum = 0; let miss = 0; let firstHit = 0;
-      for (let i = 0; i < maps.length; i++) {
-        let best = 0; let bestT = '';
-        for (const t of f._t) { const s = maps[i].get(t); if (s && s > best) { best = s; bestT = t; } }
-        if (!best) miss++;
-        if (i === 0 && best && f._first && (bestT.startsWith(f._first) || bestT === stem(f._first))) firstHit = 0.6;
-        sum += best;
+      for (let i = 0; i < per.length; i++) {
+        const h = per[i].get(f);
+        if (!h) { miss++; continue; }
+        sum += h.s;
+        if (i === 0 && f._first && (h.t.startsWith(f._first) || h.t === stem(f._first))) firstHit = 0.6;
       }
-      if (miss > (qt.length >= 3 ? 1 : 0)) continue;
+      if (miss > allowMiss) continue;
       let score = sum + firstHit - 0.07 * f._n;
       if (!hasState) {
         if (/ roh\b/.test(' ' + f._t.join(' '))) score += 0.3;
@@ -266,6 +281,7 @@
       }
       if (f.src === 'user' || f.src === 'recipe') score += 0.4;
       if (f.src === 'est') score += 0.2;
+      if (f.src === 'off') score -= f._b.some((b) => qt.some((q) => b.startsWith(stem(q)))) ? 0 : 1.0;
       if (f.cat === 'X' || f.cat === 'Y') score -= 0.25;
       const u = usage[f.id]; if (u) score += Math.min(1, 0.2 * Math.log2(1 + u));
       res.push({ f, s: score });
