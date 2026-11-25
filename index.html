@@ -2623,7 +2623,7 @@ function vcLogSet(exId,ps){
 const VREC={r:null,on:false,finish:null,tm:[]};
 function vcRecKill(){ VREC.tm.forEach(clearTimeout); VREC.tm=[]; const r=VREC.r; if(r){ try{ r.onstart=r.onresult=r.onerror=r.onend=null; r.abort(); }catch(e){} } VREC.r=null; VREC.finish=null; VREC.on=false; VC.on=false; VC.rec=null; }
 function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
-  vcRecKill(); const wait=0; /* iPhone: Mikrofon MUSS direkt im Tipp starten – jede Verzögerung (z. B. nach der Sprachausgabe) blockiert iOS still */
+  vcRecKill(); vcAudioKick(); const wait=0; /* iPhone: Mikrofon MUSS direkt im Tipp starten – jede Verzögerung (z. B. nach der Sprachausgabe) blockiert iOS still */
   try{ const ss=window.speechSynthesis; if(ss) ss.cancel(); }catch(e){}
   const go=()=>{ let r; try{ r=new SR(); }catch(e){ o.onError('start-failed'); return; }
     VREC.r=r; VC.rec=r; let heard='', fin='', handled=false, started=false, softing=false;
@@ -2646,7 +2646,14 @@ function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
     VREC.on=true; VC.on=true; o.onState(true);
     try{ r.start(); }catch(e){ finish('start-failed'); } };
   if(wait) setTimeout(go,wait); else go(); }
-function vcTTS(txt,lang){ try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
+/* iPhone: Nach der Sprachausgabe bleibt die Audio-Sitzung auf „Wiedergabe“ – die nächste Spracherkennung hört dann nichts.
+   Kurzer stiller Ton direkt im Tipp setzt die Audio-Sitzung zurück. */
+let vcAC=null, vcSil=null;
+function vcAudioKick(){ try{ const ss=window.speechSynthesis; if(ss){ ss.cancel(); } }catch(e){}
+  try{ const AC=window.AudioContext||window.webkitAudioContext; if(AC){ vcAC=vcAC||new AC(); if(vcAC.state!=='running') vcAC.resume(); const b=vcAC.createBuffer(1,1,22050), src=vcAC.createBufferSource(); src.buffer=b; src.connect(vcAC.destination); src.start(0); } }catch(e){}
+  try{ if(!vcSil){ vcSil=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='); vcSil.setAttribute('playsinline',''); }
+    const pr=vcSil.play(); if(pr&&pr.then) pr.then(()=>{ try{ vcSil.pause(); vcSil.currentTime=0; }catch(e){} }).catch(()=>{}); }catch(e){} }
+function vcTTS(txt,lang){ VC.ttsAt=Date.now(); try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
   setTimeout(()=>{ try{ ss.resume(); const u=new SpeechSynthesisUtterance(txt); u.lang=lang||(LANG==='en'?'en-US':'de-DE'); u.rate=1.05; const v=ss.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith(LANG==='en'?'en':'de')); if(v) u.voice=v; ss.speak(u); }catch(e){} },120); }catch(e){} }
 const vcErrTxt=er=>er==='not-allowed'||er==='service-not-allowed'?LX('Mikrofon nicht erlaubt. Bitte in den Einstellungen erlauben (iPhone: Einstellungen › Safari › Mikrofon). Auf dem iPhone klappt die Spracherkennung manchmal nur, wenn die App in Safari geöffnet ist.','Microphone not allowed. Please allow it in settings (iPhone: Settings › Safari › Microphone). On iPhone speech recognition sometimes only works when the app is opened in Safari.')
   :er==='no-speech'||er==='start-timeout'?LX('Nichts gehört – tippe nochmal und sprich direkt los.','Didn’t hear anything – tap again and speak right away.')
@@ -2842,7 +2849,9 @@ async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=n
 /* iPhone-Home-Bildschirm-App: Apples Spracherkennung liefert dort oft nichts → Tastatur-Diktat als sicherer Ersatz */
 const vcIOS=()=>/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const vcStandalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
-const vcKbKey=()=>'mc_vc_kb2_'+(vcStandalone()?'s':'b');
+const vcKbKey=()=>'mc_vc_kb3_'+(vcStandalone()?'s':'b');
+const vcOkKey=()=>'mc_vc_ok_'+(vcStandalone()?'s':'b');
+const vcEverOk=()=>{ try{ return localStorage.getItem(vcOkKey())==='1'; }catch(e){ return false; } };
 const vcKbMode=()=>{ try{ return localStorage.getItem(vcKbKey())==='1'; }catch(e){ return false; } };
 const vcKbSet=on=>{ try{ localStorage.setItem(vcKbKey(),on?'1':'0'); }catch(e){} };
 function coDictate(){ const i=$('coIn'); if(!i) return; i.value=''; i.placeholder=LX('Tastatur-🎙️ antippen und sprechen …','Tap keyboard 🎙️ and speak …');
@@ -2855,8 +2864,10 @@ function coListen(){
   const ph=LX('Frag deinen Coach …','Ask your coach …');
   vcRec({ onState:on=>{ b&&b.classList.toggle('on',on); const i=$('coIn'); if(i) i.placeholder=on?LX('Ich höre zu … (nochmal tippen = fertig)','Listening … (tap again = done)'):ph; },
     onText:t=>{ const i=$('coIn'); if(i) i.value=t; },
-    onFinal:t=>{ const i=$('coIn'); if(i) i.value=''; vcKbSet(false); coSend(t); },
+    onFinal:t=>{ const i=$('coIn'); if(i) i.value=''; vcKbSet(false); coListen.fails=0; try{ localStorage.setItem(vcOkKey(),'1'); }catch(e){} coSend(t); },
     onError:er=>{ const i=$('coIn'); if(i){ i.value=''; i.placeholder=ph; }
+      if(vcIOS()&&er!=='audio-capture'&&er!=='network'&&(vcEverOk()||(coListen.fails=(coListen.fails||0)+1)<2)){
+        coPush('a',LX('Nichts gehört – tippe nochmal auf 🎙️ und sprich direkt los. Klappt es öfter nicht: oben 🔊 ausschalten, dann blockiert die Sprachausgabe das Mikro nicht.','Didn’t hear anything – tap 🎙️ again and speak right away. If it keeps failing: switch off 🔊 at the top so the voice output doesn’t block the mic.'),true); coRender(); return; }
       if(vcIOS()&&er!=='audio-capture'&&er!=='network'){ vcKbSet(true); coPush('a',LX('Die iPhone-Spracherkennung hat nichts geliefert. Ab jetzt öffnet 🎙️ die Tastatur – dort auf das Diktier-Mikrofon tippen. (Grünen Knopf 2 Sek. halten = direkte Erkennung wieder probieren.)','iPhone speech recognition returned nothing. From now on I use the keyboard dictation – tap 🎙️ again.'),true); coRender(); return; }
       coPush('a',vcErrTxt(er),true); coRender(); } }); }
 
@@ -3914,7 +3925,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25f';
+const APP_VERSION='2026-11-25g';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
