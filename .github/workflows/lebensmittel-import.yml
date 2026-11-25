@@ -1,0 +1,36 @@
+name: Lebensmittel-Import (Open Food Facts)
+
+# Startet man am Handy: GitHub → Repo → Actions → „Lebensmittel-Import“ → „Run workflow“.
+# Läuft außerdem automatisch am 1. jedes Monats und aktualisiert off-de.json.
+on:
+  workflow_dispatch:
+    inputs:
+      anzahl:
+        description: 'Wie viele Markenprodukte (meistgescannte zuerst)?'
+        default: '25000'
+  schedule:
+    - cron: '17 3 1 * *'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Open-Food-Facts-Export laden und filtern (dauert ca. 15–40 Min.)
+        run: python3 tools/off_import.py --max "${{ github.event.inputs.anzahl || '25000' }}" --out off-de.json --report off-pruefbericht.json
+      - name: Prüfbericht anzeigen
+        run: cat off-pruefbericht.json
+      - name: Ergebnis speichern
+        run: |
+          git config user.name "Lebensmittel-Import"
+          git config user.email "actions@users.noreply.github.com"
+          git add off-de.json off-pruefbericht.json
+          git diff --cached --quiet || git commit -m "Open-Food-Facts-Daten aktualisiert (ODbL)"
+          git push
