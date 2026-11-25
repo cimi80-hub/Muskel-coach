@@ -2426,7 +2426,7 @@ function openLive(){
   anim();
 }
 function updResume(){ const b=$('resume'); if(b) b.style.display=(MC.pro&&LIVE&&!$('tsheet').classList.contains('open'))?'block':'none'; }
-function closeLive(){ try{ vcWake(false); if(VC.on&&VC.rec) VC.rec.abort(); if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} setTimeout(updResume,0); $('tsheet').classList.remove('open'); document.body.style.overflow=''; clearInterval(liveTimer); cancelAnimationFrame(liveRaf); restEnd=0; }
+function closeLive(){ try{ vcWake(false); vcRecKill(); if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} setTimeout(updResume,0); $('tsheet').classList.remove('open'); document.body.style.overflow=''; clearInterval(liveTimer); cancelAnimationFrame(liveRaf); restEnd=0; }
 function tickLive(){
   if(!LIVE){ const rb=$('restBar'); if(rb) rb.classList.remove('on'); return; } const el=$('lvClock'); if(el) el.textContent=mmss((Date.now()-LIVE.start)/1000);
   const bar=$('restBar'); if(!bar) return;
@@ -2560,8 +2560,7 @@ const VC_CMDS=[
   ['done',/^(satz\s*)?(fertig|geschafft|erledigt|done|set done|check)$/]
 ];
 function vcSay(txt){ VC.last=txt; const m=$('vcBub'); if(m){ m.querySelector('.vca').textContent=txt; }
-  if(!vcTTSon()||!window.speechSynthesis) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt.replace(/×/g,LX(' mal ',' times ')).replace(/kg\b/g,LX('Kilo','kilos'))); u.lang=LANG==='en'?'en-US':'de-DE'; u.rate=1.05;
-    const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith(LANG==='en'?'en':'de')); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
+  if(!vcTTSon()) return; vcTTS(txt.replace(/×/g,LX(' mal ',' times ')).replace(/kg\b/g,LX('Kilo','kilos'))); }
 const vcKg=k=>fmtKg(k)+' kg';
 function vcLastTxt(id){ const h=history(id)[0]; if(!h) return LX('Für diese Übung gibt es noch kein letztes Training.','No previous workout for this exercise yet.');
   const best=h.sets.reduce((a,s)=>kgNum(s.kg)>kgNum(a.kg)?s:a,h.sets[0]);
@@ -2612,21 +2611,45 @@ function vcLogSet(exId,ps){
   const left=it.sets.filter(x=>!x.done).length; if(!left) msg+=LX(LIVE.idx<LIVE.items.length-1?' Übung geschafft! Sag „nächste Übung“.':' Letzte Übung geschafft! Sag „Training beenden“.',LIVE.idx<LIVE.items.length-1?' Exercise done! Say “next exercise”.':' Last exercise done! Say “finish workout”.');
   vcSay(msg); }
 /* Mikrofon */
+/* Robuste Spracherkennung (iPhone-sicher): neue Instanz pro Tipp, Watchdogs, Stille-Erkennung, nie „hängen bleiben“ */
+const VREC={r:null,on:false,finish:null,tm:[]};
+function vcRecKill(){ VREC.tm.forEach(clearTimeout); VREC.tm=[]; const r=VREC.r; if(r){ try{ r.onstart=r.onresult=r.onerror=r.onend=null; r.abort(); }catch(e){} } VREC.r=null; VREC.finish=null; VREC.on=false; VC.on=false; VC.rec=null; }
+function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
+  vcRecKill(); let wait=0;
+  try{ const ss=window.speechSynthesis; if(ss&&(ss.speaking||ss.pending)){ ss.cancel(); wait=400; } else if(ss) ss.cancel(); }catch(e){}
+  const go=()=>{ let r; try{ r=new SR(); }catch(e){ o.onError('start-failed'); return; }
+    VREC.r=r; VC.rec=r; let heard='', fin='', handled=false, started=false;
+    const T=(f,ms)=>{ const t=setTimeout(f,ms); VREC.tm.push(t); return t; }; let silence=0;
+    const finish=(why)=>{ if(handled) return; handled=true; VREC.tm.forEach(clearTimeout); VREC.tm=[];
+      try{ r.onstart=r.onresult=r.onerror=r.onend=null; r.abort(); }catch(e){} if(VREC.r===r){ VREC.r=null; VREC.finish=null; } VREC.on=false; VC.on=false; o.onState(false);
+      const t=(fin||heard).trim(); if(t) o.onFinal(t); else o.onError(why||'no-speech'); };
+    VREC.finish=finish;
+    r.lang=LANG==='en'?'en-US':'de-DE'; r.interimResults=true; r.continuous=false; try{ r.maxAlternatives=1; }catch(e){}
+    r.onstart=()=>{ started=true; };
+    r.onresult=e=>{ let h='', f=''; for(let i=0;i<e.results.length;i++){ const x=(e.results[i][0]||{}).transcript||''; h+=x; if(e.results[i].isFinal) f+=x; } heard=h; if(f) fin=f; o.onText(heard.trim());
+      clearTimeout(silence); if(fin) silence=T(()=>finish(),250); else silence=T(()=>finish(),1400); };
+    r.onerror=e=>{ const er=(e&&e.error)||'error'; if(er==='aborted') return; finish(heard?null:er); };
+    r.onend=()=>finish(null);
+    T(()=>{ if(!started&&!heard) finish('start-timeout'); },4000);   // Start kommt nicht → nicht hängen bleiben
+    T(()=>finish(null),9000);                                        // höchstens 9 Sekunden zuhören
+    VREC.on=true; VC.on=true; o.onState(true);
+    try{ r.start(); }catch(e){ finish('start-failed'); } };
+  if(wait) setTimeout(go,wait); else go(); }
+function vcTTS(txt,lang){ try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
+  setTimeout(()=>{ try{ ss.resume(); const u=new SpeechSynthesisUtterance(txt); u.lang=lang||(LANG==='en'?'en-US':'de-DE'); u.rate=1.05; const v=ss.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith(LANG==='en'?'en':'de')); if(v) u.voice=v; ss.speak(u); }catch(e){} },120); }catch(e){} }
+const vcErrTxt=er=>er==='not-allowed'||er==='service-not-allowed'?LX('Mikrofon nicht erlaubt. Bitte in den Einstellungen erlauben (iPhone: Einstellungen › Safari › Mikrofon). Auf dem iPhone klappt die Spracherkennung manchmal nur, wenn die App in Safari geöffnet ist.','Microphone not allowed. Please allow it in settings (iPhone: Settings › Safari › Microphone). On iPhone speech recognition sometimes only works when the app is opened in Safari.')
+  :er==='no-speech'||er==='start-timeout'?LX('Nichts gehört – tippe nochmal und sprich direkt los.','Didn’t hear anything – tap again and speak right away.')
+  :er==='audio-capture'?LX('Das Mikrofon ist gerade belegt (z. B. durch einen Anruf oder eine andere App).','The microphone is busy right now (e.g. a call or another app).')
+  :er==='network'?LX('Keine Internetverbindung – die Spracherkennung braucht Internet.','No internet connection – speech recognition needs internet.')
+  :LX('Spracherkennung gerade nicht verfügbar – bitte nochmal tippen.','Speech recognition not available right now – please tap again.');
 function vcListen(){
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  if(VC.on){ try{ VC.rec&&VC.rec.stop(); }catch(e){} return; }
-  const SR=vcSR(); if(!SR){ vcBubble(LX('Spracherkennung wird auf diesem Gerät/Browser nicht unterstützt. Auf dem iPhone in Safari öffnen (iOS 14.5+), bei Android Chrome nutzen.','Speech recognition is not supported on this device/browser. On iPhone open in Safari (iOS 14.5+), on Android use Chrome.'),'',true); return; }
+  if(VREC.on&&VREC.finish){ VREC.finish(); return; }   // zweiter Tipp = fertig, sofort auswerten
+  if(!vcSR()){ vcBubble(LX('Spracherkennung wird auf diesem Gerät/Browser nicht unterstützt. Auf dem iPhone in Safari öffnen (iOS 14.5+), bei Android Chrome nutzen.','Speech recognition is not supported on this device/browser. On iPhone open in Safari (iOS 14.5+), on Android use Chrome.'),'',true); return; }
   try{ localStorage.getItem('mc_vc_seen')||(localStorage.setItem('mc_vc_seen','1'),setTimeout(vcHelp,0)); }catch(e){}
-  const r=new SR(); VC.rec=r; r.lang=LANG==='en'?'en-US':'de-DE'; r.interimResults=true; r.maxAlternatives=3; r.continuous=false;
-  let fin='', heard='';
-  r.onstart=()=>{ VC.on=true; vcState(); vcBubble('','🎙️ '+LX('Ich höre zu …','Listening …')); };
-  r.onresult=e=>{ heard=''; for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; heard+=x; if(e.results[i].isFinal) fin=x; } vcBubble('„'+heard.trim()+'“',''); };
-  r.onerror=e=>{ VC.on=false; vcState(); const er=e&&e.error;
-    if(er==='not-allowed'||er==='service-not-allowed') vcBubble(LX('Mikrofon nicht erlaubt. Bitte in den Einstellungen (Safari › Mikrofon bzw. Website-Einstellungen) erlauben. Auf dem iPhone geht die Spracherkennung manchmal nur, wenn die App in Safari geöffnet ist.','Microphone not allowed. Please allow it in settings (Safari › Microphone or site settings). On iPhone speech recognition sometimes only works when the app is opened in Safari.'),'',true);
-    else if(er==='no-speech') vcBubble('',LX('Nichts gehört – tippe nochmal und sprich direkt los.','Didn’t hear anything – tap again and speak right away.'));
-    else if(er!=='aborted') vcBubble('',LX('Spracherkennung gerade nicht verfügbar (','Speech recognition not available right now (')+er+')'); };
-  r.onend=()=>{ VC.on=false; vcState(); const t=(fin||heard).trim(); if(t){ vcBubble('„'+t+'“',''); vcCmd(t); } };
-  try{ r.start(); }catch(e){ VC.on=false; vcState(); } }
+  vcBubble('','🎙️ '+LX('Ich höre zu …','Listening …'));
+  vcRec({ onState:()=>vcState(), onText:t=>vcBubble('„'+t+'“',''),
+    onFinal:t=>{ vcBubble('„'+t+'“',''); try{ vcCmd(t); }catch(e){ vcSay(LX('Da ist etwas schiefgelaufen – bitte nochmal.','Something went wrong – please try again.')); } },
+    onError:er=>vcBubble('',vcErrTxt(er),er==='not-allowed'||er==='service-not-allowed') }); }
 function vcState(){ const b=$('vcMic'); if(b) b.classList.toggle('on',VC.on); }
 function vcBubble(q,a,warn){ let m=$('vcBub'); if(!m){ m=document.createElement('div'); m.id='vcBub'; m.className='vcbub'; m.innerHTML='<button class="vcx" aria-label="Schließen">✕</button><div class="vcq"></div><div class="vca"></div>'; $('tsheet').appendChild(m); m.querySelector('.vcx').onclick=()=>m.classList.remove('on'); }
   m.classList.add('on'); m.classList.toggle('warn',!!warn); if(q!==undefined&&q!==null) m.querySelector('.vcq').textContent=q; if(a!==undefined&&a!==null) m.querySelector('.vca').textContent=a;
@@ -2791,25 +2814,24 @@ function coOpenSheet(){ if(!MC.pro){ upsell(LX('Personal Trainer','Personal trai
   coTtsBtn(); sh.classList.add('open'); document.body.style.overflow='hidden'; coLoadKB();
   if(!CO.hist.length){ const nm=(prof.name||'').trim(); coPush('a',LX(`Hey${nm?' '+nm:''}! 💪 Ich bin dein Personal Trainer. Frag mich zu jedem Muskel (z. B. „untere Brust“, „hintere Schulter“, „Waden“), zu Übungen, Ernährung, Supplements oder deinen Werten – per Text oder Mikrofon.`,`Hey${nm?' '+nm:''}! 💪 I'm your personal trainer. Ask me about any muscle (e.g. “lower chest”, “rear delts”, “calves”), exercises, nutrition, supplements or your numbers – by text or microphone.`),true); }
   coRender(); }
-function coClose(){ const sh=$('coSheet'); if(sh) sh.classList.remove('open'); if(!document.querySelector('.sheet.open')) document.body.style.overflow=''; try{ if(window.speechSynthesis) speechSynthesis.cancel(); if(VC.on&&VC.rec) VC.rec.abort(); }catch(e){} }
+function coClose(){ const sh=$('coSheet'); if(sh) sh.classList.remove('open'); if(!document.querySelector('.sheet.open')) document.body.style.overflow=''; try{ if(window.speechSynthesis) speechSynthesis.cancel(); vcRecKill(); }catch(e){} }
 function coTtsBtn(){ const b=$('coTts'); if(b) b.textContent=vcTTSon()?'🔊':'🔇'; }
 function coPush(who,txt,silent,html){ CO.hist.push({who,txt,html:html||''}); if(CO.hist.length>60) CO.hist.splice(0,CO.hist.length-60); if(who==='a'&&!silent) coSpeak(txt); }
-function coSpeak(txt){ if(!vcTTSon()||!window.speechSynthesis) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt.replace(/[💪🔥🏆🧠]/gu,'').replace(/×/g,LX(' mal ',' times ')).replace(/\bkg\b/g,LX('Kilo','kilos')).replace(/kcal/g,LX('Kilokalorien','calories'))); u.lang=LANG==='en'?'en-US':'de-DE'; u.rate=1.05; const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith(coL())); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
+function coSpeak(txt){ if(!vcTTSon()) return; vcTTS(txt.replace(/[💪🔥🏆🧠🌐]/gu,'').replace(/×/g,LX(' mal ',' times ')).replace(/\bkg\b/g,LX('Kilo','kilos')).replace(/kcal/g,LX('Kilokalorien','calories'))); }
 function coRender(){ const m=$('coMsgs'); if(!m) return; m.innerHTML=CO.hist.map(x=>`<div class="comsg ${x.who}">${esc(x.txt)}</div>${x.html||''}`).join('')+(CO.typing?'<div class="comsg a typing"><i></i><i></i><i></i></div>':'');
   const muC=CO.ctx&&CO.ctx.type==='mu'&&CO.kb&&CO.kb.muscles?(()=>{ const me=CO.kb.muscles.find(x=>x.id===CO.ctx.id); return me?CO.kb.muscles.filter(x=>x.grp===me.grp&&x.id!==me.id).slice(0,6).map(x=>{ const n=coMuName(x).replace(/\s*\(.*?\)/g,''); return LX(n+' trainieren','Train '+n.toLowerCase()); }):null; })():null;
   const sugg=muC&&muC.length?muC:CO.ctx&&CO.ctx.type==='supp'?LX(['Wie viel davon?','Wann nehmen?','Nebenwirkungen?'],['How much?','When to take it?','Side effects?']):CO.ctx&&CO.ctx.type==='ex'?LX(['Tipps','Typische Fehler','Welche Muskeln?'],['Tips','Common mistakes','Which muscles?']):LX(['Wie trainiere ich die untere Brust?','Übungen für breite Schultern','Wie viel Eiweiß brauche ich?','Was bringt Kreatin?','Ich will 10 Kilo abnehmen','Wie bekomme ich einen runden Po?','Wie mache ich Kniebeugen?','Mein BMI','Wann ist mein nächstes Training?','Motivier mich!'],['How do I train my lower chest?','Exercises for wide shoulders','How much protein do I need?','What does creatine do?','I want to lose 10 kilos','How do I grow my glutes?','How do I do squats?','My BMI','When is my next workout?','Motivate me!']);
   $('coChips').innerHTML=sugg.map(s=>`<button type="button">${esc(s)}</button>`).join('');
   requestAnimationFrame(()=>{ m.scrollTop=m.scrollHeight; }); }
 async function coSend(q){ coPush('u',q); CO.typing=true; coRender(); CO.pendMu=null; let a=null; let ai=false; try{ a=await coAnswer(q); }catch(e){} if(!a){ a=await coAI(q); ai=!!a; } await new Promise(r=>setTimeout(r,350)); CO.typing=false; let h=ai?'<div class="coai">🌐 '+LX('KI-Antwort – ohne Gewähr, keine ärztliche Beratung','AI answer – no guarantee, not medical advice')+'</div>':''; if(a&&CO.pendMu){ try{ h=coMuCard(CO.pendMu); }catch(e){} } CO.pendMu=null; coPush('a',a||CO_UNK(),false,h); coRender(); }
-function coListen(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  if(VC.on){ try{ VC.rec&&VC.rec.stop(); }catch(e){} return; }
-  const SR=vcSR(), b=$('coMic'); if(!SR){ coPush('a',LX('Spracherkennung wird hier nicht unterstützt – tipp deine Frage einfach ein.','Speech recognition isn\'t supported here – just type your question.'),true); coRender(); return; }
-  const r=new SR(); VC.rec=r; r.lang=LANG==='en'?'en-US':'de-DE'; r.interimResults=true; r.continuous=false; let fin='',heard='';
-  r.onstart=()=>{ VC.on=true; b&&b.classList.add('on'); $('coIn').placeholder=LX('Ich höre zu …','Listening …'); };
-  r.onresult=e=>{ heard=''; for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; heard+=x; if(e.results[i].isFinal) fin=x; } $('coIn').value=heard.trim(); };
-  r.onerror=e=>{ VC.on=false; b&&b.classList.remove('on'); const er=e&&e.error; if(er==='not-allowed'||er==='service-not-allowed'){ coPush('a',LX('Mikrofon nicht erlaubt – bitte in den Einstellungen erlauben oder die App in Safari öffnen. Du kannst auch einfach tippen.','Microphone not allowed – please allow it in settings or open the app in Safari. You can also just type.'),true); coRender(); } };
-  r.onend=()=>{ VC.on=false; b&&b.classList.remove('on'); $('coIn').placeholder=LX('Frag deinen Coach …','Ask your coach …'); const t=(fin||heard).trim(); $('coIn').value=''; if(t) coSend(t); };
-  try{ r.start(); }catch(e){ VC.on=false; b&&b.classList.remove('on'); } }
+function coListen(){
+  if(VREC.on&&VREC.finish){ VREC.finish(); return; }
+  const b=$('coMic'); if(!vcSR()){ coPush('a',LX('Spracherkennung wird hier nicht unterstützt – tipp deine Frage einfach ein.','Speech recognition isn\'t supported here – just type your question.'),true); coRender(); return; }
+  const ph=LX('Frag deinen Coach …','Ask your coach …');
+  vcRec({ onState:on=>{ b&&b.classList.toggle('on',on); const i=$('coIn'); if(i) i.placeholder=on?LX('Ich höre zu … (nochmal tippen = fertig)','Listening … (tap again = done)'):ph; },
+    onText:t=>{ const i=$('coIn'); if(i) i.value=t; },
+    onFinal:t=>{ const i=$('coIn'); if(i) i.value=''; coSend(t); },
+    onError:er=>{ const i=$('coIn'); if(i){ i.value=''; i.placeholder=ph; } coPush('a',vcErrTxt(er),true); coRender(); } }); }
 
 function finishLive(){
   if(!LIVE) return;
@@ -3865,7 +3887,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25a';
+const APP_VERSION='2026-11-25b';
 const RELEASE='2026-11-22';
 const CHANGES=[
   ['🎯','Coach kennt jetzt jeden Muskel','Frag deinen Personal Trainer nach jedem Muskel – „untere Brust“, „hintere Schulter“, „Bizeps-Peak“, „Waden“, „seitlicher Po“ und über 40 mehr. Er erklärt, wie du ihn trainierst, zeigt dir den Muskel leuchtend am Körper und die passenden Übungen – antippen für die 3D-Vorführung.'],
