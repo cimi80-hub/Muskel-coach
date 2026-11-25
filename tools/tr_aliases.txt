@@ -1,0 +1,243 @@
+# Türkische Namen für Grundnahrungsmittel, die bereits im BLS 4.0 stehen (keine Dubletten:
+# die App hängt den türkischen Namen an das vorhandene BLS-Lebensmittel).
+# BLS-Code|Türkisch|Alternativen|Kategorie|Portion g|Portionsname
+# --- Meyveler / Obst
+F110100|Elma|elma cig|obst|150|1 Stück
+F130100|Armut|armut|obst|160|1 Stück
+F503100|Muz|muz|obst|120|1 Stück
+F603100|Portakal|portakal|obst|150|1 Stück
+F601100|Limon|limon|obst|60|1 Stück
+F601600|Limon suyu|limon suyu|obst|15|1 EL
+F201100|Kayısı|kayisi zerdali|obst|40|1 Stück
+F201400|Kuru kayısı|kuru kayisi malatya kayisi|kuruyemis|8|1 Stück
+F203100|Şeftali|seftali|obst|130|1 Stück
+F220100|Erik|erik can erigi|obst|30|1 Stück
+F220400|Kuru erik|kuru erik|kuruyemis|8|1 Stück
+F212100|Vişne|visne|obst|100|1 Schale
+F310100|Üzüm|uzum|obst|125|1 Schale
+F840100|Kuru üzüm|kuru uzum sultani|kuruyemis|30|1 Handvoll
+F840300|Kuş üzümü|kus uzumu|kuruyemis|5|1 EL
+F505100|İncir|incir taze|obst|50|1 Stück
+F505400|Kuru incir|kuru incir aydin inciri|kuruyemis|20|1 Stück
+F504400|Hurma|hurma kuru hurma|kuruyemis|8|1 Stück
+F506100|Nar|nar|obst|150|1 Schale
+F140100|Ayva|ayva|obst|200|1 Stück
+F301100|Çilek|cilek|obst|125|1 Schale
+F535100|Karpuz|karpuz diyarbakir karpuzu|obst|300|1 Scheibe
+F533100|Kavun|kavun|obst|250|1 Scheibe
+F532100|Kavun (Cantaloupe)|kavun kirkagac|obst|250|1 Scheibe
+F529100|Yenidünya|yenidunya malta erigi|obst|50|1 Stück
+F556100|Frenk inciri|frenk inciri|obst|80|1 Stück
+F310600|Üzüm suyu|uzum suyu|icecek|200|1 Glas
+F212600|Vişne suyu|visne suyu|icecek|200|1 Glas
+F603600|Portakal suyu|portakal suyu|icecek|200|1 Glas
+# --- Sebzeler / Gemüse
+G561100|Domates|domates|gemuese|80|1 Stück
+G520100|Salatalık|salatalik hiyar|gemuese|100|1 Stück
+G541100|Sivri biber / Yeşil biber|sivri biber yesil biber carliston|gemuese|30|1 Stück
+G543100|Kırmızı biber|kirmizi biber kapya biber|gemuese|150|1 Stück
+G553100|Acı biber|aci biber yesil aci biber|gemuese|10|1 Stück
+G510100|Patlıcan (çiğ)|patlican|gemuese|250|1 Stück
+G510172|Patlıcan (közlenmiş)|patlican kozlenmis kozde patlican|gemuese|150|1 Portion
+G582100|Kabak (çiğ)|kabak sakiz kabagi|gemuese|200|1 Stück
+G480100|Soğan|sogan kuru sogan|gemuese|60|1 Stück
+G482100|Taze soğan|taze sogan yesil sogan|gemuese|15|1 Stange
+G490100|Sarımsak|sarimsak|gemuese|4|1 Zehe
+K110100|Patates (çiğ)|patates|gemuese|80|1 Stück
+K110100|Patates (soyulmuş)|patates soyulmus|gemuese|80|1 Stück
+G620100|Havuç|havuc|gemuese|70|1 Stück
+G211100|Ispanak (çiğ)|ispanak|gemuese|100|1 Portion
+G211152|Ispanak (pişmiş)|ispanak haslanmis|gemuese|150|1 Portion
+G342100|Beyaz lahana|lahana beyaz lahana|gemuese|100|1 Portion
+G341100|Kırmızı lahana|kirmizi lahana mor lahana|gemuese|100|1 Portion
+G470100|Pırasa|pirasa|gemuese|150|1 Stange
+G660100|Kereviz (kök)|kereviz|gemuese|150|1 Portion
+G220100|Sap kereviz|sap kereviz|gemuese|40|1 Stange
+G710100|Taze fasulye (çiğ)|taze fasulye yesil fasulye|gemuese|150|1 Portion
+G710132|Taze fasulye (haşlanmış)|taze fasulye haslanmis|gemuese|150|1 Portion
+G530100|Bamya|bamya|gemuese|150|1 Portion
+G760100|Bezelye|bezelye|gemuese|80|1 Portion
+G311100|Karnabahar|karnabahar|gemuese|150|1 Portion
+G410100|Enginar|enginar|gemuese|120|1 Stück
+G105100|Marul|marul kivircik salata|gemuese|50|1 Portion
+G107100|Göbek marul|gobek marul|gemuese|50|1 Portion
+G130100|Roka|roka|gemuese|20|1 Handvoll
+G250100|Maydanoz|maydanoz|gemuese|10|1 Bund-Portion
+G460100|Semizotu|semizotu|gemuese|80|1 Portion
+G280100|Tere|tere|gemuese|10|1 Handvoll
+G691100|Turp (kırmızı)|turp|gemuese|10|1 Stück
+G680100|Turp (beyaz)|beyaz turp|gemuese|50|1 Portion
+G613100|Pancar|pancar kirmizi pancar|gemuese|80|1 Stück
+G581100|Bal kabağı|bal kabagi|gemuese|150|1 Portion
+K701100|Mantar|mantar kultur mantari|gemuese|60|1 Portion
+G570100|Mısır (taze)|misir|gemuese|150|1 Kolben
+C341032|Mısır (haşlanmış)|misir haslanmis|gemuese|150|1 Kolben
+G520802|Salatalık turşusu|tursu hiyar tursusu|meze|30|1 Stück
+G890702|Turşu (fermente)|tursu|meze|30|1 Portion
+H510802|Yeşil zeytin|yesil zeytin|kahvalti|15|5 Stück
+H520800|Siyah zeytin|siyah zeytin gemlik zeytini|kahvalti|15|5 Stück
+R160000|Domates salçası|salca domates salcasi|temel|15|1 EL
+R161200|Domates püresi|domates puresi|temel|50|1 Portion
+# --- Baklagiller / Hülsenfrüchte, Getreide
+H725100|Yeşil mercimek (kuru)|yesil mercimek|temel|60|1 Portion
+H730132|Yeşil mercimek (haşlanmış)|mercimek haslanmis|temel|150|1 Portion
+H730000|Kırmızı mercimek (kuru)|kirmizi mercimek|temel|60|1 Portion
+H730032|Kırmızı mercimek (haşlanmış)|kirmizi mercimek haslanmis|temel|150|1 Portion
+G770400|Nohut (kuru)|nohut|temel|60|1 Portion
+G770432|Nohut (haşlanmış)|nohut haslanmis|temel|150|1 Portion
+H739400|Kuru fasulye (kuru)|kuru fasulye barbunya kuru|temel|60|1 Portion
+H742100|Barbunya (kuru, Kidney)|barbunya|temel|60|1 Portion
+H750100|Kuru bakla|bakla kuru bakla|temel|60|1 Portion
+G730100|Taze bakla|taze bakla|gemuese|100|1 Portion
+H702100|Börülce (kuru)|borulce|temel|60|1 Portion
+C119100|Bulgur (çiğ)|bulgur pilavlik bulgur|temel|70|1 Portion
+C119132|Bulgur (haşlanmış)|bulgur haslanmis|temel|200|1 Portion
+C352000|Pirinç (çiğ)|pirinc baldo osmancik|temel|70|1 Portion
+C352032|Pirinç (haşlanmış)|pirinc haslanmis|temel|200|1 Portion
+C214200|Un (buğday)|un bugday unu|temel|10|1 EL
+C211000|Tam buğday unu|tam bugday unu kepekli un|temel|10|1 EL
+C218000|İrmik|irmik|temel|10|1 EL
+C111000|Buğday (aşurelik)|asurelik bugday dovme|temel|60|1 Portion
+C148000|Arpa şehriye / Arpa|arpa|temel|60|1 Portion
+C443000|Mısır unu|misir unu|temel|10|1 EL
+E401000|Makarna (çiğ)|makarna|temel|100|1 Portion
+E401032|Makarna (haşlanmış)|makarna haslanmis|temel|250|1 Portion
+C113000|Yulaf ezmesi|yulaf ezmesi|kahvalti|50|1 Portion
+B782100|Pide ekmeği (Fladenbrot)|pide ekmegi ramazan pidesi|hamur|100|1 Stück
+# --- Et, tavuk, sakatat
+U201000|Dana eti (çiğ)|dana eti sigir eti|et|150|1 Portion
+U010100|Dana kıyma (çiğ)|kiyma dana kiyma|et|100|1 Portion
+U010182|Dana kıyma (kavrulmuş)|kiyma kavrulmus|et|100|1 Portion
+U030100|Dana kıyma (Kalb, çiğ)|kalb kiyma|et|100|1 Portion
+U867100|Kuzu eti (çiğ)|kuzu eti kuzu|et|150|1 Portion
+U727100|Kuzu pirzola (çiğ)|kuzu pirzola|et|150|1 Portion
+U867162|Kuzu eti (fırın)|kuzu firin|et|150|1 Portion
+V535100|Kuzu ciğeri (çiğ)|kuzu cigeri ciger|et|100|1 Portion
+V531100|Dana ciğeri (çiğ)|dana cigeri|et|100|1 Portion
+V551100|İşkembe (çiğ)|iskembe|et|100|1 Portion
+V413000|Tavuk eti (çiğ)|tavuk eti|et|150|1 Portion
+V416100|Tavuk göğsü (çiğ)|tavuk gogsu|et|150|1 Stück
+V416172|Tavuk göğsü (ızgara)|tavuk gogsu izgara|et|150|1 Stück
+V4A5100|Tavuk but (çiğ)|tavuk but|et|150|1 Stück
+V417100|Tavuk kanadı (çiğ)|tavuk kanat kanat|et|40|1 Stück
+V481000|Hindi eti (çiğ)|hindi eti|et|150|1 Portion
+E111100|Yumurta|yumurta|kahvalti|55|1 Stück
+E111132|Haşlanmış yumurta|haslanmis yumurta|kahvalti|55|1 Stück
+# --- Balık / Fisch
+T104100|Hamsi (çiğ)|hamsi sardalya karadeniz hamsisi|balik|150|1 Portion
+T104182|Hamsi tava (yağsız)|hamsi tava|balik|150|1 Portion
+T107100|Uskumru (çiğ)|uskumru|balik|150|1 Stück
+T107172|Uskumru (ızgara)|uskumru izgara|balik|150|1 Stück
+T105100|Sardalya (çiğ)|sardalya|balik|150|1 Portion
+T105172|Sardalya (ızgara)|sardalya izgara|balik|150|1 Portion
+T617100|Çipura (çiğ, Meerbrasse)|cipura|balik|250|1 Stück
+T617182|Çipura (tava/ızgara, yağsız)|cipura izgara|balik|200|1 Stück
+T601100|Levrek (çiğ, Barsch-Näherung)|levrek|balik|250|1 Stück
+T422100|Alabalık (çiğ)|alabalik|balik|250|1 Stück
+T410100|Somon (çiğ)|somon|balik|150|1 Filet
+T121100|Ton balığı (çiğ)|ton baligi|balik|150|1 Portion
+T121902|Ton balığı konservesi|ton baligi konserve|balik|80|1 Dose
+T020100|Kalamar / Mürekkep balığı (çiğ)|kalamar murekkep baligi|balik|150|1 Portion
+T753100|Karides (çiğ)|karides|balik|100|1 Portion
+T792100|Midye (çiğ)|midye|balik|100|1 Portion
+# --- Süt ürünleri, peynir
+M111300|Süt (tam yağlı)|sut tam yagli sut|kahvalti|200|1 Glas
+M111200|Süt (yarım yağlı)|yarim yagli sut|kahvalti|200|1 Glas
+M141300|Yoğurt (tam yağlı)|yogurt|kahvalti|150|1 Schüssel
+M149500|Koyun yoğurdu|koyun yogurdu|kahvalti|150|1 Schüssel
+M141500|Süzme yoğurt (Näherung)|suzme yogurt|kahvalti|150|1 Schüssel
+M2S8300|Ayran|ayran|icecek|250|1 Glas
+M130300|Kefir|kefir|icecek|250|1 Glas
+M012200|Beyaz peynir (Näherung: Feta)|beyaz peynir feta ezine|peynir|30|1 Scheibe
+M524500|Hellim|hellim halloumi|peynir|30|1 Scheibe
+M711100|Lor peyniri (Näherung)|lor lor peyniri|peynir|50|1 Portion
+M741600|Lor (Ricotta-Näherung)|lor ricotta|peynir|50|1 Portion
+M032100|Mozzarella / Taze kaşar|taze kasar|peynir|30|1 Scheibe
+M400600|Kaşar peyniri (Näherung: Schnittkäse)|kasar kasar peyniri|peynir|30|1 Scheibe
+M173800|Krema|krema sut kremasi|kahvalti|15|1 EL
+Q611000|Tereyağı|tereyagi|kahvalti|10|1 Portion
+Q683000|Sade yağ|sade yag|temel|10|1 EL
+Q120000|Zeytinyağı|zeytinyagi|temel|10|1 EL
+Q320000|Ayçiçek yağı|aycicek yagi|temel|10|1 EL
+Q400000|Margarin|margarin|temel|10|1 EL
+# --- Kuruyemiş
+H120100|Ceviz|ceviz|kuruyemis|30|1 Handvoll
+H250100|Antep fıstığı|antep fistigi fistik|kuruyemis|30|1 Handvoll
+H250600|Kavrulmuş Antep fıstığı|kavrulmus fistik|kuruyemis|30|1 Handvoll
+H130100|Fındık|findik giresun findigi|kuruyemis|30|1 Handvoll
+H130610|Kavrulmuş fındık|kavrulmus findik|kuruyemis|30|1 Handvoll
+H210100|Badem|badem|kuruyemis|30|1 Handvoll
+H110600|Yer fıstığı (kavrulmuş)|yer fistigi|kuruyemis|30|1 Handvoll
+H110700|Yer fıstığı (tuzlu)|tuzlu yer fistigi|kuruyemis|30|1 Handvoll
+H320100|Çam fıstığı|cam fistigi|kuruyemis|10|1 EL
+H310100|Kabak çekirdeği|kabak cekirdegi|kuruyemis|30|1 Handvoll
+H420100|Susam|susam|kuruyemis|10|1 EL
+Q901000|Tahin|tahin|kahvalti|15|1 EL
+H150400|Hindistan cevizi (rendelenmiş)|hindistan cevizi|kuruyemis|10|1 EL
+# --- Tatlandırıcılar, içecekler
+S111000|Toz şeker|seker toz seker|temel|4|1 TL
+S120000|Bal|bal cicek bali|kahvalti|20|1 EL
+S157000|Pekmez (Traubendicksaft)|pekmez uzum pekmezi|kahvalti|20|1 EL
+S711000|Kakao|kakao|temel|5|1 TL
+N630000|Çay (şekersiz)|cay siyah cay|icecek|100|1 Glas (ince belli)
+N630600|Çay (şekerli)|cay sekerli|icecek|100|1 Glas (ince belli)
+N610100|Yeşil çay|yesil cay|icecek|200|1 Tasse
+N720100|Bitki çayı|bitki cayi ihlamur adacayi|icecek|200|1 Tasse
+N410100|Filtre kahve|filtre kahve|icecek|200|1 Tasse
+N128000|Su|su icme suyu|icecek|250|1 Glas
+N127000|Maden suyu (sade)|maden suyu soda|icecek|200|1 Flasche
+N330000|Kola|kola|icecek|330|1 Dose
+N310400|Gazoz / Limonata (Limonade)|gazoz|icecek|250|1 Glas
+P163000|Bira|bira|icecek|500|1 Flasche
+P2A3000|Kırmızı şarap|kirmizi sarap|icecek|150|1 Glas
+P210000|Beyaz şarap|beyaz sarap|icecek|150|1 Glas
+# --- Şarküteri (Näherungen)
+W145000|Sucuk (Näherung: Rindersalami)|sucuk kayseri sucugu|sarkuteri|30|3 Scheiben
+W540000|Pastırma (Näherung: Rinder-Rauchfleisch)|pastirma kayseri pastirmasi|sarkuteri|30|4 Scheiben
+W561000|Hindi füme|hindi fume hindi jambon|sarkuteri|30|3 Scheiben
+W193000|Sosis (Kabanos)|sosis|sarkuteri|50|1 Stück
+# --- weitere Grundnahrungsmittel (gegart/roh unterschieden)
+U867132|Kuzu eti (haşlanmış)|kuzu haslama haslanmis kuzu|et|150|1 Portion
+V413132|Tavuk eti (haşlanmış)|haslanmis tavuk|et|150|1 Portion
+K110132|Patates (haşlanmış)|haslanmis patates|gemuese|150|1 Portion
+G210132|Ispanak (haşlanmış)|ispanak haslanmis|gemuese|150|1 Portion
+G510182|Patlıcan (tava, yağsız)|patlican tava|gemuese|150|1 Portion
+G480182|Soğan (kavrulmuş, yağsız)|kavrulmus sogan|gemuese|50|1 Portion
+K701182|Mantar (sote, yağsız)|mantar sote yagsiz|gemuese|100|1 Portion
+C352082|Pirinç (haşlanmış, kavrulmuş)|pirinc kavrulmus|temel|200|1 Portion
+F211100|Kiraz|kiraz|obst|125|1 Schale
+F212902|Vişne (şekerli konserve)|visne konserve|obst|100|1 Portion
+V471100|Kaz eti (çiğ)|kaz eti kaz|et|150|1 Portion
+V476172|Kaz eti (ızgara)|kaz izgara|et|150|1 Portion
+U866100|Koyun eti / Kuzu (Hammel, çiğ)|koyun eti|et|150|1 Portion
+U886100|Koyun but (çiğ)|koyun but|et|150|1 Portion
+Q880000|Kuyruk yağı (Näherung Hammelfett)|kuyruk yagi|temel|10|1 EL
+F201152|Kayısı (haşlanmış)|kayisi haslanmis|obst|100|1 Portion
+F220152|Erik (haşlanmış)|erik haslanmis|obst|100|1 Portion
+G520802|Kornişon turşu|kornison tursu|meze|30|1 Portion
+G613132|Pancar (haşlanmış)|pancar haslanmis|gemuese|80|1 Portion
+G613802|Pancar turşusu|pancar tursusu|meze|30|1 Portion
+G311132|Karnabahar (haşlanmış)|karnabahar haslanmis|gemuese|150|1 Portion
+G620132|Havuç (haşlanmış)|havuc haslanmis|gemuese|80|1 Portion
+G582132|Kabak (haşlanmış)|kabak haslanmis|gemuese|150|1 Portion
+G760132|Bezelye (haşlanmış)|bezelye haslanmis|gemuese|80|1 Portion
+G530132|Bamya (haşlanmış)|bamya haslanmis|gemuese|150|1 Portion
+G470132|Pırasa (haşlanmış)|pirasa haslanmis|gemuese|150|1 Portion
+G342132|Lahana (haşlanmış)|lahana haslanmis|gemuese|150|1 Portion
+G410132|Enginar (haşlanmış)|enginar haslanmis|gemuese|120|1 Stück
+G322100|Kara lahana|kara lahana karalahana|gemuese|150|1 Portion
+G322132|Kara lahana (haşlanmış)|karalahana haslanmis|gemuese|150|1 Portion
+H130800|Fındık ezmesi (sade)|findik ezmesi|kahvalti|15|1 EL
+H880200|Fıstık ezmesi|fistik ezmesi|kahvalti|15|1 EL
+S161000|Erik marmelatı (Pflaumenmus)|erik marmelati|kahvalti|20|1 EL
+S121000|Çiçek balı|cicek bali|kahvalti|20|1 EL
+S122000|Çam balı (Waldhonig)|cam bali mugla cam bali|kahvalti|20|1 EL
+M021000|Keçi sütü|keci sutu|icecek|200|1 Glas
+M141200|Yoğurt (yarım yağlı)|yarim yagli yogurt light yogurt|kahvalti|150|1 Schüssel
+M150000|Yayık ayranı (Buttermilch)|yayik ayrani|icecek|250|1 Glas
+C518000|Patlamış mısır (tuzlu)|patlamis misir tuzlu|kuruyemis|30|1 Portion
+H430100|Ay çekirdeği (iç)|ay cekirdegi ici|kuruyemis|30|1 Handvoll
+H120610|Kavrulmuş ceviz|kavrulmus ceviz|kuruyemis|30|1 Handvoll
+H210600|Kavrulmuş badem|kavrulmus badem|kuruyemis|30|1 Handvoll
+F504100|Taze hurma|taze hurma|obst|25|1 Stück
+F533600|Kavun suyu|kavun suyu|icecek|200|1 Glas

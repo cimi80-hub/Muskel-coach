@@ -13,7 +13,7 @@
   const NUTR = ['kcal', 'kj', 'p', 'c', 'f', 'sat', 'sug', 'fib', 'salt'];
 
   // ---------------- Hilfsfunktionen ----------------
-  const norm = (s) => String(s || '').toLowerCase()
+  const norm = (s) => String(s || '').replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase().replace(/ı/g, 'i')
     .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9,.%\s-]/g, ' ').replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
@@ -84,10 +84,12 @@
     const nameTok = words(f.n);
     const extra = words([f.brand, f.alias, f.store].filter(Boolean).join(' '));
     const toks = new Set();
-    const add = (t) => { if (t.length > 1) { toks.add(t); toks.add(stem(t)); } };
+    const add = (t) => { if (t.length > 1) { toks.add(t); toks.add(stem(t)); if (/oe|ue/.test(t)) { const v = t.replace(/oe/g, 'o').replace(/ue/g, 'u'); toks.add(v); toks.add(stem(v)); } } };
     nameTok.forEach(add); extra.forEach(add);
-    for (let i = 0; i < nameTok.length - 1; i++) { toks.add(nameTok[i] + nameTok[i + 1]); if (i < nameTok.length - 2) toks.add(nameTok[i] + nameTok[i + 1] + nameTok[i + 2]); }
+    for (let i = 0; i < nameTok.length - 1; i++) { toks.add(nameTok[i] + nameTok[i + 1]); if (/oe|ue/.test(nameTok[i] + nameTok[i + 1])) toks.add((nameTok[i] + nameTok[i + 1]).replace(/oe/g, 'o').replace(/ue/g, 'u')); if (i < nameTok.length - 2) toks.add(nameTok[i] + nameTok[i + 1] + nameTok[i + 2]); }
     f._t = [...toks]; f._n = nameTok.filter((t) => /[a-z]/.test(t)).length; f._first = nameTok[0] || '';
+    if (f.src === 'tr' && f.tr) f._n = words(f.tr).filter((t) => /[a-z]/.test(t)).length;
+    f._nn = norm(f.tr || f.n);
     f._b = f.brand ? words(f.brand) : [];
     f._a = f.src === 'chain' ? words(f.calias || '').filter((w) => w.length > 2) : [];
     f._state = STATE_RE.test(' ' + nameTok.join(' ') + ' ');
@@ -128,6 +130,24 @@
       else if (f.pg) f.portion = { g: f.pg, label: '1 Portion (' + f.pg + ' ' + (f.unit === 'ml' ? 'ml' : 'g') + ')' };
       f.calias = f.alias || ''; f.alias = [f.alias, f.grp].filter(Boolean).join(' ');
       indexFood(f);
+    }
+  }
+  function loadTurkish(d) {
+    sources.tr = d.meta;
+    for (const it of d.items) {
+      if (it.type === 'bls') { // türkischer Name für vorhandenes BLS-Lebensmittel – keine Dublette
+        const f = byId.get('bls:' + it.bls); if (!f) continue;
+        f.tr = f.tr ? f.tr + ' / ' + it.tr : it.tr;
+        f.alias = [f.alias, it.alias, it.tr].filter(Boolean).join(' ');
+        if (!f.units) f.units = it.units;
+        indexFood(f);
+        continue;
+      }
+      const p = it.per100 || {};
+      indexFood({ id: it.id, n: norm(it.de).startsWith(norm(it.tr)) ? it.de : it.tr + ' · ' + it.de, tr: it.tr, en: it.de, src: 'tr', q: 'est', cat: 'TR', grp: it.katName, unit: 'g',
+        kcal: p.kcal, kj: p.kj, p: p.p, c: p.c, f: p.f, sat: p.sat, sug: p.sug, fib: p.fib, salt: p.salt,
+        alias: it.alias, region: it.region, prep: it.prep, state: it.state, portion: it.portion, units: it.units,
+        recipe: it.recipe, source: it.source });
     }
   }
   function loadOFF(d) {
@@ -176,6 +196,7 @@
       await cachedFetch('lebensmittel-bls.json', loadBLS);
       await cachedFetch('gerichte-schaetzwerte.json', loadEst, true);
       await cachedFetch('restaurants.json', loadRest, true);
+      await cachedFetch('foods_turkish.json', loadTurkish, true);
       await cachedFetch('off-de.json', loadOFF, true);
       (await tx(pubDB, 'offcache', 'readonly', (s) => s.getAll()) || []).forEach(indexFood);
       (await tx(perDB, 'custom', 'readonly', (s) => s.getAll()) || []).forEach(indexFood);
@@ -223,6 +244,8 @@
     [/\b(steak|rindersteak|rumpsteak)\b/g, 'rinderrumpsteak'],
     [/\b(sosse|sossen)\b/g, 'sauce'],
     [/\b(dose|dosen)\b/g, 'konserve'],
+    [/^(pilav|pilavi)$/g, 'pirinc pilavi'],
+    [/^(corba|corbasi)$/g, 'mercimek corbasi'],
     [/^(tee|schwarzer tee|schwarztee)$/g, 'schwarztee getraenk'],
     [/^(gruener tee|gruentee)$/g, 'gruentee getraenk'],
     [/\b(semmel|schrippe|weckle|weck)\b/g, 'weizenbroetchen'],
@@ -271,6 +294,7 @@
     const qt = expanded.replace(/[,.%]/g, ' ').split(' ').filter((t) => t && !STOP.has(t));
     if (!qt.length) return [];
     const maps = qt.map(tokenScores);
+    const nqFull = norm(query);
     const hasState = qt.some((t) => STATE_WORDS.includes(t) || STATE_WORDS.includes(stem(t)));
     // pro Suchwort: beste Trefferstärke je Lebensmittel (über den Index, statt alle Lebensmittel zu prüfen)
     const per = maps.map((m) => { const fm = new Map(); for (const [t, sc] of m) { const arr = vocab.get(t); if (!arr) continue; for (const f of arr) { const c = fm.get(f); if (!c || sc > c.s) fm.set(f, { s: sc, t }); } } return fm; });
@@ -291,12 +315,14 @@
       }
       if (miss > allowMiss) continue;
       let score = sum + firstHit - 0.07 * f._n;
+      if (f._nn === nqFull) score += 1.5;
       if (!hasState) {
         if (/ roh\b/.test(' ' + f._t.join(' '))) score += 0.3;
         if (f._t.some((t) => /^(tiefgefroren|getrocknet|konserve|pulver|mariniert|trockenprodukt|instantpulver|beikost)$/.test(t))) score -= 0.5;
       }
       if (f.src === 'user' || f.src === 'recipe') score += 0.4;
       if (f.src === 'est') score += 0.2;
+      if (f.src === 'tr') score += 0.15;
       if (f.src === 'chain') score += (opt.brand && f.brand === opt.brand) ? 2 : f._a.concat(f._b).some((b) => qt.some((q) => q.length > 2 && b.startsWith(stem(q)))) ? 0.5 : -0.8;
       if (opt.brand && f.brand && f.brand !== opt.brand) score -= 1;
       if (f.src === 'off') score -= f._b.some((b) => qt.some((q) => b.startsWith(stem(q)))) ? 0 : 1.0;
@@ -399,11 +425,12 @@
     [/wasser/, { glas: [250, '1 Glas'], flasche: [500, '1 Flasche (0,5 l)'], portion: [250, '1 Glas'] }, 'N'],
     [/suppe|eintopf/, { teller: [300, '1 Teller'], portion: [300, '1 Teller'] }, 'XY'],
   ];
-  const CAT_DEFAULT = { FF: 100, F: 125, G: 150, N: 250, P: 250, X: 350, Y: 350, Z: 300, B: 50, D: 80, M: 150, S: 30, Q: 10, R: 15, T: 150, U: 150, V: 150, W: 30, C: 60, E: 60, H: 30, K: 200, O: 100 };
+  const CAT_DEFAULT = { TR: 250, FF: 100, F: 125, G: 150, N: 250, P: 250, X: 350, Y: 350, Z: 300, B: 50, D: 80, M: 150, S: 30, Q: 10, R: 15, T: 150, U: 150, V: 150, W: 30, C: 60, E: 60, H: 30, K: 200, O: 100 };
 
   function portionsFor(f) {
     const out = [];
     if (f.unit === 'portion') return [{ key: 'portion', g: 100, label: '1 Portion', est: false }];
+    if (f.units) { const o = Object.entries(f.units).map(([k, [g, label]]) => ({ key: k, g, label, est: true })); o.sort((a, b) => (a.key === 'portion' ? -1 : b.key === 'portion' ? 1 : 0)); if (f.src === 'tr') return o; out.push(...o); }
     if (f.portion && f.portion.g) out.push({ key: 'portion', g: f.portion.g, label: f.portion.label || '1 Portion', est: f.src !== 'off' && f.src !== 'user' && f.src !== 'recipe' });
     const n = norm(f.n);
     for (const [re, p, cats] of PORTIONS) {
@@ -425,13 +452,13 @@
   }
 
   // ---------------- Spracheingabe / Mahlzeiten-Erkennung ----------------
-  const NUMW = { ein: 1, eine: 1, einen: 1, einem: 1, einer: 1, eins: 1, zwei: 2, drei: 3, vier: 4, fuenf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwoelf: 12, fuenfzehn: 15, zwanzig: 20, dreissig: 30, vierzig: 40, fuenfzig: 50, hundert: 100, halb: 0.5, halbe: 0.5, halben: 0.5, halbes: 0.5, anderthalb: 1.5, eineinhalb: 1.5, paar: 3, a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, half: 0.5 };
-  const UNIT_RE = '(kg|kilo|kilogramm|g|gr|gramm|grams?|ml|milliliter|cl|l|liter|litre|stueck|stk|scheiben?|el|essloeffel|tl|teeloeffel|portionen?|glaeser|glas|tassen?|becher|dosen?|flaschen?|handvoll|kugeln?|riegel|teller|schalen?|packung(?:en)?|tueten?|slices?|cups?|pieces?)';
+  const NUMW = { ein: 1, eine: 1, einen: 1, einem: 1, einer: 1, eins: 1, zwei: 2, drei: 3, vier: 4, fuenf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwoelf: 12, fuenfzehn: 15, zwanzig: 20, dreissig: 30, vierzig: 40, fuenfzig: 50, hundert: 100, halb: 0.5, halbe: 0.5, halben: 0.5, halbes: 0.5, anderthalb: 1.5, eineinhalb: 1.5, paar: 3, bir: 1, iki: 2, uc: 3, dort: 4, bes: 5, alti: 6, yarim: 0.5, a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, half: 0.5 };
+  const UNIT_RE = '(kg|kilo|kilogramm|g|gr|gramm|grams?|ml|milliliter|cl|l|liter|litre|stueck|stk|scheiben?|el|essloeffel|tl|teeloeffel|portionen?|glaeser|glas|tassen?|becher|dosen?|flaschen?|handvoll|kugeln?|riegel|teller|schuesseln?|schalen?|porsiyon|tabak|kase|bardak|adet|tane|dilim|kasik|packung(?:en)?|tueten?|slices?|cups?|pieces?)';
   const NUM_RE = '(\\d+(?:[.,]\\d+)?|' + Object.keys(NUMW).join('|') + ')';
   const AMOUNT = new RegExp('(?:^|\\s)' + NUM_RE + '\\s*' + UNIT_RE + '?(?=\\s|$)');
   const UNIT_ONLY = new RegExp('(?:^|\\s)' + UNIT_RE + '(?=\\s|$)');
   const SIZE_RE = /\b(klein|kleine|kleinen|kleiner|kleines|mittel|mittlere|mittleren|mittlerer|mittleres|gross|grosse|grossen|grosser|grosses|small|medium|large)\b/;
-  const FILLER = /\b(ich|hab|habe|hatte|war|waren|bin|heute|gerade|eben|gestern|morgen|abends|mittags|morgens|gegessen|getrunken|essen|trinken|trage|tragen|trag|eintragen|ein ?getragen|notiere|notier|speicher|speichere|bitte|mal|noch|dazu|ausserdem|zusaetzlich|auch|so|etwa|ungefaehr|circa|ca|zum|zur|fuer|als|frueh?stueck|fruehstueck|mittagessen|mittag|abendessen|abendbrot|abend|snack|zwischendurch|nachmittag|vormittag|i|had|ate|drank|for|breakfast|lunch|dinner|today)\b/g;
+  const FILLER = /\b(ich|hab|habe|hatte|war|waren|bin|yedim|ictim|bugun|aksam|ogle|sabah|kahvaltida|kahvaltı|heute|gerade|eben|gestern|morgen|abends|mittags|morgens|gegessen|getrunken|essen|trinken|trage|tragen|trag|eintragen|ein ?getragen|notiere|notier|speicher|speichere|bitte|mal|noch|dazu|ausserdem|zusaetzlich|auch|so|etwa|ungefaehr|circa|ca|zum|zur|fuer|als|frueh?stueck|fruehstueck|mittagessen|mittag|abendessen|abendbrot|abend|snack|zwischendurch|nachmittag|vormittag|i|had|ate|drank|for|breakfast|lunch|dinner|today)\b/g;
 
   function detectMeal(n) {
     if (/fruehstueck|breakfast|morgens/.test(n)) return 'fruehstueck';
@@ -453,7 +480,13 @@
     if (/^(scheiben?|slices?)$/.test(u)) return 'scheibe';
     if (/^(el|essloeffel)$/.test(u)) return 'el';
     if (/^(tl|teeloeffel)$/.test(u)) return 'tl';
-    if (/^portion/.test(u)) return 'portion';
+    if (/^(portion|porsiyon)/.test(u)) return 'portion';
+    if (/^schuessel/.test(u) || u === 'kase') return 'schuessel';
+    if (u === 'tabak') return 'teller';
+    if (u === 'bardak') return 'glas';
+    if (u === 'adet' || u === 'tane') return 'stk';
+    if (u === 'dilim') return 'scheibe';
+    if (u === 'kasik') return 'el';
     if (/^(glas|glaeser)$/.test(u)) return 'glas';
     if (/^(tassen?|cups?)$/.test(u)) return 'tasse';
     if (u === 'becher') return 'becher';
@@ -467,7 +500,7 @@
     if (/^(packung|tuete)/.test(u)) return 'packung';
     return null;
   }
-  const GENERIC_UNIT = { scheibe: 25, el: 15, tl: 5, glas: 200, tasse: 150, becher: 150, dose: 330, flasche: 500, handvoll: 30, kugel: 60, riegel: 50, teller: 300, schale: 150 };
+  const GENERIC_UNIT = { schuessel: 300, scheibe: 25, el: 15, tl: 5, glas: 200, tasse: 150, becher: 150, dose: 330, flasche: 500, handvoll: 30, kugel: 60, riegel: 50, teller: 300, schale: 150 };
 
   function amountFor(f, qty, uk, size) {
     const ps = portionsFor(f); const get = (k) => ps.find((p) => p.key === k);
@@ -491,7 +524,7 @@
     }
     if (uk && uk !== 'stk' && uk !== 'portion') {
       const p = get(uk);
-      if (p) return { grams: q * p.g, label: fmt(q, 1) + '× ' + p.label, est: true };
+      if (p) return { grams: q * p.g, label: q === 1 ? p.label : fmt(q, 1) + '× ' + p.label, est: true };
       if (uk === 'packung') { const d = defaultPortion(f); return { grams: q * d.g, label: fmt(q, 1) + '× Packung → bitte Menge prüfen', est: true, unsure: true }; }
       return { grams: q * GENERIC_UNIT[uk], label: fmt(q, 1) + '× ' + uk + ' (≈' + GENERIC_UNIT[uk] + ' g)', est: true };
     }
@@ -506,7 +539,7 @@
     const meal = detectMeal(n);
     const ch = CHAINS.find(([re]) => re.test(n)); const brand = ch && foods.some((f) => f.brand === ch[1]) ? ch[1] : null;
     n = n.replace(/(\d)\s*,\s*(\d)/g, '$1.$2').replace(/\b30 ?cm\b|\bfootlong\b/g, ' footlong ').replace(/\b15 ?cm\b/g, ' 15cm ');
-    const segs = n.split(/,|;|\bund\b|\bsowie\b|\bplus\b|\bdazu\b|\bdanach\b|\bdann\b|\bausserdem\b|\band\b/).map((s) => s.trim()).filter(Boolean);
+    const segs = n.split(/,|;|\bve\b|\bile\b|\bund\b|\bsowie\b|\bplus\b|\bdazu\b|\bdanach\b|\bdann\b|\bausserdem\b|\band\b/).map((s) => s.trim()).filter(Boolean);
     const items = [];
     for (let seg of segs) {
       seg = ' ' + seg + ' ';
@@ -705,7 +738,7 @@
     [/salz|salt/, 'salt', 'Salz', 'g'],
   ];
   const nutrOf = (n) => { for (const w of NUT_WORDS) if (w[0].test(n)) return w; return null; };
-  const disp = (f) => f.n.split(/,\s/)[0] + (f.src === 'chain' && f.brand ? ' von ' + f.brand : '');
+  const disp = (f) => (f.src === 'tr' ? f.tr : f.n.split(/,\s/)[0]) + (f.src === 'chain' && f.brand ? ' von ' + f.brand : '');
   const qualNote = (f) => f.q === 'est' ? ' (Schätzwert)' : (f.src === 'off' || f.src === 'chain') ? ' (Herstellerangabe)' : '';
 
   async function daySummaryText() {
@@ -844,7 +877,7 @@
     VERSION, MEALS, MEAL_DE, MEAL_EN, base: './', lang: 'de', ready: false,
     init, search, getFood: (id) => byId.get(id), byEan: (c) => byEan.get(String(c)), count: () => foods.length,
     countBy: () => foods.reduce((a, f) => { a[f.src] = (a[f.src] || 0) + 1; return a; }, {}),
-    catName: (c) => catNames[c] || (c === 'FF' ? 'Restaurant & Fast Food' : c === 'O' ? 'Markenprodukte' : c === 'Z' ? 'Imbiss & Fast Food (Schätzwerte)' : c),
+    catName: (c) => catNames[c] || (c === 'TR' ? 'Türkische Küche' : c === 'FF' ? 'Restaurant & Fast Food' : c === 'O' ? 'Markenprodukte' : c === 'Z' ? 'Imbiss & Fast Food (Schätzwerte)' : c),
     sources, norm, nutrients, portionsFor, defaultPortion, parseMeal, answer, getPending: () => pending, clearPending: () => { pending = null; },
     addEntry, updateEntry, removeEntry, getDay, getRange, entryNutr, sumEntries, copyDay,
     getWater, addWater, getWeights, addWeight, getGoals, setGoals, calcGoals, findProfile, appBedarf,

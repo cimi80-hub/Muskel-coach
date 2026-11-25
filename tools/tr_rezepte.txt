@@ -1,0 +1,659 @@
+# Standardrezepte für die rezeptbasierte Nährwertschätzung (Zutaten roh, in Gramm, je Ansatz).
+# Kategorie|Türkisch|Deutsch|Region|Portion g|Portionsname|Ausbeute (gegart/roh)|Zutaten key:g,…|Alternativen|R=Restaurant-Variante
+# Ausbeute < 1 = Wasser-/Garverlust, > 1 = Wasseraufnahme. „@id“ = gegartes Teilrezept. Gewürze < 2 g werden nicht gezählt.
+# ---------- Grundteige & Beilagen (Teilrezepte)
+hamur|Yufka (çiğ)|Yufka-Teigblatt (roh)||60|1 Blatt|1.0|mehl:600,wasser:330,oel:20,salz:10|yufka||
+hamur|Lavaş|Lavaş-Fladenbrot||80|1 Stück|0.9|mehl:500,wasser:300,oel:15,salz:8,hefe:5|lavas tandir lavasi||
+hamur|Ekmek (beyaz)|Türkisches Weißbrot||50|1 Scheibe|0.86|mehl:1000,wasser:620,hefe:20,salz:18|ekmek francala somun||
+hamur|Tam buğday ekmeği|Vollkornbrot (türkisch)||50|1 Scheibe|0.86|vkmehl:600,mehl:400,wasser:650,hefe:20,salz:18|tam bugday ekmegi kepekli ekmek||
+hamur|Bazlama|Bazlama (Pfannenfladenbrot)|Anadolu|120|1 Stück|0.9|mehl:500,joghurt:150,wasser:180,hefe:10,salz:8|bazlama||
+hamur|Tandır ekmeği|Tandır-Brot|Doğu Anadolu|100|1 Stück|0.88|mehl:500,wasser:310,hefe:8,salz:9|tandir ekmegi||
+hamur|Sac ekmeği|Sac-Brot (Fladen vom Blech)|Anadolu|60|1 Stück|0.92|mehl:500,wasser:290,salz:8|sac ekmegi saç ekmeği||
+hamur|Ramazan pidesi|Ramadan-Fladenbrot|İstanbul|100|1 Stück|0.87|mehl:500,wasser:310,hefe:10,salz:9,ei:25,sesam:10|ramazan pidesi||
+hamur|Simit|Sesamring (Simit)|İstanbul|110|1 Stück|0.88|mehl:500,wasser:270,hefe:10,salz:9,pekmez:60,sesam:90|simit gevrek||
+hamur|Gevrek (İzmir)|Sesamring İzmir-Art|İzmir|100|1 Stück|0.88|mehl:500,wasser:280,hefe:10,salz:9,pekmez:50,sesam:80|gevrek izmir simidi||
+hamur|Açma|Açma (weiches Hefegebäck)|İstanbul|90|1 Stück|0.87|mehl:500,milch:200,butter:80,zucker:40,ei:50,hefe:15,salz:8|acma||
+hamur|Poğaça (peynirli)|Poğaça mit Käse|İstanbul|70|1 Stück|0.9|mehl:500,joghurt:100,oel:100,milch:100,butter:50,feta:150,ei:50,hefe:10,salz:6|pogaca peynirli pogaca||R
+hamur|Poğaça (sade)|Poğaça natur||60|1 Stück|0.9|mehl:500,joghurt:100,oel:100,milch:100,butter:50,ei:50,hefe:10,salz:6|sade pogaca||
+hamur|Poğaça (zeytinli)|Poğaça mit Oliven||70|1 Stück|0.9|mehl:500,joghurt:100,oel:100,milch:100,butter:50,olives:120,ei:50,hefe:10,salz:5|zeytinli pogaca||
+hamur|Pişi|Pişi (frittierte Teigfladen)||60|1 Stück|1.05|mehl:500,wasser:300,hefe:10,salz:8,oel:90|pisi hamur kizartmasi||
+hamur|Katmer (sade)|Katmer (geschichteter Fladen)|Gaziantep|120|1 Stück|0.95|@yufka-cig:300,butter:60|katmer||
+hamur|Gözleme (peynirli)|Gözleme mit Käse|Anadolu|200|1 Stück|0.95|@yufka-cig:250,feta:120,petersilie:10,butter:20|gozleme peynirli gozleme||R
+hamur|Gözleme (patatesli)|Gözleme mit Kartoffeln|Anadolu|200|1 Stück|0.95|@yufka-cig:250,kartoffel:200,zwiebel:40,butter:25,salz:3|patatesli gozleme||R
+hamur|Gözleme (ıspanaklı)|Gözleme mit Spinat|Anadolu|200|1 Stück|0.95|@yufka-cig:250,spinat:200,zwiebel:40,feta:50,butter:20|ispanakli gozleme||R
+hamur|Gözleme (kıymalı)|Gözleme mit Hackfleisch|Anadolu|200|1 Stück|0.93|@yufka-cig:250,rhack:150,zwiebel:50,butter:20,salz:3|kiymali gozleme||R
+hamur|Gözleme (peynirli ıspanaklı)|Gözleme mit Käse und Spinat|Anadolu|200|1 Stück|0.95|@yufka-cig:250,spinat:120,feta:100,butter:20|peynirli ispanakli gozleme||
+hamur|Boyoz|Boyoz (Blätterteigschnecke)|İzmir|70|1 Stück|0.9|mehl:500,wasser:280,oel:150,tahin:50,salz:8|boyoz izmir boyozu||
+hamur|Kumru|Kumru-Sandwich|İzmir|250|1 Stück|0.98|@ekmek:120,sucuk:40,kasar:40,tomate:40,gpaprika:15|kumru izmir kumru||
+hamur|Çatal|Çatal (Gebäck)|İzmir|50|1 Stück|0.92|mehl:500,butter:120,oel:60,zucker:120,ei:50,milch:80|catal||
+hamur|Kete (Erzurum)|Kete mit Butter-Mehlfüllung|Erzurum|90|1 Stück|0.88|mehl:500,milch:200,butter:180,hefe:10,ei:50,salz:6|kete erzurum ketesi kars ketesi||
+hamur|Çörek (tahinli)|Tahin-Schnecke|Anadolu|90|1 Stück|0.88|mehl:500,milch:200,butter:60,zucker:150,tahin:180,hefe:12,ei:50|tahinli corek tahinli pide||
+hamur|Pişmaniye|Pişmaniye (Zuckerwatte-Konfekt)|Kocaeli|30|1 Portion|1.0|zucker:500,mehl:250,butter:120|pismaniye||
+hamur|Cantık|Cantık (Bursa-Hackfladen)|Bursa|200|1 Stück|0.9|mehl:400,wasser:240,hefe:8,rhack:300,zwiebel:80,tomate:100,butter:30,salz:8|cantik bursa cantik||R
+hamur|Etli ekmek|Etli ekmek (Konya)|Konya|300|1 Stück|0.88|mehl:400,wasser:240,hefe:6,salz:7,lamm:350,zwiebel:100,tomate:150,gpaprika:60,butter:20|etli ekmek konya etli ekmek||R
+hamur|Bıçak arası|Bıçak arası (dünnes Fleischbrot)|Konya|300|1 Stück|0.88|mehl:400,wasser:240,hefe:6,salz:7,rhack:350,zwiebel:100,tomate:100,butter:20|bicak arasi||R
+hamur|Kıymalı pide|Pide mit Hackfleisch|Karadeniz|300|1 Stück|0.88|mehl:400,wasser:240,hefe:8,salz:7,rhack:300,zwiebel:100,tomate:120,gpaprika:50,butter:30|kiymali pide pide kiyma||R
+hamur|Kaşarlı pide|Pide mit Käse||250|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:7,kasar:250,butter:30|kasarli pide peynirli pide||R
+hamur|Kuşbaşılı pide|Pide mit Fleischwürfeln||300|1 Stück|0.88|mehl:400,wasser:240,hefe:8,salz:7,rind:300,tomate:100,gpaprika:50,zwiebel:60,butter:30|kusbasili pide||R
+hamur|Sucuklu pide|Pide mit Sucuk||280|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:6,sucuk:150,kasar:150,butter:20|sucuklu pide||R
+hamur|Sucuklu yumurtalı pide|Pide mit Sucuk und Ei||300|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:6,sucuk:120,kasar:100,ei:110,butter:20|sucuklu yumurtali pide||R
+hamur|Kavurmalı pide|Pide mit Kavurma||300|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:6,@kavurma:250,kasar:80,butter:20|kavurmali pide||R
+hamur|Karışık pide|Pide gemischt||300|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:6,rhack:120,sucuk:70,kasar:120,ei:55,butter:25|karisik pide||R
+hamur|Ispanaklı pide|Pide mit Spinat||280|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:6,spinat:300,feta:80,zwiebel:50,butter:25|ispanakli pide||
+hamur|Trabzon pidesi|Trabzon-Pide (Käse, Butter, Ei)|Trabzon|350|1 Stück|0.9|mehl:400,wasser:240,hefe:8,salz:6,kasar:200,butter:80,ei:110|trabzon pidesi akcaabat pidesi||R
+hamur|Bafra pidesi|Bafra-Pide (lang, Hackfleisch)|Samsun|300|1 Stück|0.88|mehl:400,wasser:240,hefe:8,salz:7,rhack:280,zwiebel:80,butter:40|bafra pidesi samsun pidesi||R
+hamur|Lahmacun|Lahmacun||150|1 Stück|0.85|mehl:400,wasser:240,hefe:6,salz:7,rhack:300,zwiebel:150,tomate:200,gpaprika:80,tmark:40,petersilie:30,oel:20|lahmacun lahmajun türkische pizza||R
+hamur|Antep lahmacunu|Lahmacun Gaziantep-Art (mit Knoblauch)|Gaziantep|140|1 Stück|0.85|mehl:400,wasser:240,hefe:6,salz:7,lamm:300,zwiebel:80,knobl:30,tomate:200,rpaprika:100,tmark:40,oel:20|antep lahmacunu||R
+hamur|Urfa lahmacunu|Lahmacun Urfa-Art (mild)|Şanlıurfa|140|1 Stück|0.85|mehl:400,wasser:240,hefe:6,salz:7,lamm:300,zwiebel:150,tomate:200,rpaprika:80,tmark:30,petersilie:30,oel:20|urfa lahmacunu||R
+hamur|Fındık lahmacun|Mini-Lahmacun|Gaziantep|60|1 Stück|0.85|mehl:400,wasser:240,hefe:6,salz:7,rhack:300,zwiebel:150,tomate:200,tmark:40,oel:20|findik lahmacun mini lahmacun||
+hamur|Kıymalı börek (fırın)|Hackfleisch-Börek (Blech)||150|1 Stück|0.9|@yufka-cig:400,rhack:300,zwiebel:100,milch:200,ei:110,oel:80,butter:40,salz:5|kiymali borek tepsi boregi||R
+hamur|Peynirli börek (fırın)|Käse-Börek (Blech)||150|1 Stück|0.92|@yufka-cig:400,feta:300,petersilie:20,milch:200,ei:110,oel:80,butter:40|peynirli borek||R
+hamur|Ispanaklı börek|Spinat-Börek||150|1 Stück|0.92|@yufka-cig:400,spinat:400,zwiebel:80,feta:100,milch:150,ei:110,oel:80|ispanakli borek||R
+hamur|Patatesli börek|Kartoffel-Börek||150|1 Stück|0.92|@yufka-cig:400,kartoffel:400,zwiebel:80,milch:150,ei:110,oel:80,salz:6|patatesli borek||R
+hamur|Kol böreği (kıymalı)|Rollen-Börek mit Hackfleisch||150|1 Stück|0.9|@yufka-cig:400,rhack:300,zwiebel:100,milch:150,ei:55,oel:100,butter:30|kol boregi kiymali kol boregi||R
+hamur|Kol böreği (patatesli)|Rollen-Börek mit Kartoffeln||150|1 Stück|0.9|@yufka-cig:400,kartoffel:400,zwiebel:80,milch:150,ei:55,oel:100|patatesli kol boregi||
+hamur|Sigara böreği|Zigarren-Börek (frittiert)||30|1 Stück|1.0|@yufka-cig:300,feta:200,petersilie:15,ei:30,oel:110|sigara boregi||R
+hamur|Su böreği|Wasser-Börek|İstanbul|180|1 Stück|1.05|mehl:500,ei:220,wasser:100,salz:6,feta:300,petersilie:20,butter:150|su boregi||R
+hamur|Paçanga böreği|Paçanga-Börek (Pastırma, frittiert)|İstanbul|80|1 Stück|1.0|@yufka-cig:250,pastirma:120,kasar:150,tomate:80,gpaprika:40,oel:100|pacanga boregi||
+hamur|Laz böreği|Laz böreği (süßer Puddingbörek)|Rize|150|1 Stück|1.0|@yufka-cig:300,milch:1000,zucker:250,mehl:60,griess:60,butter:120,ei:55|laz boregi||
+hamur|Talaş böreği|Talaş-Börek (Blätterteig, Fleisch)|İstanbul|200|1 Stück|0.9|blaetterteig:400,lamm:300,zwiebel:100,erbse:80,karotte:80,butter:20,ei:30|talas boregi||
+hamur|Puf böreği|Puf böreği (Teigtasche, frittiert)||60|1 Stück|1.0|mehl:500,wasser:150,joghurt:100,butter:50,feta:200,oel:120|puf boregi||
+hamur|Çiğ börek|Çiğ börek (Teigtasche mit rohem Hack, frittiert)|Eskişehir|150|1 Stück|1.0|mehl:500,wasser:280,salz:8,rhack:300,zwiebel:150,oel:180|cig borek cibörek tatar boregi||R
+hamur|Kaşarlı tost|Toast mit Kaşar||150|1 Stück|0.97|@ekmek:90,kasar:50,butter:10|kasarli tost tost||R
+hamur|Karışık tost|Toast gemischt (Sucuk, Kaşar)||180|1 Stück|0.97|@ekmek:90,kasar:45,sucuk:35,butter:10|karisik tost||R
+hamur|Islak hamburger|Islak hamburger (Taksim)|İstanbul|130|1 Stück|0.95|@ekmek:60,rhack:70,tmark:12,butter:12,knobl:3|islak burger islak hamburger||
+hamur|Kumpir|Kumpir (gefüllte Ofenkartoffel)|İstanbul|550|1 Stück|0.9|kartoffel:400,butter:30,kasar:60,mais:50,erbse:30,oliveng:25,sosis:50,@rus-salatasi:60,mayonnaise:20|kumpir ortakoy kumpir||
+hamur|Balık ekmek|Fischbrötchen (Makrele)|İstanbul|300|1 Stück|0.92|@ekmek:150,makrele:180,zwiebel:30,salat:20,tomate:30,oel:10|balik ekmek||
+hamur|Midye tava sandviç|Frittierte Muscheln im Brot|İstanbul|250|1 Stück|0.95|@ekmek:120,muschel:120,mehl:30,ei:20,oel:30,@tarator:30|midye tava ekmek||
+hamur|Tantuni dürüm|Tantuni-Dürüm|Mersin|250|1 Stück|0.85|@lavas:90,rind:200,oel:30,tomate:60,zwiebel:40,petersilie:10,acibiber:10|tantuni mersin tantuni||R
+hamur|Kokoreç (yarım ekmek)|Kokoreç im halben Brot (Näherung)|İstanbul|300|1 Stück|0.85|@ekmek:150,pansen:120,lfett:60,tomate:30,gpaprika:15|kokorec yarim ekmek kokorec||
+# ---------- Döner und Fastfood
+doner|Et döner (porsiyon)|Fleisch-Döner Portion (Kalb/Rind)||150|1 Portion|0.75|rind:700,lfett:150,joghurt:60,zwiebel:80,tmark:20,oel:20,salz:10|et doner doner eti||R
+doner|Tavuk döner (porsiyon)|Hähnchen-Döner Portion||150|1 Portion|0.78|hschenkel:800,joghurt:80,oel:40,tmark:20,salz:10|tavuk doner||R
+doner|Et döner ekmek arası|Döner im Brot (Fleisch)||300|1 Stück|0.98|@ekmek:120,@et-doner-porsiyon:120,tomate:30,zwiebel:20,salat:20|doner ekmek arasi doner sandvic||R
+doner|Tavuk döner ekmek arası|Hähnchen-Döner im Brot||300|1 Stück|0.98|@ekmek:120,@tavuk-doner-porsiyon:120,tomate:30,salat:20,mayonnaise:15|tavuk doner ekmek||R
+doner|Et dürüm|Dürüm mit Fleisch-Döner||300|1 Stück|0.98|@lavas:90,@et-doner-porsiyon:140,tomate:30,zwiebel:20,petersilie:5|et durum durum doner||R
+doner|Tavuk dürüm|Dürüm mit Hähnchen-Döner||300|1 Stück|0.98|@lavas:90,@tavuk-doner-porsiyon:140,tomate:30,salat:20,mayonnaise:15|tavuk durum||R
+doner|İskender|İskender (Döner, Pide, Tomatensauce, Butter, Joghurt)|Bursa|400|1 Teller|0.97|@et-doner-porsiyon:150,@ramazan-pidesi:80,tomate:80,tmark:15,butter:30,joghurt:100|iskender iskender kebap bursa iskender||R
+doner|Tavuk iskender|Hähnchen-İskender|Bursa|400|1 Teller|0.97|@tavuk-doner-porsiyon:150,@ramazan-pidesi:80,tomate:80,tmark:15,butter:25,joghurt:100|tavuk iskender||R
+doner|Pilav üstü döner|Döner auf Reis||400|1 Teller|1.0|@et-doner-porsiyon:150,@pirinc-pilavi:220,tomate:30|pilav ustu doner||R
+doner|Pilav üstü tavuk döner|Hähnchen-Döner auf Reis||400|1 Teller|1.0|@tavuk-doner-porsiyon:150,@pirinc-pilavi:220,tomate:30|pilav ustu tavuk||R
+doner|Tantuni (porsiyon)|Tantuni-Fleisch Portion|Mersin|150|1 Portion|0.75|rind:1000,oel:120,tomate:150,salz:10|tantuni porsiyon||
+doner|Kokoreç (porsiyon)|Kokoreç Portion (Näherung über Kutteln/Fett)|İstanbul|150|1 Portion|0.7|pansen:700,lfett:300,salz:10|kokorec||
+doner|Döner kutusu (Dönerbox, türkisch)|Döner-Box mit Pommes|| 400|1 Box|0.97|@et-doner-porsiyon:150,@patates-kizartmasi:180,salat:30,joghurt:40|doner kutu dönerbox||
+doner|Patates kızartması|Pommes (türkische Imbissart)||150|1 Portion|0.72|kartoffel:1000,oel:130,salz:10|patates kizartmasi patates||R
+doner|Hamburger (Türk büfe)|Imbiss-Hamburger (türkische Art)||200|1 Stück|0.95|@ekmek:80,rhack:100,tomate:20,salat:10,ketchup:15,mayonnaise:10|hamburger büfe hamburger||
+doner|Sucuk ekmek|Sucuk im Brot||250|1 Stück|0.95|@ekmek:150,sucuk:90,tomate:30,gpaprika:10|sucuk ekmek||
+doner|Köfte ekmek|Köfte im Brot||300|1 Stück|0.97|@ekmek:150,@izgara-kofte:120,tomate:30,zwiebel:20|kofte ekmek||R
+doner|Ciğer dürüm|Leber-Dürüm|Diyarbakır|250|1 Stück|0.97|@lavas:90,@ciger-kebabi:130,zwiebel:30,petersilie:5|ciger durum||
+doner|Adana dürüm|Adana-Dürüm|Adana|300|1 Stück|0.97|@lavas:100,@adana-kebap:160,zwiebel:30,tomate:30,petersilie:5|adana durum||R
+doner|Urfa dürüm|Urfa-Dürüm|Şanlıurfa|300|1 Stück|0.97|@lavas:100,@urfa-kebap:160,zwiebel:30,tomate:30,petersilie:5|urfa durum||R
+doner|Tavuk şiş dürüm|Hähnchenspieß-Dürüm||300|1 Stück|0.97|@lavas:100,@tavuk-sis:160,tomate:30,salat:20|tavuk sis durum||R
+# ---------- Kebaplar und Grill
+kebap|Adana kebap|Adana-Kebap (Spieß, nur Fleisch)|Adana|200|1 Portion|0.72|lamm:800,lfett:150,rpaprika:80,salz:12|adana kebab adana kebap||R
+kebap|Urfa kebap|Urfa-Kebap (mild, nur Fleisch)|Şanlıurfa|200|1 Portion|0.72|lamm:800,lfett:150,rpaprika:60,zwiebel:40,salz:12|urfa kebab||R
+kebap|Adana kebap porsiyon|Adana-Kebap Teller (mit Lavaş, Tomate, Paprika, Zwiebeln)|Adana|450|1 Teller|0.98|@adana-kebap:200,@lavas:80,tomate:80,gpaprika:30,zwiebel:40,petersilie:10|adana porsiyon adana kebap tabak||R
+kebap|Beyti kebap|Beyti (Hackspieß in Lavaş, Joghurt, Butter)|İstanbul|400|1 Teller|0.97|@adana-kebap:180,@lavas:80,tomate:60,tmark:10,butter:25,joghurt:100|beyti beyti sarma||R
+kebap|Şiş kebap (kuzu)|Lammspieß|| 200|1 Portion|0.7|lamm:1000,oel:30,joghurt:50,zwiebel:50,salz:12|sis kebap kuzu sis kusbasi||R
+kebap|Kuşbaşı ızgara|Gegrillte Fleischwürfel (Rind)||200|1 Portion|0.7|rind:1000,oel:30,salz:12|kusbasi izgara||R
+kebap|Çöp şiş|Çöp şiş (kleine Fleischspieße)|Denizli|200|1 Portion|0.7|lamm:900,lfett:100,zwiebel:50,salz:12|cop sis||R
+kebap|Tavuk şiş|Hähnchenspieß||200|1 Portion|0.74|hbrust:1000,joghurt:100,oel:40,tmark:20,salz:12|tavuk sis chicken sis||R
+kebap|Tavuk kanat (ızgara)|Gegrillte Hähnchenflügel||200|1 Portion|0.7|hfluegel:1000,oel:30,tmark:20,salz:12|tavuk kanat kanat izgara||R
+kebap|Tavuk pirzola|Gegrillte Hähnchenschenkel ohne Knochen||200|1 Portion|0.72|hschenkel:1000,oel:30,joghurt:60,salz:12|tavuk pirzola||R
+kebap|Kuzu pirzola (ızgara)|Gegrillte Lammkoteletts||200|1 Portion|0.72|lammk:1000,oel:20,salz:10|kuzu pirzola pirzola||R
+kebap|Kuzu kaburga (ızgara)|Gegrillte Lammrippen||250|1 Portion|0.7|lammbrust:1000,oel:10,salz:10|kaburga kuzu kaburga||R
+kebap|Antrikot (ızgara)|Rindersteak gegrillt||250|1 Portion|0.75|rind:1000,oel:15,salz:8|antrikot biftek||R
+kebap|Patlıcan kebabı|Auberginen-Kebap|Gaziantep|300|1 Portion|0.72|aubergine:500,rhack:500,tomate:200,gpaprika:100,salz:10|patlican kebabi patlican kebap||R
+kebap|Ali Nazik|Ali Nazik (Auberginen-Joghurt mit Fleisch)|Gaziantep|350|1 Teller|0.78|aubergine:500,joghurt:300,knobl:10,lamm:350,butter:40,salz:8|ali nazik alinazik||R
+kebap|Simit kebabı|Simit-Kebap (Hack mit feinem Bulgur)|Gaziantep|200|1 Portion|0.75|rhack:600,bulgur:200,zwiebel:100,tmark:30,salz:12|simit kebabi||R
+kebap|Yoğurtlu kebap|Kebap auf Pide mit Joghurt||400|1 Teller|0.97|@adana-kebap:180,@ramazan-pidesi:80,joghurt:120,butter:25,tomate:50|yogurtlu kebap||R
+kebap|Cağ kebabı|Cağ-Kebap (horizontaler Spieß)|Erzurum|200|1 Portion|0.72|lamm:1000,zwiebel:60,salz:12|cag kebabi erzurum cag kebap||R
+kebap|Tokat kebabı|Tokat-Kebap (Lamm, Aubergine, Kartoffel)|Tokat|400|1 Portion|0.75|lamm:600,aubergine:300,kartoffel:300,tomate:150,gpaprika:100,knobl:20,salz:10|tokat kebabi||R
+kebap|Testi kebabı|Tonkrug-Kebap|Nevşehir|350|1 Portion|0.8|lamm:600,tomate:200,gpaprika:100,zwiebel:150,knobl:20,butter:30,pilz:100,salz:10|testi kebabi kapadokya||R
+kebap|Kağıt kebabı|Kebap im Papier gegart|Hatay|350|1 Portion|0.8|lamm:600,tomate:150,gpaprika:100,zwiebel:100,kartoffel:200,butter:30,salz:10|kagit kebabi||
+kebap|Tepsi kebabı|Blech-Kebap|Hatay|250|1 Portion|0.75|rhack:600,tomate:200,gpaprika:150,zwiebel:100,petersilie:30,oel:30,salz:10|tepsi kebabi hatay tepsi kebabi||R
+kebap|Orman kebabı|Waldkebap (Schmorgericht)||350|1 Teller|0.82|lamm:600,kartoffel:300,erbse:150,karotte:150,zwiebel:100,tomate:150,butter:30,salz:10|orman kebabi||
+kebap|Çoban kavurma|Schäfer-Kavurma (gebratene Fleischwürfel)||300|1 Portion|0.75|lamm:600,tomate:200,gpaprika:150,zwiebel:150,butter:30,salz:10|coban kavurma||R
+kebap|Sac kavurma|Sac-Kavurma|Konya|300|1 Portion|0.72|lamm:700,tomate:150,gpaprika:100,zwiebel:100,butter:40,salz:10|sac kavurma sac tava||R
+kebap|Et sote|Fleisch-Sauté||300|1 Portion|0.78|rind:600,tomate:200,gpaprika:150,zwiebel:150,oel:40,salz:10|et sote||R
+kebap|Tavuk sote|Hähnchen-Sauté||300|1 Portion|0.8|hbrust:600,tomate:200,gpaprika:150,zwiebel:150,pilz:100,oel:40,salz:10|tavuk sote||R
+kebap|Hünkar beğendi|Hünkar beğendi (Lammragout auf Auberginenpüree)|İstanbul|400|1 Teller|0.82|lamm:500,zwiebel:100,tomate:150,butter:60,aubergine:700,milch:300,mehl:40,kasar:60,salz:10|hunkar begendi||R
+kebap|Kuzu tandır|Lamm-Tandır (langsam gegart)|Konya|250|1 Portion|0.65|lamm:1000,salz:10|kuzu tandir tandir||R
+kebap|Fırın kebabı (Konya)|Ofen-Kebap Konya|Konya|250|1 Portion|0.65|lammbrust:1000,salz:10|firin kebabi konya firin kebabi||R
+kebap|Kuyu tandır|Grubentandır (Lamm)|Ankara|250|1 Portion|0.65|lamm:900,lfett:100,salz:10|kuyu tandir||
+kebap|Kaburga dolması|Gefüllte Lammrippe|Diyarbakır|350|1 Portion|0.8|lammbrust:1000,reis:300,rhack:150,butter:40,wasser:400,salz:12|kaburga dolmasi||R
+kebap|Ciğer kebabı|Leberspieß|Diyarbakır|200|1 Portion|0.72|lleber:800,lfett:150,salz:10|ciger kebabi ciger sis diyarbakir cigeri||R
+kebap|Arnavut ciğeri|Albanische Leber (frittiert)|İstanbul|200|1 Portion|0.85|lleber:800,mehl:60,oel:120,zwiebel:150,salz:8|arnavut cigeri||
+kebap|Kuzu kokoreç (ızgara)|siehe Kokoreç|İstanbul|150|1 Portion|0.7|pansen:700,lfett:300,salz:10|kokorec izgara||
+kebap|Kelle söğüş|Lammkopf (gekocht, Näherung über Lammfleisch)|Anadolu|200|1 Portion|0.75|lamm:1000,salz:8|kelle sogus||
+kebap|Kavurma|Kavurma (Bratenfett-Konservenfleisch)|Anadolu|100|1 Portion|0.6|lamm:900,lfett:150,salz:15|kavurma kurban kavurmasi||
+kebap|Tavuk kavurma|Hähnchen-Kavurma||250|1 Portion|0.75|hschenkel:800,zwiebel:150,gpaprika:100,tomate:100,butter:30,salz:8|tavuk kavurma||
+kebap|Kuzu güveç|Lamm-Güveç (Schmortopf)||350|1 Portion|0.85|lamm:600,aubergine:200,tomate:200,gpaprika:100,zwiebel:150,knobl:20,butter:30,wasser:200,salz:10|kuzu guvec guvec||R
+kebap|Karides güveç|Garnelen-Güveç||250|1 Portion|0.85|garnele:500,tomate:200,gpaprika:100,knobl:20,kasar:100,butter:40,salz:6|karides guvec||R
+kebap|Mantar sote|Pilz-Sauté||200|1 Portion|0.8|pilz:600,zwiebel:100,gpaprika:80,butter:40,salz:6|mantar sote||
+kebap|Kuzu incik|Geschmorte Lammhaxe|| 350|1 Stück|0.8|lamm:1000,zwiebel:100,karotte:100,tomate:150,butter:30,wasser:500,salz:10|kuzu incik incik||R
+kebap|İçli köfte|Içli köfte (Bulgurhülle, Fleischfüllung, frittiert)|Gaziantep|80|1 Stück|1.0|bulgur:300,rhack:300,zwiebel:150,walnuss:60,oel:120,salz:8|icli kofte||R
+kebap|Haşlama içli köfte|Içli köfte gekocht|Diyarbakır|80|1 Stück|1.1|bulgur:300,rhack:300,zwiebel:150,walnuss:50,butter:20,salz:8|haslama icli kofte||
+# ---------- Köfteler
+kofte|Izgara köfte|Gegrillte Köfte||200|1 Portion|0.75|rhack:800,zwiebel:150,@ekmek:80,ei:50,salz:12|izgara kofte kofte||R
+kofte|İnegöl köfte|İnegöl-Köfte|Bursa|200|1 Portion|0.75|rhack:600,lamm:250,zwiebel:80,@ekmek:50,salz:12|inegol kofte||R
+kofte|Akçaabat köftesi|Akçaabat-Köfte|Trabzon|200|1 Portion|0.75|rhack:700,zwiebel:100,@ekmek:100,knobl:15,ei:50,salz:12|akcaabat koftesi||R
+kofte|Tekirdağ köftesi|Tekirdağ-Köfte|Tekirdağ|200|1 Portion|0.75|rhack:800,@ekmek:100,zwiebel:80,salz:12|tekirdag koftesi||R
+kofte|Sultanahmet köftesi|Sultanahmet-Köfte|İstanbul|200|1 Portion|0.75|rhack:800,@ekmek:80,zwiebel:80,salz:12|sultanahmet koftesi||R
+kofte|Kadınbudu köfte|Kadınbudu-Köfte (paniert, frittiert)|İstanbul|80|1 Stück|0.95|rhack:500,reis:100,zwiebel:100,ei:110,mehl:40,oel:100,salz:8|kadinbudu kofte||
+kofte|İzmir köfte|İzmir-Köfte (Ofen mit Kartoffeln, Tomatensauce)|İzmir|350|1 Teller|0.82|rhack:500,@ekmek:50,zwiebel:80,kartoffel:500,tomate:250,gpaprika:100,oel:50,tmark:20,wasser:200,salz:12|izmir kofte||R
+kofte|Sulu köfte|Köfte in Brühe||350|1 Teller|0.85|rhack:400,reis:60,kartoffel:300,karotte:100,tmark:30,oel:30,wasser:1000,salz:10|sulu kofte||
+kofte|Ekşili köfte|Saure Köfte-Suppe|Gaziantep|350|1 Teller|0.85|rhack:300,bulgur:100,kicher:100,tmark:30,zitrone:60,butter:30,wasser:1200,salz:10|eksili kofte eksili ufak kofte||
+kofte|Kuru köfte|Gebratene Köfte (Pfanne)||200|1 Portion|0.8|rhack:700,@ekmek:100,zwiebel:150,ei:50,oel:60,salz:12|kuru kofte firin kofte||
+kofte|Fırında köfte patates|Köfte mit Kartoffeln aus dem Ofen||350|1 Teller|0.8|rhack:500,@ekmek:50,zwiebel:80,kartoffel:600,tomate:200,oel:40,salz:12|firinda kofte patates||
+kofte|Çiğ köfte (etsiz)|Çiğ köfte vegan|Şanlıurfa|100|1 Portion|1.0|bulgur:300,tmark:120,zwiebel:100,wasser:150,oel:60,zitrone:30,petersilie:40,salz:10|cig kofte etsiz cig kofte||R
+kofte|Çiğ köfte dürüm|Çiğ köfte im Lavaş|Şanlıurfa|250|1 Stück|0.98|@lavas:90,@cig-kofte-etsiz:120,salat:30,zitrone:10,petersilie:5|cig kofte durum||
+kofte|Mercimek köftesi|Linsen-Bulgur-Bällchen||100|1 Portion|1.05|rlinse:250,bulgur:200,zwiebel:150,tmark:40,oel:60,petersilie:40,wasser:600,salz:10|mercimek koftesi||
+kofte|Analı kızlı|Analı kızlı (Bulgurklößchen in Joghurt-Kichererbsen-Suppe)|Adana|350|1 Teller|0.85|bulgur:200,rhack:150,kicher:80,joghurt:300,butter:20,wasser:1500,salz:10|anali kizli||
+kofte|Yuvarlama|Yuvarlama (Reisbällchen in Joghurtsuppe)|Gaziantep|350|1 Teller|0.85|reis:100,rhack:200,kicher:100,joghurt:600,butter:25,wasser:1000,salz:10|yuvarlama yuvalama||
+kofte|Oruk|Oruk (Bulgurstange mit Fleisch)|Hatay|100|1 Stück|0.9|bulgur:300,rhack:300,zwiebel:100,walnuss:40,oel:30,salz:8|oruk hatay orugu||
+kofte|Kibbe (Hatay içli)|Hatay-Kibbe|Hatay|90|1 Stück|1.0|bulgur:300,lamm:300,zwiebel:150,walnuss:60,oel:120,salz:8|kibbe hatay kibbesi||
+kofte|Islama köfte|Islama-Köfte (mit Brühe getränktes Brot)|Sakarya|350|1 Portion|0.95|@izgara-kofte:180,@ekmek:120,fbruehe:100,tmark:10,butter:15|islama kofte adapazari||
+kofte|Dalyan köfte|Dalyan-Köfte (gefüllter Hackbraten)||200|1 Scheibe|0.8|rhack:700,@ekmek:80,ei:110,karotte:80,erbse:80,oel:30,salz:12|dalyan kofte||
+kofte|Tavuk köfte|Hähnchen-Köfte||200|1 Portion|0.78|hbrust:700,@ekmek:80,zwiebel:100,ei:50,oel:30,salz:10|tavuk kofte||
+kofte|Kaşarlı köfte|Köfte mit Käsefüllung||200|1 Portion|0.78|rhack:700,@ekmek:70,zwiebel:100,kasar:150,salz:12|kasarli kofte||R
+kofte|Sebzeli köfte (fırın)|Gemüse-Köfte aus dem Ofen||200|1 Portion|0.8|rhack:500,zucchini:200,karotte:150,zwiebel:100,@ekmek:60,ei:50,salz:10|sebzeli kofte||
+kofte|Bulgur köftesi (fırın)|Bulgurköfte aus dem Ofen||150|1 Portion|0.95|bulgur:300,kartoffel:200,zwiebel:100,tmark:40,oel:50,wasser:300,salz:8|bulgur koftesi||
+kofte|Patates köftesi|Kartoffelköfte (frittiert)||120|1 Portion|0.9|kartoffel:800,kasar:100,ei:110,mehl:80,oel:100,petersilie:20,salz:8|patates koftesi||
+kofte|Nohut köftesi|Kichererbsen-Köfte||120|1 Portion|1.0|kicher:300,bulgur:100,zwiebel:100,oel:50,petersilie:30,wasser:300,salz:8|nohut koftesi||
+# ---------- Pilavlar
+pilav|Pirinç pilavı|Reis-Pilav||200|1 Portion|0.92|reis:500,butter:50,oel:20,wasser:800,salz:10|pirinc pilavi pilav sade pilav beyaz pilav||R
+pilav|Şehriyeli pirinç pilavı|Reis-Pilav mit Nudeln||200|1 Portion|0.92|reis:400,nudel:80,butter:50,oel:20,wasser:850,salz:10|sehriyeli pilav||R
+pilav|Bulgur pilavı|Bulgur-Pilav||200|1 Portion|0.92|bulgur:400,zwiebel:100,tmark:30,butter:40,oel:20,wasser:800,salz:10|bulgur pilavi||R
+pilav|Domatesli bulgur pilavı|Bulgur-Pilav mit Tomaten||200|1 Portion|0.92|bulgur:400,tomate:250,gpaprika:80,zwiebel:100,oel:40,wasser:700,salz:10|domatesli bulgur pilavi||
+pilav|Nohutlu pilav|Reis mit Kichererbsen||200|1 Portion|0.92|reis:400,kicher:100,butter:50,wasser:950,salz:10|nohutlu pilav||R
+pilav|Etli nohutlu pilav|Reis mit Fleisch und Kichererbsen||250|1 Portion|0.9|reis:400,kicher:100,lamm:250,butter:50,wasser:1000,salz:12|etli pilav etli nohutlu pilav||R
+pilav|Tavuklu pilav|Reis mit Hähnchen||250|1 Portion|0.9|reis:400,huhn:300,butter:40,bruehe:800,salz:10|tavuklu pilav tavuk pilav||R
+pilav|Perdeli pilav|Reis im Teigmantel|Siirt|300|1 Portion|0.92|reis:400,huhn:250,mandel:50,korinthe:30,butter:100,mehl:300,joghurt:80,ei:55,wasser:800,salz:10|perdeli pilav siirt perde pilavi||
+pilav|İç pilav|Gewürzreis (mit Leber, Pinienkernen, Korinthen)|İstanbul|200|1 Portion|0.92|reis:400,lleber:100,pinien:30,korinthe:30,zwiebel:100,butter:60,wasser:800,salz:10|ic pilav||
+pilav|Hamsili pilav|Sardellen-Reis aus dem Ofen|Trabzon|300|1 Portion|0.88|reis:400,sardelle:600,zwiebel:100,butter:60,wasser:700,salz:12|hamsili pilav||R
+pilav|Firik pilavı|Firik-Pilav (Grünkern, Näherung Bulgur)|Gaziantep|200|1 Portion|0.92|bulgur:400,lamm:150,zwiebel:80,butter:50,wasser:800,salz:10|firik pilavi||
+pilav|Mercimekli bulgur pilavı|Bulgur-Pilav mit Linsen||200|1 Portion|0.92|bulgur:300,linse:120,zwiebel:100,oel:40,wasser:900,salz:10|mercimekli bulgur||
+pilav|Mercimekli pirinç pilavı (Mücendere)|Reis mit Linsen (Mücendere)|Hatay|200|1 Portion|0.92|reis:300,linse:150,zwiebel:150,olivoel:60,wasser:900,salz:10|mucendere mercimekli pilav||
+pilav|Sebzeli pilav|Gemüsereis||200|1 Portion|0.92|reis:400,erbse:100,karotte:100,mais:80,butter:40,wasser:850,salz:10|sebzeli pilav||
+pilav|Patlıcanlı pilav|Reis mit Auberginen||250|1 Portion|0.92|reis:400,aubergine:400,tomate:150,oel:80,wasser:800,salz:10|patlicanli pilav||
+pilav|Arpa şehriye pilavı|Kritharaki-Pilav||200|1 Portion|0.92|nudel:400,butter:40,oel:20,tmark:20,wasser:800,salz:10|arpa sehriye pilavi||
+pilav|Kuskus pilavı|Türkischer Couscous-Pilav||200|1 Portion|0.92|nudel:400,butter:40,tmark:20,wasser:800,salz:10|kuskus pilavi||
+pilav|Keşkek|Keşkek (Weizen mit Fleisch)|Anadolu|300|1 Portion|0.9|weizen:500,lamm:400,butter:80,wasser:2000,salz:12|keskek||
+pilav|Kuru fasulye yanı pilav|Reis-Beilage zu Bohnen||150|1 Portion|0.92|reis:500,butter:50,oel:20,wasser:800,salz:10|fasulye pilav||
+pilav|Firinda sütlü kabak? -|-||0|-|0||||SKIP
+pilav|Pilav üstü tavuk|Hähnchen auf Reis (Straßenstand)|İstanbul|300|1 Teller|1.0|@nohutlu-pilav:220,huhn:80|pilav ustu tavuk nohutlu pilav tavuk||
+# ---------- Ev yemekleri (Hausmannskost)
+ev|Kuru fasulye|Weiße Bohnen in Tomatensauce||300|1 Teller|0.85|wbohne:500,zwiebel:150,tmark:60,oel:60,butter:20,wasser:1500,salz:12|kuru fasulye||R
+ev|Etli kuru fasulye|Weiße Bohnen mit Fleisch||300|1 Teller|0.85|wbohne:500,rind:250,zwiebel:150,tmark:60,oel:40,butter:20,wasser:1500,salz:12|etli kuru fasulye||R
+ev|Pastırmalı kuru fasulye|Weiße Bohnen mit Pastırma|Kayseri|300|1 Teller|0.85|wbohne:500,pastirma:120,zwiebel:150,tmark:60,butter:40,wasser:1500,salz:8|pastirmali kuru fasulye||
+ev|Nohut yemeği|Kichererbsen-Eintopf||300|1 Teller|0.85|kicher:500,zwiebel:150,tmark:50,oel:60,wasser:1500,salz:12|nohut yemegi||
+ev|Etli nohut|Kichererbsen mit Fleisch||300|1 Teller|0.85|kicher:500,lamm:250,zwiebel:150,tmark:50,butter:40,wasser:1500,salz:12|etli nohut||
+ev|Barbunya pilaki|Borlotti-Bohnen in Olivenöl||200|1 Portion|0.85|kidney:400,karotte:100,zwiebel:100,tomate:200,olivoel:100,wasser:900,salz:8|barbunya pilaki pilaki||
+ev|Taze fasulye (zeytinyağlı)|Grüne Bohnen in Olivenöl||250|1 Teller|0.85|gbohne:800,zwiebel:150,tomate:300,olivoel:80,zucker:10,wasser:300,salz:8|taze fasulye zeytinyagli fasulye||
+ev|Etli taze fasulye|Grüne Bohnen mit Fleisch||300|1 Teller|0.85|gbohne:800,rind:250,zwiebel:150,tomate:300,oel:40,wasser:300,salz:10|etli taze fasulye||
+ev|Etli bezelye|Erbsen mit Fleisch||300|1 Teller|0.85|erbse:600,rind:250,karotte:150,kartoffel:200,zwiebel:100,tmark:30,oel:40,wasser:500,salz:10|etli bezelye bezelye yemegi||
+ev|Zeytinyağlı bezelye|Erbsen in Olivenöl||250|1 Teller|0.85|erbse:700,karotte:150,kartoffel:200,zwiebel:100,olivoel:80,wasser:400,salz:8|zeytinyagli bezelye||
+ev|Türlü|Gemüse-Schmortopf (Türlü)||300|1 Teller|0.85|aubergine:300,zucchini:300,kartoffel:300,gbohne:200,tomate:300,gpaprika:150,zwiebel:150,oel:80,wasser:300,salz:10|turlu||
+ev|Etli türlü|Türlü mit Fleisch||300|1 Teller|0.85|lamm:300,aubergine:300,zucchini:300,kartoffel:300,gbohne:200,tomate:300,gpaprika:150,zwiebel:150,oel:60,wasser:300,salz:10|etli turlu||
+ev|Patlıcan musakka|Auberginen-Musakka (türkisch)||300|1 Teller|0.8|aubergine:1000,rhack:400,zwiebel:150,tomate:300,gpaprika:100,oel:150,salz:10|musakka patlican musakka||R
+ev|Karnıyarık|Karnıyarık (gefüllte Aubergine mit Hack)||300|1 Stück|0.8|aubergine:1000,rhack:400,zwiebel:150,tomate:300,gpaprika:100,oel:180,salz:10|karniyarik||R
+ev|İmam bayıldı|İmam bayıldı (gefüllte Aubergine, vegetarisch)||250|1 Stück|0.82|aubergine:1000,zwiebel:400,tomate:300,knobl:30,olivoel:200,petersilie:30,zucker:10,salz:10|imam bayildi||
+ev|Patlıcan oturtma|Auberginen mit Hack (Ofen)||300|1 Teller|0.8|aubergine:1000,rhack:350,zwiebel:150,tomate:300,oel:150,salz:10|patlican oturtma||
+ev|Patlıcan kızartması|Frittierte Auberginen (mit Joghurt)||200|1 Portion|0.85|aubergine:800,oel:200,joghurt:200,knobl:10,salz:6|patlican kizartmasi||
+ev|Kabak musakka|Zucchini-Musakka||300|1 Teller|0.82|zucchini:1000,rhack:300,zwiebel:150,tomate:300,oel:60,salz:10|kabak musakka||
+ev|Kabak mücver|Zucchinipuffer (Mücver)||150|1 Portion|0.9|zucchini:600,ei:165,mehl:100,feta:100,petersilie:30,oel:100,salz:6|mucver kabak mucver||R
+ev|Ispanak yemeği|Spinat mit Reis/Hack||250|1 Teller|0.85|spinat:1000,rhack:200,zwiebel:150,reis:50,tmark:30,oel:40,wasser:200,salz:8|ispanak yemegi kiymali ispanak||
+ev|Pırasa (zeytinyağlı)|Lauch in Olivenöl||250|1 Teller|0.85|lauch:1000,karotte:150,reis:50,olivoel:80,zitrone:30,wasser:300,salz:8|zeytinyagli pirasa pirasa||
+ev|Lahana yemeği|Weißkohl-Eintopf mit Hack||300|1 Teller|0.85|kohl:1000,rhack:200,zwiebel:150,reis:50,tmark:40,oel:40,wasser:300,salz:10|lahana yemegi kiymali lahana||
+ev|Kapuska|Kapuska (Kohl-Schmorgericht)|Karadeniz|300|1 Teller|0.85|kohl:1000,rhack:150,zwiebel:150,tmark:40,oel:40,wasser:300,salz:10|kapuska||
+ev|Karnabahar yemeği|Blumenkohl-Eintopf||250|1 Teller|0.85|blumenkohl:900,rhack:150,zwiebel:100,tmark:30,oel:40,wasser:300,salz:8|karnabahar yemegi||
+ev|Bamya (etli)|Okra mit Fleisch||250|1 Teller|0.85|okra:700,lamm:200,zwiebel:100,tomate:200,zitrone:30,oel:40,wasser:300,salz:8|bamya etli bamya||
+ev|Zeytinyağlı enginar|Artischocken in Olivenöl|İzmir|200|1 Stück|0.88|artischocke:800,erbse:150,karotte:150,kartoffel:150,olivoel:100,zitrone:50,zucker:10,wasser:300,salz:8|enginar zeytinyagli enginar||
+ev|Patates yemeği|Kartoffel-Schmorgericht||300|1 Teller|0.85|kartoffel:1000,zwiebel:150,tmark:40,oel:50,wasser:400,salz:10|patates yemegi||
+ev|Kıymalı patates|Kartoffeln mit Hack||300|1 Teller|0.85|kartoffel:900,rhack:250,zwiebel:150,tmark:40,oel:40,wasser:400,salz:10|kiymali patates||
+ev|Fırında patates|Ofenkartoffeln||200|1 Portion|0.8|kartoffel:1000,oel:60,salz:8|firinda patates||
+ev|Tavuk haşlama|Gekochtes Hähnchen||300|1 Teller|0.9|huhn:600,kartoffel:300,karotte:150,zwiebel:100,wasser:1200,salz:10|tavuk haslama||
+ev|Fırında tavuk|Ofenhähnchen mit Gemüse||350|1 Teller|0.78|hschenkel:1000,kartoffel:600,gpaprika:150,tomate:200,oel:60,tmark:20,salz:12|firinda tavuk tavuk firin||R
+ev|Tavuk sote (ev)|Hähnchenpfanne (hausgemacht)||300|1 Teller|0.8|hbrust:600,gpaprika:200,tomate:200,zwiebel:150,oel:40,salz:10|tavuk sote ev||
+ev|Tas kebabı|Tas-Kebap (Schmorfleisch)||300|1 Teller|0.8|lamm:600,zwiebel:200,tomate:200,tmark:30,butter:40,wasser:500,salz:10|tas kebabi||R
+ev|Et haşlama|Gekochtes Fleisch mit Gemüse||350|1 Teller|0.9|lamm:600,kartoffel:300,karotte:150,zwiebel:100,wasser:1500,salz:10|et haslama haslama||
+ev|Kuzu kapama|Lamm-Kapama mit Salat und Zwiebeln||350|1 Teller|0.85|lamm:700,salat:300,fzwiebel:150,butter:30,wasser:400,salz:10|kuzu kapama||
+ev|Patlıcan dolması (etli)|Gefüllte Auberginen mit Hack||300|1 Portion|0.85|aubergine:800,rhack:300,reis:100,zwiebel:100,tomate:200,tmark:30,oel:40,wasser:400,salz:10|patlican dolmasi||
+ev|Biber dolması (etli)|Gefüllte Paprika mit Hack||300|1 Portion|0.88|gpaprika:600,rhack:300,reis:150,zwiebel:100,tomate:150,tmark:30,oel:40,wasser:500,salz:10|biber dolmasi etli dolma||R
+ev|Kabak dolması (etli)|Gefüllte Zucchini mit Hack||300|1 Portion|0.88|zucchini:800,rhack:300,reis:120,zwiebel:100,tomate:150,tmark:30,oel:30,wasser:500,salz:10|kabak dolmasi||
+ev|Domates dolması|Gefüllte Tomaten||300|1 Portion|0.88|tomate:800,rhack:250,reis:120,zwiebel:100,oel:30,wasser:300,salz:10|domates dolmasi||
+ev|Lahana sarması (etli)|Kohlrouladen mit Hack||250|1 Portion|0.9|kohl:700,rhack:300,reis:150,zwiebel:100,tmark:30,oel:40,wasser:600,salz:10|lahana sarmasi etli sarma||
+ev|Karalahana sarması|Grünkohl-Rouladen|Karadeniz|250|1 Portion|0.9|gruenkohl:600,rhack:250,reis:100,mais:60,zwiebel:100,oel:40,wasser:600,salz:10|karalahana sarmasi||
+ev|Mantar yemeği|Pilzpfanne||200|1 Portion|0.8|pilz:800,zwiebel:150,tomate:150,butter:40,salz:6|mantar yemegi||
+ev|Menemen|Menemen (Rührei mit Tomate und Paprika)||250|1 Pfanne|0.85|ei:220,tomate:400,gpaprika:150,oel:30,butter:15,salz:5|menemen||R
+ev|Peynirli menemen|Menemen mit Käse||250|1 Pfanne|0.85|ei:220,tomate:400,gpaprika:150,feta:80,oel:30,salz:3|peynirli menemen||
+ev|Sucuklu yumurta|Spiegelei mit Sucuk||180|1 Pfanne|0.85|ei:165,sucuk:80,butter:10|sucuklu yumurta||R
+ev|Kavurmalı yumurta|Ei mit Kavurma||180|1 Pfanne|0.9|ei:165,@kavurma:60|kavurmali yumurta||
+ev|Çılbır|Çılbır (pochierte Eier auf Knoblauchjoghurt)||250|1 Teller|0.98|ei:110,joghurt:200,knobl:5,butter:20|cilbir||
+ev|Ispanaklı yumurta|Spinat mit Ei||250|1 Teller|0.85|spinat:500,ei:110,zwiebel:80,oel:30,salz:4|ispanakli yumurta||
+ev|Mıhlama / Kuymak|Kuymak (Maismehl-Käse-Butter)|Trabzon|200|1 Pfanne|0.9|maismehl:80,butter:60,kasar:150,wasser:150,salz:2|kuymak mihlama muhlama||R
+ev|Murtuğa|Murtuğa (Butter-Mehl-Ei)|Van|150|1 Portion|0.85|mehl:120,butter:80,ei:110,salz:2|murtuga||
+ev|Kavut|Kavut (geröstetes Weizenmehl)|Van|80|1 Portion|0.95|vkmehl:200,butter:50,zucker:40|kavut||
+ev|Mantı (Kayseri)|Mantı Kayseri-Art (Joghurt, Butter-Sauce)|Kayseri|350|1 Teller|1.1|mehl:300,ei:55,wasser:110,rhack:200,zwiebel:80,joghurt:300,butter:50,tmark:15,salz:8|manti kayseri mantisi||R
+ev|Mantı (fırın)|Ofen-Mantı||300|1 Teller|1.05|mehl:300,ei:55,wasser:110,rhack:200,zwiebel:80,bruehe:400,butter:40,joghurt:200|firin manti||R
+ev|Sinop mantısı|Sinop-Mantı (mit Walnuss)|Sinop|300|1 Teller|1.05|mehl:300,ei:55,wasser:110,rhack:200,walnuss:60,joghurt:200,butter:40|sinop mantisi||
+ev|Hıngel|Hıngel (Teigtaschen mit Kartoffel)|Erzurum|300|1 Teller|1.08|mehl:300,wasser:150,kartoffel:300,zwiebel:80,joghurt:250,butter:50,salz:8|hingel hangel||
+ev|Erişte (haşlanmış)|Hausgemachte Bandnudeln (gekocht)|Anadolu|250|1 Teller|2.2|mehl:400,ei:165,salz:6|eriste||
+ev|Tereyağlı erişte|Erişte mit Butter||250|1 Teller|2.1|mehl:400,ei:165,butter:60,salz:6|tereyagli eriste||
+ev|Peynirli makarna|Nudeln mit Käse||300|1 Teller|2.0|nudel:400,feta:150,butter:40,salz:6|peynirli makarna||
+ev|Kıymalı makarna|Nudeln mit Hackfleischsauce||300|1 Teller|1.8|nudel:400,rhack:250,tomate:300,zwiebel:100,oel:30,salz:8|kiymali makarna||
+ev|Yoğurtlu makarna|Nudeln mit Joghurt und Butter||300|1 Teller|1.9|nudel:400,joghurt:300,knobl:5,butter:40,salz:6|yogurtlu makarna||
+ev|Tirit|Tirit (Fleisch auf Brot mit Joghurt)|Konya|350|1 Teller|0.95|lamm:400,@ekmek:250,fbruehe:400,joghurt:300,butter:50|tirit konya tiriti||
+ev|Meftune|Meftune (Lamm-Auberginen-Eintopf)|Diyarbakır|300|1 Teller|0.85|lamm:500,aubergine:400,tomate:200,knobl:20,oel:30,wasser:300,salz:10|meftune||
+ev|Patlıcanlı kebap (ev)|Auberginen-Hack-Spieß aus dem Ofen||300|1 Teller|0.78|aubergine:600,rhack:400,tomate:200,gpaprika:100,salz:10|patlicanli kebap||
+ev|Şiveydiz|Şiveydiz (Lamm mit Joghurt und Lauchzwiebeln)|Gaziantep|300|1 Teller|0.9|lamm:400,joghurt:500,fzwiebel:200,kicher:80,butter:30,wasser:400,salz:8|siveydiz||
+ev|Kabak tatlısı (salzig?)|-||0|-|0||||SKIP
+ev|Haytalı (salzig)|-||0|-|0||||SKIP
+ev|Kuru patlıcan dolması|Gefüllte getrocknete Auberginen|Gaziantep|250|1 Portion|0.95|aubergine:300,rhack:250,reis:150,tmark:40,oel:40,wasser:500,salz:8|kuru patlican dolmasi kuru dolma||
+ev|Lahmacun (ev)|Lahmacun hausgemacht (dicker)||170|1 Stück|0.85|mehl:500,wasser:300,hefe:8,salz:8,rhack:300,zwiebel:150,tomate:200,tmark:40,oel:30|ev lahmacunu||
+ev|Mercimek yemeği (yeşil)|Grüne-Linsen-Eintopf||300|1 Teller|0.85|linse:400,bulgur:60,zwiebel:150,tmark:50,oel:50,wasser:1500,salz:10|mercimek yemegi yesil mercimek yemegi||
+ev|Kırmızı mercimek yemeği|Rote-Linsen-Eintopf||300|1 Teller|0.85|rlinse:400,zwiebel:150,karotte:100,tmark:40,oel:50,wasser:1500,salz:10|kirmizi mercimek yemegi||
+ev|Pancar çorbası?|-||0|-|0||||SKIP
+# ---------- Çorbalar
+corba|Mercimek çorbası|Rote-Linsen-Suppe||250|1 Teller|0.85|rlinse:200,zwiebel:100,karotte:80,kartoffel:100,butter:30,oel:20,mehl:15,tmark:15,wasser:1800,salz:12|mercimek corbasi linsensuppe||R
+corba|Ezogelin çorbası|Ezogelin-Suppe (Linsen, Bulgur)|Gaziantep|250|1 Teller|0.85|rlinse:150,bulgur:50,reis:30,zwiebel:100,tmark:30,butter:30,oel:20,wasser:1800,salz:12|ezogelin ezo gelin||R
+corba|Yayla çorbası|Joghurt-Reis-Suppe||250|1 Teller|0.9|joghurt:500,reis:60,mehl:20,eigelb:20,butter:25,wasser:1200,salz:10|yayla corbasi||R
+corba|Tarhana çorbası|Tarhana-Suppe (Näherung)|Uşak|250|1 Teller|0.9|mehl:50,joghurt:50,tmark:20,rpaprika:30,zwiebel:30,butter:20,wasser:1000,salz:8|tarhana corbasi tarhana||R
+corba|Domates çorbası|Tomatensuppe||250|1 Teller|0.85|tomate:800,mehl:30,butter:30,milch:200,wasser:600,salz:10|domates corbasi||R
+corba|Kaşarlı domates çorbası|Tomatensuppe mit Kaşar||270|1 Teller|0.86|tomate:800,mehl:30,butter:30,milch:200,wasser:600,kasar:100,salz:8|kasarli domates corbasi||
+corba|Tavuk suyu çorbası|Hühnersuppe mit Nudeln||250|1 Teller|0.85|huhn:200,nudel:60,karotte:50,butter:15,wasser:1500,salz:10|tavuk suyu corba tavuk corbasi||R
+corba|Şehriye çorbası|Fadennudel-Suppe||250|1 Teller|0.9|nudel:80,tmark:15,butter:25,bruehe:1500,salz:6|sehriye corbasi||
+corba|İşkembe çorbası|Kuttelsuppe||300|1 Teller|0.8|pansen:500,mehl:30,butter:40,eigelb:20,zitrone:30,knobl:20,wasser:2000,salz:12|iskembe corbasi||R
+corba|Kelle paça çorbası|Kelle-Paça-Suppe (Näherung)||300|1 Teller|0.8|lamm:400,knobl:20,zitrone:30,mehl:20,butter:30,wasser:2000,salz:12|kelle paca paca corbasi||R
+corba|Düğün çorbası|Hochzeitssuppe||250|1 Teller|0.85|lamm:300,joghurt:300,mehl:40,eigelb:20,zitrone:20,butter:30,wasser:1800,salz:12|dugun corbasi||R
+corba|Toyga çorbası|Toyga-Suppe (Joghurt, Weizen, Kichererbsen)|Yozgat|250|1 Teller|0.9|joghurt:500,weizen:80,kicher:50,butter:25,wasser:1200,salz:8|toyga corbasi||
+corba|Lebeniye çorbası|Lebeniye (Joghurtsuppe mit Fleischbällchen)|Gaziantep|300|1 Teller|0.9|joghurt:500,kicher:60,reis:50,lamm:150,butter:20,wasser:1200,salz:8|lebeniye||
+corba|Beyran|Beyran (scharfe Lamm-Reis-Suppe)|Gaziantep|400|1 Schüssel|0.8|lamm:300,reis:100,knobl:30,oel:40,wasser:1800,salz:12|beyran antep beyrani||R
+corba|Kabak çorbası|Kürbissuppe||250|1 Teller|0.85|kuerbis:600,zwiebel:80,karotte:80,butter:25,sahne:100,wasser:800,salz:8|kabak corbasi balkabagi corbasi||
+corba|Mantar çorbası|Pilzcremesuppe||250|1 Teller|0.85|pilz:400,mehl:30,butter:30,milch:300,wasser:700,salz:8|mantar corbasi||R
+corba|Sebze çorbası|Gemüsesuppe||250|1 Teller|0.9|karotte:100,kartoffel:150,zucchini:100,zwiebel:80,tomate:100,oel:30,wasser:1300,salz:10|sebze corbasi||
+corba|Arabaşı çorbası|Arabaşı (scharfe Hühnersuppe)|Yozgat|250|1 Teller|0.85|huhn:250,mehl:80,tmark:20,butter:30,wasser:1800,salz:10|arabasi corbasi arabasi||
+corba|Yeşil mercimek çorbası|Grüne-Linsen-Suppe||250|1 Teller|0.85|linse:150,bulgur:40,zwiebel:80,tmark:20,oel:30,wasser:1500,salz:10|yesil mercimek corbasi||
+corba|Balık çorbası|Fischsuppe|Trabzon|300|1 Teller|0.85|barsch:400,kartoffel:150,karotte:80,zwiebel:80,zitrone:30,oel:30,wasser:1500,salz:10|balik corbasi||
+corba|Mısır çorbası|Maissuppe|Rize|250|1 Teller|0.85|maismehl:80,mais:200,butter:25,milch:300,wasser:900,salz:8|misir corbasi||
+corba|Karalahana çorbası|Grünkohlsuppe|Trabzon|300|1 Teller|0.85|gruenkohl:500,mais:100,wbohne:100,zwiebel:80,oel:40,wasser:1500,salz:10|karalahana corbasi lahana corbasi||
+corba|Erişte çorbası|Nudelsuppe mit Erişte||250|1 Teller|0.9|enudel:80,butter:25,bruehe:1500,salz:6|eriste corbasi||
+corba|Mahluta çorbası|Mahluta (Linsensuppe)|Hatay|250|1 Teller|0.85|rlinse:150,bulgur:40,zwiebel:80,olivoel:30,wasser:1500,salz:10|mahluta||
+corba|Tutmaç çorbası|Tutmaç (Linsen-Nudel-Joghurt-Suppe)|Sivas|300|1 Teller|0.85|rlinse:100,enudel:80,joghurt:300,butter:30,wasser:1500,salz:10|tutmac corbasi||
+corba|Ayran aşı çorbası|Ayran-Suppe|Erzurum|250|1 Teller|0.9|joghurt:500,weizen:80,kicher:50,butter:20,wasser:1000,salz:8|ayran asi corbasi||
+corba|Kesme çorbası|Kesme (Nudel-Linsen-Suppe)|Erzurum|300|1 Teller|0.85|mehl:120,ei:30,linse:80,butter:30,wasser:1500,salz:10|kesme corbasi kesme asi||
+corba|Paça çorbası (Trotter)|Paça-Suppe (Näherung)||300|1 Teller|0.8|lamm:350,knobl:15,zitrone:20,butter:30,wasser:2000,salz:12|paca corbasi||
+corba|Ekşili köfte çorbası|siehe Ekşili köfte|Gaziantep|300|1 Teller|0.85|rhack:200,reis:40,kartoffel:150,karotte:80,ei:30,mehl:20,zitrone:40,oel:20,wasser:1500,salz:10|eksili kofte corbasi||
+corba|Kremalı tavuk çorbası|Hühnercremesuppe||250|1 Teller|0.85|huhn:200,mehl:40,butter:30,milch:400,sahne:100,wasser:800,salz:8|kremali tavuk corbasi tavuk krem corba||R
+corba|Brokoli? -|-||0|-|0||||SKIP
+corba|Pazı çorbası|Mangoldsuppe (Näherung Spinat)|Karadeniz|250|1 Teller|0.85|spinat:400,reis:40,zwiebel:80,oel:30,wasser:1200,salz:8|pazi corbasi||
+corba|Mısırlı pancar çorbası|-||0|-|0||||SKIP
+corba|Bulgur çorbası (Düğün?)|-||0|-|0||||SKIP
+corba|Yoğurtlu nohut çorbası|Joghurt-Kichererbsen-Suppe||250|1 Teller|0.88|kicher:120,joghurt:400,reis:30,butter:20,wasser:1200,salz:8|yogurtlu nohut corbasi||
+corba|Kuru fasulye çorbası|Bohnensuppe||250|1 Teller|0.85|wbohne:150,zwiebel:80,karotte:80,tmark:30,oel:30,wasser:1500,salz:10|fasulye corbasi||
+corba|Sütlü mısır? -|-||0|-|0||||SKIP
+corba|Patates çorbası|Kartoffelsuppe||250|1 Teller|0.85|kartoffel:500,zwiebel:100,butter:30,milch:300,wasser:800,salz:8|patates corbasi||
+corba|Havuç çorbası|Karottensuppe||250|1 Teller|0.85|karotte:600,zwiebel:80,butter:25,milch:200,wasser:700,salz:8|havuc corbasi||
+corba|Pırasa çorbası|Lauchsuppe||250|1 Teller|0.85|lauch:500,kartoffel:200,butter:30,milch:200,wasser:800,salz:8|pirasa corbasi||
+corba|Kuzu incik çorbası? -|-||0|-|0||||SKIP
+# ---------- Dolmalar & Sarmalar
+dolma|Yaprak sarma (zeytinyağlı)|Gefüllte Weinblätter mit Reis (Weinblätter über Spinat angenähert)||150|1 Portion (6 Stück)|0.95|weinblatt:300,reis:300,zwiebel:300,olivoel:150,pinien:30,korinthe:30,zitrone:40,zucker:10,wasser:500,salz:10|yaprak sarma sarma zeytinyagli sarma dolma||R
+dolma|Etli yaprak sarma|Gefüllte Weinblätter mit Hack (Weinblatt-Näherung)||200|1 Portion|0.92|weinblatt:300,rhack:300,reis:200,zwiebel:100,tmark:20,oel:30,wasser:600,salz:10|etli sarma etli yaprak sarmasi||R
+dolma|Zeytinyağlı biber dolması|Gefüllte Paprika mit Reis (vegetarisch)||200|1 Portion|0.9|gpaprika:600,reis:250,zwiebel:250,olivoel:120,pinien:20,korinthe:20,tomate:100,wasser:500,salz:8|zeytinyagli biber dolmasi||
+dolma|Midye dolma|Gefüllte Miesmuscheln|İzmir|25|1 Stück|0.95|muschel:400,reis:250,zwiebel:200,oel:100,pinien:20,korinthe:20,wasser:350,salz:8|midye dolma midye||R
+dolma|Lahana sarması (zeytinyağlı)|Kohlrouladen mit Reis||200|1 Portion|0.9|kohl:700,reis:250,zwiebel:200,olivoel:100,tmark:20,wasser:600,salz:8|zeytinyagli lahana sarmasi||
+dolma|Kuru biber dolması|Gefüllte getrocknete Paprika|Gaziantep|200|1 Portion|0.95|gpaprika:250,rhack:250,reis:150,tmark:40,oel:30,wasser:500,salz:8|kuru biber dolmasi||
+dolma|Mumbar dolması|Mumbar (gefüllter Darm, Näherung)|Mardin|200|1 Portion|0.85|pansen:300,reis:200,rhack:200,tmark:30,butter:30,wasser:500,salz:10|mumbar dolmasi bumbar||
+dolma|Pazı sarması|Mangold-Rouladen (Näherung Spinat)|Karadeniz|200|1 Portion|0.92|spinat:400,reis:200,rhack:150,zwiebel:100,oel:40,wasser:500,salz:8|pazi sarmasi||
+dolma|Kabak çiçeği dolması|Gefüllte Zucchiniblüten (Näherung Zucchini)|Ege|150|1 Portion|0.92|zucchini:200,reis:200,zwiebel:150,olivoel:100,wasser:400,salz:6|kabak cicegi dolmasi||
+dolma|Soğan dolması|Gefüllte Zwiebeln|Gaziantep|200|1 Portion|0.88|zwiebel:800,rhack:250,reis:150,tmark:30,oel:30,wasser:400,salz:8|sogan dolmasi||
+dolma|Ayva dolması|Gefüllte Quitten|Gaziantep|250|1 Stück|0.88|quitte:800,rhack:250,reis:100,butter:30,zucker:30,wasser:300,salz:6|ayva dolmasi||
+# ---------- Zeytinyağlılar & Mezeler & Salatalar
+meze|Humus|Hummus|Hatay|100|1 Portion|1.0|kicher:250,tahin:120,zitrone:60,knobl:10,olivoel:40,wasser:200,salz:6|humus hummus||R
+meze|Sıcak humus|Warmer Hummus mit Butter/Pastırma|Antalya|150|1 Portion|0.98|@humus:250,butter:20,pastirma:30|sicak humus||
+meze|Haydari|Haydari (Joghurt-Kräuter-Dip)||100|1 Portion|1.0|suzme:500,knobl:10,petersilie:30,olivoel:30,salz:4|haydari||
+meze|Cacık|Cacık (Joghurt mit Gurke)||200|1 Schüssel|1.0|joghurt:500,gurke:250,knobl:8,wasser:150,olivoel:10,salz:5|cacik tzatziki||
+meze|Atom|Atom (Joghurt mit scharfen Paprika)||100|1 Portion|1.0|suzme:400,acibiber:40,butter:30|atom||
+meze|Babagannuş|Baba Ghanoush|Hatay|100|1 Portion|0.95|aubergine:800,tahin:60,olivoel:40,zitrone:40,knobl:10,salz:5|babaganus baba ganoush||
+meze|Patlıcan salatası (közlenmiş)|Auberginensalat (geröstet)||100|1 Portion|0.85|aubergine:800,gpaprika:100,tomate:100,olivoel:50,zitrone:30,knobl:8,salz:5|patlican salatasi kozlenmis patlican||
+meze|Yoğurtlu patlıcan|Auberginen mit Joghurt||100|1 Portion|0.9|aubergine:700,joghurt:300,knobl:8,olivoel:30,salz:5|yogurtlu patlican||
+meze|Muhammara|Muhammara (Paprika-Walnuss-Paste)|Gaziantep|80|1 Portion|0.95|rpaprika:400,walnuss:150,@ekmek:50,tmark:40,olivoel:80,pekmez:30,salz:5|muhammara cevizli biber||
+meze|Acılı ezme|Scharfe Tomaten-Paprika-Paste (Ezme)|Adana|80|1 Portion|0.95|tomate:400,gpaprika:150,zwiebel:100,petersilie:30,tmark:30,olivoel:40,pekmez:20,acibiber:20,salz:5|acili ezme ezme||
+meze|Antep ezmesi|Antep-Ezme|Gaziantep|80|1 Portion|0.95|tomate:300,rpaprika:150,walnuss:50,zwiebel:80,tmark:30,olivoel:40,pekmez:20,salz:5|antep ezmesi||
+meze|Fava|Fava (Saubohnenpüree)|İzmir|100|1 Portion|1.4|bakla:300,zwiebel:80,olivoel:80,wasser:700,salz:6|fava bakla ezmesi||
+meze|Tarama|Tarama (Fischrogencreme, Näherung)|İstanbul|50|1 Portion|1.0|@ekmek:100,oel:150,zitrone:30,sardelle:80|tarama||
+meze|Şakşuka|Şakşuka (gebratenes Gemüse in Tomatensauce)||150|1 Portion|0.8|aubergine:500,zucchini:300,gpaprika:150,tomate:300,oel:150,knobl:10,salz:6|saksuka||
+meze|Zeytinyağlı barbunya|siehe Barbunya pilaki||150|1 Portion|0.85|kidney:400,karotte:100,zwiebel:100,tomate:200,olivoel:100,wasser:900,salz:8|zeytinyagli barbunya||
+meze|Deniz börülcesi|Queller in Olivenöl (Näherung grüne Bohnen)|Ege|100|1 Portion|0.95|gbohne:400,olivoel:40,zitrone:20,knobl:5,salz:2|deniz borulcesi||
+meze|Semizotu salatası|Portulak-Joghurt-Salat||150|1 Portion|1.0|portulak:300,joghurt:300,knobl:5,olivoel:20,salz:4|semizotu salatasi||
+meze|Çoban salatası|Hirtensalat||200|1 Schüssel|1.0|tomate:400,gurke:300,gpaprika:100,zwiebel:100,petersilie:30,olivoel:50,zitrone:30,salz:5|coban salatasi||R
+meze|Gavurdağı salatası|Gavurdağı-Salat (mit Walnuss)|Gaziantep|200|1 Schüssel|1.0|tomate:400,gpaprika:100,zwiebel:100,walnuss:80,petersilie:30,olivoel:50,pekmez:30,salz:5|gavurdagi salatasi||R
+meze|Kısır|Kısır (Bulgursalat)|Gaziantep|150|1 Portion|1.3|bulgur:250,tmark:40,tomate:200,fzwiebel:60,petersilie:50,olivoel:60,zitrone:40,pekmez:20,wasser:300,salz:6|kisir bulgur salatasi||R
+meze|Piyaz|Piyaz (Bohnensalat)||150|1 Portion|1.0|@kuru-fasulye-haslanmis:400,zwiebel:100,petersilie:30,olivoel:50,zitrone:30,ei:55,salz:5|piyaz antalya piyazi||R
+meze|Antalya piyazı|Piyaz Antalya-Art (mit Tahin)|Antalya|150|1 Portion|1.0|@kuru-fasulye-haslanmis:400,tahin:80,zitrone:40,olivoel:30,ei:55,salz:5|antalya piyazi||
+meze|Kuru fasulye (haşlanmış)|Weiße Bohnen gekocht (ohne Fett)||150|1 Portion|2.3|wbohne:100,salz:1|kuru fasulye haslanmis||
+meze|Rus salatası|Russischer Salat (mit Mayonnaise)||100|1 Portion|0.95|kartoffel:300,karotte:150,erbse:150,gurke:80,mayonnaise:200,salz:4|rus salatasi||
+meze|Mevsim salatası|Gemischter Salat (Saison)||200|1 Schüssel|1.0|salat:200,tomate:200,gurke:150,karotte:80,olivoel:40,zitrone:30,salz:4|mevsim salata salata||R
+meze|Roka salatası|Rucola-Salat||150|1 Schüssel|1.0|rucola:200,tomate:150,feta:60,olivoel:30,zitrone:20,salz:2|roka salatasi||
+meze|Gavurdağı (sade)|-||0|-|0||||SKIP
+meze|Patates salatası|Kartoffelsalat (türkisch)||200|1 Portion|1.0|kartoffel:800,fzwiebel:60,petersilie:40,olivoel:60,zitrone:40,salz:6|patates salatasi||
+meze|Mercimek salatası|Linsensalat||150|1 Portion|1.6|linse:200,zwiebel:60,petersilie:40,olivoel:40,zitrone:30,salz:5|mercimek salatasi||
+meze|Nohut salatası|Kichererbsensalat||150|1 Portion|1.6|kicher:200,zwiebel:60,petersilie:40,tomate:100,olivoel:40,zitrone:30,salz:5|nohut salatasi||
+meze|Havuç tarator|Karotten-Joghurt-Dip||100|1 Portion|0.95|karotte:400,joghurt:400,knobl:8,olivoel:30,salz:4|havuc tarator||
+meze|Tarator|Tarator (Walnuss-Knoblauch-Sauce)||30|1 EL-Portion|1.0|walnuss:150,@ekmek:80,knobl:20,olivoel:80,zitrone:30,wasser:80,salz:4|tarator||
+meze|Zeytin salatası|Olivensalat|Hatay|100|1 Portion|1.0|oliveng:300,tomate:100,fzwiebel:40,petersilie:30,olivoel:40,pekmez:20|zeytin salatasi||
+meze|Közlenmiş biber|Geröstete Paprika in Öl||100|1 Portion|0.85|rpaprika:500,olivoel:40,knobl:5,salz:3|kozlenmis biber kozbiber||
+meze|Fasulye pilaki|siehe Barbunya pilaki||150|1 Portion|0.85|wbohne:400,karotte:100,zwiebel:100,tomate:200,olivoel:100,wasser:900,salz:8|fasulye pilaki pilaki||
+meze|Çiroz salatası|-||0|-|0||||SKIP
+meze|Lakerda|Lakerda (gesalzener Bonito, Näherung Thunfisch)|İstanbul|80|1 Portion|0.85|thun:500,salz:40,olivoel:20|lakerda||
+meze|Ahtapot salatası|Oktopussalat (Näherung Tintenfisch)||150|1 Portion|0.75|tinten:500,olivoel:40,zitrone:30,petersilie:20,salz:4|ahtapot salatasi||
+meze|Kalamar tava|Frittierte Calamari||150|1 Portion|0.9|tinten:500,mehl:100,oel:100,salz:5|kalamar tava kalamar||R
+meze|Karides tava|Frittierte Garnelen||150|1 Portion|0.85|garnele:500,mehl:60,oel:80,salz:4|karides tava||
+meze|Midye tava|Frittierte Muscheln||150|1 Portion|0.9|muschel:500,mehl:100,ei:55,oel:100,salz:4|midye tava||R
+meze|Sigara böreği (meze)|siehe Sigara böreği||30|1 Stück|1.0|@yufka-cig:300,feta:200,petersilie:15,ei:30,oel:110|sigara boregi meze||
+meze|Arnavut ciğeri (meze)|siehe Arnavut ciğeri||100|1 Portion|0.85|lleber:800,mehl:60,oel:120,zwiebel:150,salz:8|arnavut cigeri meze||
+meze|Patlıcan beğendi|Auberginenpüree mit Käse||100|1 Portion|0.85|aubergine:700,milch:300,mehl:40,butter:50,kasar:60,salz:5|begendi patlican begendi||
+meze|Turşu (karışık)|Gemischte Pickles (Näherung)||50|1 Portion|1.0|gurke:500,kohl:200,karotte:150,salz:40,wasser:300|karisik tursu tursu||
+# ---------- Kahvaltı (Frühstück)
+kahvalti|Serpme kahvaltı (1 Person)|Türkisches Frühstück für 1 Person (Näherung)||450|1 Person|1.0|feta:60,kasar:40,olives:30,oliveng:20,tomate:80,gurke:80,ei:55,butter:15,honig:20,kaymak:25,@ekmek:100|serpme kahvalti kahvalti tabagi||
+kahvalti|Kahvaltı tabağı|Frühstücksteller||350|1 Teller|1.0|feta:50,kasar:30,olives:25,tomate:80,gurke:80,ei:55,butter:10,honig:15,@ekmek:60|kahvalti tabagi||R
+kahvalti|Van kahvaltısı (1 Person)|Van-Frühstück (Kräuterkäse, Murtuğa, Kaymak)|Van|500|1 Person|1.0|feta:80,@murtuga:80,kaymak:40,honig:30,olives:30,tomate:80,gurke:60,@tandir-ekmegi:100|van kahvaltisi||
+kahvalti|Bal kaymak|Honig mit Kaymak (Näherung)|Afyon|50|1 Portion|1.0|honig:25,kaymak:25|bal kaymak kaymak||
+kahvalti|Kaymak|Kaymak (Näherung über Mascarpone)|Afyon|30|1 Portion|1.0|kaymak:100|kaymak afyon kaymagi||
+kahvalti|Tahin pekmez|Tahin mit Traubensirup||40|1 Portion|1.0|tahin:20,pekmez:20|tahin pekmez||
+kahvalti|Sucuk ızgara|Gegrillte Sucuk||60|1 Portion|0.85|sucuk:100|sucuk izgara sucuk tava||
+kahvalti|Haşlanmış yumurta (2 Stück)|2 gekochte Eier||110|2 Stück|1.0|ei:110|iki yumurta||
+kahvalti|Omlet|Omelett||150|1 Stück|0.9|ei:165,milch:30,butter:10,salz:2|omlet omelet||R
+kahvalti|Peynirli omlet|Omelett mit Käse||180|1 Stück|0.9|ei:165,milch:30,kasar:40,butter:10|peynirli omlet||
+kahvalti|Yumurta (sahanda)|Spiegelei in Butter||110|2 Stück|0.9|ei:110,butter:10|sahanda yumurta||
+kahvalti|Gözleme (kahvaltı)|siehe Gözleme||200|1 Stück|0.95|@yufka-cig:250,feta:120,butter:20|kahvalti gozleme||
+kahvalti|Cevizli lor|Lor mit Walnuss und Honig||100|1 Portion|1.0|lor:150,walnuss:30,honig:20|cevizli lor||
+kahvalti|Kuymak (kahvaltı)|siehe Kuymak|Rize|200|1 Pfanne|0.9|maismehl:80,butter:60,kasar:150,wasser:150|rize kuymak||
+kahvalti|Ekmek kızartması|French-Toast türkisch||120|1 Portion|0.95|@ekmek:100,ei:55,milch:40,oel:20|ekmek kizartmasi||
+kahvalti|Peynir tabağı|Käseteller (Feta, Kaşar)||100|1 Portion|1.0|feta:50,kasar:50|peynir tabagi||
+# ---------- Peynirler (Näherungen, keine TürKomp-Messwerte)
+peynir|Ezine peyniri|Ezine-Käse (Schaf/Ziege, Näherung Feta)|Çanakkale|30|1 Scheibe|1.0|feta:100|ezine peyniri||
+peynir|Tulum peyniri|Tulum-Käse (Näherung Feta)|Erzincan|30|1 Portion|1.0|feta:100|tulum peyniri erzincan tulumu||
+peynir|Otlu peynir|Kräuterkäse (Näherung Feta)|Van|30|1 Portion|1.0|feta:98,petersilie:2|otlu peynir van otlu peyniri||
+peynir|Çerkez peyniri|Tscherkessen-Käse (Näherung Schnittkäse)|Düzce|30|1 Scheibe|1.0|kasar:100|cerkez peyniri||
+peynir|Örgü peyniri|Zopfkäse (Näherung Mozzarella)|Diyarbakır|30|1 Portion|1.0|mozz:100|orgu peyniri diyarbakir orgu||
+peynir|Dil peyniri|Fadenkäse (Näherung Mozzarella)||30|1 Portion|1.0|mozz:100|dil peyniri||
+peynir|Çeçil peyniri|Çeçil-Käse (Näherung Mozzarella)|Erzurum|30|1 Portion|1.0|mozz:100|cecil peyniri civil peyniri||
+peynir|Mihaliç peyniri|Mihaliç-Käse (Näherung Schnittkäse)|Bursa|30|1 Scheibe|1.0|kasar:100|mihalic peyniri kelle peyniri||
+peynir|Kars gravyeri|Kars-Gruyère (Näherung Schnittkäse)|Kars|30|1 Scheibe|1.0|kasar:100|kars gravyeri gravyer||
+peynir|Hellim (ızgara)|Gegrillter Hellim||60|2 Scheiben|0.95|hellim:100|izgara hellim||
+peynir|Lor peyniri (sade)|siehe Lor||50|1 Portion|1.0|lor:100|sade lor||
+peynir|Mihaliç? -|-||0|-|0||||SKIP
+# ---------- Balıklar
+balik|Hamsi tava|Frittierte Sardellen|Trabzon|200|1 Portion|0.85|sardelle:1000,maismehl:120,oel:120,salz:10|hamsi tava hamsi||R
+balik|Hamsi buğulama|Gedünstete Sardellen|Rize|200|1 Portion|0.85|sardelle:800,tomate:200,zwiebel:100,olivoel:40,zitrone:20,salz:8|hamsi bugulama||
+balik|Uskumru ızgara|Gegrillte Makrele||200|1 Stück|0.8|makrele:1000,oel:10,salz:8|uskumru izgara||R
+balik|Uskumru dolması|Gefüllte Makrele|İstanbul|200|1 Stück|0.82|makrele:600,reis:100,zwiebel:150,walnuss:50,pinien:20,korinthe:20,oel:60,salz:8|uskumru dolmasi||
+balik|Çipura ızgara|Gegrillte Dorade||250|1 Stück|0.8|brasse:1000,oel:15,salz:8|cipura izgara cipura||R
+balik|Levrek ızgara|Gegrillter Wolfsbarsch (Näherung Barsch)||250|1 Stück|0.8|barsch:1000,oel:15,salz:8|levrek izgara levrek||R
+balik|Levrek buğulama|Gedünsteter Wolfsbarsch (Näherung)||300|1 Portion|0.88|barsch:700,tomate:200,gpaprika:80,zwiebel:100,pilz:100,olivoel:40,salz:8|levrek bugulama balik bugulama||
+balik|Alabalık ızgara|Gegrillte Forelle|Karadeniz|250|1 Stück|0.8|forelle:1000,oel:15,salz:8|alabalik izgara alabalik||R
+balik|Alabalık tava|Gebratene Forelle (mehliert)||250|1 Stück|0.85|forelle:1000,maismehl:80,oel:80,salz:8|alabalik tava||
+balik|Somon ızgara|Gegrillter Lachs||200|1 Filet|0.82|lachs:1000,oel:10,salz:6|somon izgara||R
+balik|Sardalya ızgara|Gegrillte Sardinen|Ege|200|1 Portion|0.8|sardine:1000,oel:10,salz:8|sardalya izgara||
+balik|Sardalya tava|Frittierte Sardinen|Ege|200|1 Portion|0.85|sardine:1000,mehl:100,oel:120,salz:8|sardalya tava||
+balik|Balık pilaki|Fisch-Pilaki (Näherung Barsch)||250|1 Portion|0.88|barsch:600,kartoffel:300,karotte:150,zwiebel:150,tomate:200,olivoel:80,salz:8|balik pilaki||
+balik|Ton balıklı salata|Thunfischsalat||200|1 Schüssel|1.0|@ton-baligi-konserve:80,salat:100,tomate:80,mais:40,olivoel:15,zitrone:10|ton balikli salata||
+balik|Ton balığı konserve (Öl)|Thunfisch in Öl (Näherung)||80|1 Dose|1.0|thun:85,olivoel:15|ton baligi konserve||
+balik|Karides güveç (balık)|siehe Karides güveç||250|1 Portion|0.85|garnele:500,tomate:200,gpaprika:100,knobl:20,kasar:100,butter:40,salz:6|karides guvec balik||
+balik|Kalamar ızgara|Gegrillte Calamari||200|1 Portion|0.75|tinten:1000,olivoel:20,zitrone:20,salz:6|kalamar izgara||
+balik|Midye buğulama|Gedünstete Muscheln||200|1 Portion|0.8|muschel:1000,olivoel:30,knobl:15,petersilie:20,salz:5|midye bugulama||
+balik|Balık köftesi|Fischfrikadellen||150|1 Portion|0.85|barsch:600,@ekmek:100,ei:55,zwiebel:80,oel:80,petersilie:20,salz:8|balik koftesi hamsi koftesi||
+balik|Hamsi kuşu|Sardellen-Butterfly (frittiert)|Trabzon|200|1 Portion|0.85|sardelle:1000,mehl:80,ei:55,oel:120,salz:10|hamsi kusu||
+balik|Palamut ızgara|Gegrillter Bonito (Näherung Makrele)|İstanbul|200|1 Stück|0.8|makrele:1000,oel:10,salz:8|palamut izgara palamut||
+balik|Lüfer ızgara|Gegrillter Blaufisch (Näherung Makrele)|İstanbul|200|1 Stück|0.8|makrele:1000,oel:10,salz:8|lufer izgara lufer||
+# ---------- Tatlılar
+tatli|Baklava (cevizli)|Baklava mit Walnuss||80|2 Stück|0.88|@yufka-cig:400,butter:250,walnuss:300,zucker:700,wasser:500,zitrone:10|baklava cevizli baklava||R
+tatli|Baklava (fıstıklı)|Baklava mit Pistazien|Gaziantep|80|2 Stück|0.88|@yufka-cig:400,butter:280,pistazie:300,zucker:700,wasser:500,zitrone:10|antep baklavasi fistikli baklava||R
+tatli|Şöbiyet|Şöbiyet (Baklava mit Grießcreme)|Gaziantep|90|2 Stück|0.88|@yufka-cig:400,butter:250,pistazie:200,milch:400,griess:60,zucker:650,wasser:450|sobiyet||R
+tatli|Burma kadayıf|Burma-Kadayıf (Pistazie)|Gaziantep|80|1 Stück|0.88|mehl:350,wasser:500,butter:250,pistazie:250,zucker:650,wasser2:450|burma kadayif||
+tatli|Tel kadayıf (cevizli)|Kadayıf mit Walnuss||100|1 Portion|0.88|mehl:350,wasser:500,butter:250,walnuss:250,zucker:650,wasser2:450|kadayif tel kadayif||R
+tatli|Künefe|Künefe (Kadayıf mit Käse, Sirup)|Hatay|150|1 Portion|0.98|mehl:250,wasser:350,butter:200,mozz:300,zucker:400,wasser2:300,pistazie:30|kunefe hatay kunefesi||R
+tatli|Katmer (Antep)|Katmer mit Pistazie und Kaymak|Gaziantep|150|1 Stück|0.95|@yufka-cig:250,butter:80,pistazie:100,zucker:80,kaymak:100|antep katmeri katmer tatli||R
+tatli|Kadayıf dolması|Gefüllte Kadayıf-Röllchen|Erzurum|80|1 Stück|0.88|mehl:300,wasser:450,butter:180,walnuss:250,zucker:550,wasser2:400|kadayif dolmasi||
+tatli|Şekerpare|Şekerpare (Grießgebäck in Sirup)||60|1 Stück|0.88|mehl:300,griess:80,butter:150,puderz:100,ei:55,zucker:600,wasser:450|sekerpare||R
+tatli|Revani|Revani (Grießkuchen in Sirup)||100|1 Stück|0.88|griess:200,mehl:150,joghurt:150,ei:165,zucker:700,oel:80,wasser:600|revani||R
+tatli|Tulumba tatlısı|Tulumba (Spritzgebäck in Sirup)||60|3 Stück|0.88|mehl:300,wasser:450,butter:80,ei:110,oel:200,zucker:700,wasser2:500|tulumba tatlisi tulumba||R
+tatli|Lokma|Lokma (frittierte Teigbällchen in Sirup)|İzmir|60|5 Stück|0.88|mehl:400,wasser:350,hefe:10,oel:200,zucker:600,wasser2:450|lokma||
+tatli|Kalburabastı|Kalburabastı (Walnuss-Gebäck in Sirup)||70|1 Stück|0.88|mehl:400,oel:150,joghurt:80,walnuss:150,zucker:600,wasser:450|kalburabasti||
+tatli|Sütlaç|Türkischer Milchreis (Ofen)||200|1 Schüssel|0.85|milch:1000,reis:100,zucker:150,staerke:30|sutlac firin sutlac||R
+tatli|Muhallebi|Muhallebi (Milchpudding)||150|1 Schüssel|0.95|milch:1000,zucker:150,staerke:60,reismehl:30|muhallebi||R
+tatli|Tavuk göğsü (tatlı)|Tavuk göğsü (Milchpudding mit Hähnchenfasern)|İstanbul|150|1 Portion|0.95|milch:1000,zucker:170,reismehl:80,hbrust:60|tavuk gogsu tatlisi||R
+tatli|Kazandibi|Kazandibi (karamellisierter Milchpudding)|İstanbul|150|1 Portion|0.95|milch:1000,zucker:180,reismehl:80,staerke:30,butter:20|kazandibi||R
+tatli|Keşkül|Keşkül (Mandelpudding)||150|1 Schüssel|0.95|milch:1000,zucker:150,mandel:80,staerke:50|keskul||
+tatli|Supangle|Supangle (Schokoladenpudding)||150|1 Schüssel|0.95|milch:1000,zucker:180,kakao:50,staerke:60,butter:20|supangle||
+tatli|Güllaç|Güllaç (Milch-Teigblätter mit Walnuss)|İstanbul|150|1 Portion|1.0|staerke:120,mehl:50,milch:1200,zucker:250,walnuss:120|gullac||
+tatli|Aşure|Aşure (Noah-Pudding)||200|1 Schüssel|0.9|weizen:200,kicher:60,wbohne:60,zucker:350,aprikoseg:80,feigeg:80,rosine:60,walnuss:50,haselnuss:30,wasser:2500|asure||
+tatli|İrmik helvası|Grieß-Helva||100|1 Portion|0.95|griess:300,butter:120,milch:500,zucker:250,pinien:30|irmik helvasi helva||
+tatli|Un helvası|Mehl-Helva||100|1 Portion|0.95|mehl:300,butter:200,milch:400,zucker:250|un helvasi||
+tatli|Tahin helvası|Tahin-Helva (Halwa)||40|1 Portion|1.0|tahin:500,zucker:450,pistazie:50|tahin helvasi helva||
+tatli|Kabak tatlısı|Kürbisdessert mit Walnuss||150|1 Portion|0.8|kuerbis:1000,zucker:300,walnuss:80|kabak tatlisi||
+tatli|Ayva tatlısı|Quittendessert mit Kaymak||200|1 Portion|0.8|quitte:1000,zucker:400,wasser:400,kaymak:100|ayva tatlisi||
+tatli|Kazandibi? -|-||0|-|0||||SKIP
+tatli|Haytalı|Haytalı (Milchpudding mit Eis/Rosenwasser)|Hatay|200|1 Schüssel|1.0|milch:600,staerke:60,zucker:120,wasser:300|haytali||
+tatli|Cezerye|Cezerye (Karottenkonfekt)|Mersin|40|1 Stück|0.6|karotte:1000,zucker:400,walnuss:100,kokos:60,staerke:40|cezerye||
+tatli|Kerebiç|Kerebiç (Grießgebäck mit Pistazie)|Mersin|50|1 Stück|0.9|griess:300,butter:150,pistazie:150,zucker:100,wasser:80|kerebic||
+tatli|Bici bici|Bici bici (Stärkegelee mit Eis)|Adana|200|1 Schüssel|1.0|staerke:80,wasser:1000,zucker:150|bici bici||
+tatli|Şıllık|Şıllık (Teigrolle mit Walnuss, Sirup)|Şanlıurfa|120|1 Stück|0.88|mehl:300,milch:500,ei:110,walnuss:150,zucker:400,wasser:300,butter:60|sillik||
+tatli|Künefe (Urfa? ) -|-||0|-|0||||SKIP
+tatli|Lokum (sade)|Lokum (Türkischer Honig/Rahat)||10|1 Stück|0.75|zucker:1000,staerke:150,wasser:600,puderz:50|lokum turk lokumu||
+tatli|Fıstıklı lokum|Lokum mit Pistazien||12|1 Stück|0.75|zucker:1000,staerke:150,wasser:600,pistazie:150,puderz:50|fistikli lokum||
+tatli|Cevizli sucuk|Cevizli sucuk (Walnuss in Traubensaftgelee)|Gaziantep|40|1 Stück|1.0|walnuss:400,pekmez:600,staerke:100,mehl:50|cevizli sucuk pestil sucuk||
+tatli|Pestil|Pestil (Fruchtleder, Näherung)|Gümüşhane|30|1 Stück|0.85|pekmez:500,mehl:80,staerke:50,walnuss:50|pestil||
+tatli|Köstebek? -|-||0|-|0||||SKIP
+tatli|Dondurma (Maraş)|Maraş-Eis (Salep-Eis, Näherung)|Kahramanmaraş|100|2 Kugeln|0.95|milch:1000,zucker:200,staerke:15,sahne:100|maras dondurmasi dondurma||
+tatli|Profiterol|Profiterole mit Schokoladensauce|İstanbul|150|1 Portion|0.95|mehl:150,butter:100,ei:220,wasser:250,milch:500,zucker:150,staerke:50,kakao:40,sahne:100|profiterol||
+tatli|Trileçe|Trileçe (Dreimilchkuchen)||150|1 Stück|1.0|mehl:150,ei:220,zucker:300,milch:600,sahne:200,staerke:30|trilece||R
+tatli|Islak kek|Nasser Schokokuchen||100|1 Stück|0.95|mehl:300,ei:165,zucker:300,kakao:60,oel:150,milch:300|islak kek||
+tatli|Fırın sütlaç (Restoran)|siehe Sütlaç||200|1 Schüssel|0.85|milch:1000,reis:100,zucker:170,staerke:30|restoran sutlac||
+tatli|Zerde|Zerde (Safran-Reispudding)||150|1 Schüssel|0.9|reis:100,zucker:250,staerke:40,wasser:1200,pinien:20,korinthe:20|zerde||
+tatli|Kemalpaşa tatlısı|Kemalpaşa (Käseteigbällchen in Sirup)|Bursa|80|3 Stück|0.88|mehl:200,griess:50,ei:110,lor:100,zucker:500,wasser:400|kemalpasa tatlisi||
+tatli|Hoşmerim|Hoşmerim (Käse-Grieß-Dessert)|Balıkesir|100|1 Portion|0.95|lor:300,griess:100,butter:60,zucker:150|hosmerim||
+tatli|Höşmerim? -|-||0|-|0||||SKIP
+tatli|Saray lokması|Saray lokması (Gebäck in Sirup)||60|3 Stück|0.88|mehl:300,wasser:450,butter:80,ei:110,oel:200,zucker:700,wasser2:500|saray lokmasi||
+tatli|Fıstıklı sarma|Pistazien-Röllchen (Baklava)|Gaziantep|80|2 Stück|0.88|@yufka-cig:400,butter:250,pistazie:350,zucker:650,wasser:450|fistikli sarma sarma baklava||
+tatli|Kadayıf (künefe tipi, sade)|-||0|-|0||||SKIP
+tatli|Muhallebili kadayıf? -|-||0|-|0||||SKIP
+# ---------- İçecekler
+icecek|Türk kahvesi (sade)|Türkischer Mokka (ohne Zucker)||70|1 Tasse|0.9|kaffeepulver:7,wasser:80|turk kahvesi sade kahve||
+icecek|Türk kahvesi (orta şekerli)|Türkischer Mokka (mittelsüß)||75|1 Tasse|0.9|kaffeepulver:7,zucker:5,wasser:80|orta sekerli kahve||
+icecek|Türk kahvesi (şekerli)|Türkischer Mokka (süß)||78|1 Tasse|0.9|kaffeepulver:7,zucker:10,wasser:80|sekerli kahve||
+icecek|Sütlü Türk kahvesi|Türkischer Kaffee mit Milch||80|1 Tasse|0.9|kaffeepulver:7,milch:80,zucker:5|sutlu turk kahvesi||
+icecek|Ayran (ev)|Hausgemachter Ayran||250|1 Glas|1.0|joghurt:500,wasser:450,salz:5|ev ayrani||
+icecek|Açık ayran (yayık)|Schaum-Ayran (Restaurant)||300|1 Glas|1.0|joghurt:550,wasser:450,salz:6|yayik ayran acik ayran||
+icecek|Salep|Salep (Milchgetränk, Näherung über Stärke)||200|1 Tasse|0.95|milch:1000,zucker:120,staerke:30|salep sahlep||
+icecek|Boza|Boza (fermentiertes Hirsegetränk, Näherung)||200|1 Glas|1.0|reismehl:150,zucker:200,wasser:1500|boza||
+icecek|Şıra|Şıra (Traubenmost, Näherung)||200|1 Glas|1.0|pekmez:200,wasser:800|sira uzum sirasi||
+icecek|Limonata (ev)|Hausgemachte Limonade||250|1 Glas|1.0|zitrone:150,zucker:120,wasser:1000|ev limonatasi limonata||
+icecek|Şerbet (gül)|Rosensorbet-Getränk||200|1 Glas|1.0|zucker:200,wasser:1000,zitrone:20|serbet gul serbeti||
+icecek|Demirhindi şerbeti|Tamarinden-Sorbet (Näherung Zucker)||200|1 Glas|1.0|zucker:180,wasser:1000|demirhindi serbeti||
+icecek|Sıcak çikolata|Heiße Schokolade||250|1 Tasse|1.0|milch:900,kakao:40,zucker:80|sicak cikolata||
+icecek|Sütlü çay|Tee mit Milch|| 200|1 Tasse|1.0|tee:150,milch:50|sutlu cay||
+icecek|Rize çayı (demli, şekersiz)|Rize-Schwarztee (ohne Zucker)|Rize|100|1 Glas (ince belli)|1.0|tee:100|rize cayi demli cay||
+icecek|Çay (2 Zuckerwürfel)|Tee mit 2 Stück Zucker||110|1 Glas (ince belli)|1.0|tee:100,zucker:7|sekerli cay iki seker||
+icecek|Taze sıkma portakal suyu|Frisch gepresster Orangensaft||250|1 Glas|1.0|orangesaft:250|taze portakal suyu||
+icecek|Nar suyu (taze)|Granatapfelsaft (Näherung über Granatapfel)||200|1 Glas|1.0|granat:300|nar suyu||
+# ---------- Kuruyemiş & Snacks
+kuruyemis|Leblebi|Geröstete Kichererbsen (Näherung)|Çorum|30|1 Handvoll|0.75|kicher:100|leblebi corum leblebisi||
+kuruyemis|Karışık kuruyemiş|Nussmischung türkisch||30|1 Handvoll|1.0|haselnuss:25,mandel:20,erdnuss:25,pistazie:15,walnuss:15|karisik kuruyemis||
+kuruyemis|Çekirdek (ay çekirdeği, tuzlu)|Sonnenblumenkerne geröstet, gesalzen||30|1 Handvoll|1.0|sonnenblumenkerne:98,salz:2|cekirdek ay cekirdegi||
+kuruyemis|Cevizli pestil? -|-||0|-|0||||SKIP
+kuruyemis|Fıstık ezmesi|Erdnusscreme||15|1 EL|1.0|erdnusscreme:100|fistik ezmesi||
+kuruyemis|Kestane kebap|Geröstete Maronen (Näherung Getreide/Stärke)||100|1 Portion|1.0|staerke:45,wasser:50,butter:2|kestane kebap kestane||
+kuruyemis|Mısır patlağı|Popcorn (türkisch, gesalzen)||30|1 Portion|0.95|mais_korn:85,oel:12,salz:3|misir patlagi patlamis misir||
+kuruyemis|Simit (çıtır)|Mini-Simit-Snack||30|1 Portion|0.9|mehl:500,oel:60,sesam:60,salz:10,wasser:200|citir simit||
+# ========== Block 2: Spezialitäten weiterer Provinzen
+kofte|Abdigör köftesi|Abdigör-Köfte (geklopftes Rindfleisch, gekocht)|Ağrı|200|1 Portion|0.85|rind:800,zwiebel:60,butter:30,wasser:200,salz:10|abdigor koftesi||
+kebap|Aksaray tava|Aksaray-Tava (Lamm aus dem Ofen)|Aksaray|300|1 Portion|0.75|lamm:700,tomate:150,gpaprika:100,zwiebel:100,butter:30,salz:10|aksaray tava||R
+dolma|Bakla dolması (Amasya)|Saubohnen-Dolma mit Hack|Amasya|250|1 Portion|0.88|bakla:200,rhack:250,reis:100,zwiebel:100,tmark:30,oel:30,wasser:800,salz:10|bakla dolmasi amasya||
+kebap|Ardahan kaz eti|Gans aus dem Ofen|Ardahan|250|1 Portion|0.7|gans:1000,salz:10|kaz eti ardahan kazi kars kaz||
+pilav|Kaz etli pilav|Reis mit Gänsefleisch|Kars|300|1 Portion|0.9|reis:400,gans:300,butter:30,wasser:900,salz:10|kazli pilav kaz pilavi||
+tatli|Pepeçura|Pepeçura (Traubensirup-Pudding)|Artvin|150|1 Schüssel|0.9|pekmez:300,maismehl:60,wasser:600,walnuss:30|pepecura||
+hamur|Aydın çöreği|Aydın-Çörek (süßes Hefegebäck)|Aydın|80|1 Stück|0.88|mehl:500,milch:200,butter:100,zucker:120,ei:55,hefe:12,sesam:20|aydin coregi||
+corba|Pumpum çorbası|Pumpum-Suppe (Tomaten-Mehl-Suppe)|Bartın|250|1 Teller|0.9|mehl:60,tmark:40,butter:30,zwiebel:60,wasser:1200,salz:8|pumpum corbasi||
+kofte|Kitel|Kitel (gekochte Bulgurtaschen)|Batman|90|1 Stück|1.1|bulgur:300,rhack:250,zwiebel:120,walnuss:40,butter:20,salz:8|kitel batman kiteli||
+hamur|Lor dolması|Lor-Teigrollen|Bayburt|120|1 Stück|0.92|mehl:400,wasser:200,lor:300,butter:100,ei:55,salz:6|lor dolmasi bayburt||
+kebap|Büryan kebabı|Büryan (Grubenlamm)|Siirt|250|1 Portion|0.65|lamm:1000,salz:10|buryan buryan kebabi bitlis buryan||R
+kofte|Burdur şiş köfte|Burdur-Spießköfte|Burdur|200|1 Portion|0.75|rhack:800,zwiebel:80,salz:12|burdur sis kofte||R
+kebap|Tava ciğer (Edirne)|Edirne-Leber (dünn, frittiert)|Edirne|200|1 Portion|0.88|rleber:800,mehl:60,oel:150,salz:8|edirne tava ciger tava ciger||R
+tatli|Badem ezmesi|Mandelpaste (Marzipan türkisch)|Edirne|25|1 Stück|0.98|mandel:500,puderz:450,wasser:60|badem ezmesi||
+kofte|Harput köftesi|Harput-Köfte (Bulgur-Fleisch, gekocht)|Elazığ|200|1 Portion|1.0|bulgur:250,rhack:300,tmark:30,zwiebel:80,oel:20,wasser:600,salz:10|harput koftesi elazig||
+tatli|Orcik|Orcik (Walnuss in Traubensirupgelee)|Elazığ|40|1 Stück|1.0|walnuss:400,pekmez:600,staerke:100,mehl:50|orcik||
+kahvalti|Fındık ezmesi (Giresun)|Haselnusscreme Giresun-Art|Giresun|15|1 EL|1.0|haselnuss:600,zucker:300,kakao:50,oel:50|giresun findik ezmesi||
+ev|Bozbaş|Bozbaş (Lamm-Kichererbsen-Eintopf)|Iğdır|350|1 Teller|0.85|lamm:400,kicher:200,kartoffel:300,zwiebel:100,tmark:30,wasser:1500,salz:10|bozbas iğdır bozbasi||
+pilav|Kabune pilavı|Kabune-Pilav (Lamm-Reis)|Isparta|300|1 Portion|0.9|reis:400,lamm:350,zwiebel:80,butter:50,wasser:900,salz:10|kabune pilavi isparta||R
+tatli|Safranbolu lokumu|Safranbolu-Lokum|Karabük|12|1 Stück|0.75|zucker:1000,staerke:150,wasser:600,haselnuss:80,puderz:50|safranbolu lokumu||
+hamur|Banduma|Banduma (Hähnchen mit Teigblättern)|Kastamonu|300|1 Portion|0.95|@yufka-cig:300,huhn:400,butter:80,bruehe:400,walnuss:40|banduma kastamonu||
+hamur|Kastamonu etli ekmeği|Kastamonu-Fleischbrot|Kastamonu|300|1 Stück|0.88|mehl:400,wasser:240,hefe:6,salz:7,lamm:300,zwiebel:80,butter:30|kastamonu etli ekmek||
+kofte|Kırklareli köftesi|Kırklareli-Köfte|Kırklareli|200|1 Portion|0.75|rhack:700,lamm:100,zwiebel:80,@ekmek:60,salz:12|kirklareli koftesi||R
+hamur|Çullama|Çullama (Hähnchen mit Teig)|Kırşehir|300|1 Portion|0.95|@yufka-cig:300,huhn:400,butter:60,bruehe:400|cullama kirsehir||
+kebap|Kilis tava|Kilis-Tava (Hack mit Gemüse vom Blech)|Kilis|300|1 Portion|0.75|rhack:600,aubergine:200,tomate:200,gpaprika:150,zwiebel:100,salz:10|kilis tava||
+ev|Cimcik mantısı|Cimcik (Mini-Teigtaschen in Joghurt)|Kütahya|300|1 Teller|1.08|mehl:300,ei:55,wasser:110,rhack:150,joghurt:300,butter:40,salz:8|cimcik kutahya||
+tatli|Kayısı tatlısı|Aprikosen-Dessert mit Walnuss und Kaymak|Malatya|120|1 Portion|0.85|aprikoseg:500,zucker:200,wasser:500,walnuss:100,kaymak:100|kayisi tatlisi malatya||
+kebap|Manisa kebabı|Manisa-Kebap (Köfte auf Pide)|Manisa|350|1 Teller|0.97|@izgara-kofte:180,@ramazan-pidesi:80,tomate:80,butter:25,joghurt:80|manisa kebabi||R
+kebap|Çökertme kebabı|Çökertme (Fleischstreifen auf Pommes mit Joghurt)|Muğla|400|1 Teller|0.95|rind:250,butter:20,@patates-kizartmasi:180,joghurt:150,knobl:5|cokertme kebabi bodrum||R
+kofte|Muş köftesi|Muş-Köfte (Bulgur-Fleisch-Bällchen)|Muş|200|1 Portion|1.0|bulgur:250,rhack:250,zwiebel:80,tmark:30,butter:30,wasser:500,salz:10|mus koftesi||
+kebap|Niğde tavası|Niğde-Tava (Lamm im Ofen)|Niğde|300|1 Portion|0.75|lamm:700,tomate:200,gpaprika:100,knobl:15,butter:30,salz:10|nigde tavasi||
+hamur|Fındıklı kurabiye|Haselnusskekse|Ordu|25|1 Stück|0.92|mehl:300,butter:150,zucker:120,haselnuss:150,ei:55|findikli kurabiye ordu||
+ev|Zerefet|Zerefet (Brot mit Butter und Käse)|Tunceli|200|1 Portion|0.98|@ekmek:120,butter:40,feta:60|zerefet tunceli||
+kofte|Adıyaman çiğ köftesi|Adıyaman-Çiğ köfte (etsiz)|Adıyaman|100|1 Portion|1.0|bulgur:300,tmark:150,zwiebel:80,oel:70,petersilie:30,wasser:150,salz:10|adiyaman cig kofte||
+kofte|Bursa pideli köfte|Bursa-Köfte auf Pide|Bursa|350|1 Teller|0.97|@izgara-kofte:180,@ramazan-pidesi:80,tomate:80,butter:30,joghurt:80|pideli kofte bursa pideli kofte||R
+tatli|Şambali|Şambali (Grießkuchen in Sirup)|İzmir|100|1 Stück|0.88|griess:400,joghurt:200,zucker:550,mandel:50,butter:40,wasser:400|sambali||
+kofte|Antalya şiş köfte|Antalya-Spießköfte|Antalya|200|1 Portion|0.75|rhack:800,zwiebel:80,salz:12|antalya sis kofte||R
+kebap|Ankara tava|Ankara-Tava (Lamm mit Kritharaki)|Ankara|350|1 Teller|0.9|lamm:400,nudel:250,tomate:150,butter:30,wasser:600,salz:10|ankara tava||
+kebap|Balaban kebabı|Balaban-Kebap (Köfte auf Brot mit Joghurt)|Eskişehir|350|1 Teller|0.97|@izgara-kofte:180,@ekmek:80,tomate:60,butter:25,joghurt:80|balaban kebabi||R
+kebap|Denizli kebabı|Denizli-Kebap (Ofenlamm)|Denizli|250|1 Portion|0.65|lamm:1000,salz:10|denizli kebabi||R
+kebap|Sivas kebabı|Sivas-Kebap (Köfte mit Gemüse vom Blech)|Sivas|350|1 Portion|0.78|rhack:500,aubergine:250,tomate:200,gpaprika:100,zwiebel:100,salz:10|sivas kebabi||
+hamur|Sivas katmeri|Sivas-Katmer (geschichtet, Butter)|Sivas|150|1 Stück|0.95|@yufka-cig:300,butter:100|sivas katmeri||
+ev|İskilip dolması|İskilip-Dolma (Reis mit Fleisch im Topf)|Çorum|300|1 Portion|0.9|reis:400,lamm:350,kicher:50,butter:60,wasser:900,salz:10|iskilip dolmasi||
+hamur|Nokul|Nokul (Walnuss-Hefeteigrolle)|Sinop|80|1 Stück|0.88|mehl:500,milch:200,butter:80,hefe:10,walnuss:200,zucker:50,ei:55|nokul||
+ev|Siron|Siron (Teigrollen mit Joghurt)|Gümüşhane|300|1 Teller|0.95|mehl:300,wasser:180,joghurt:350,butter:50,salz:6|siron||
+ev|Susurluk tostu|Susurluk-Toast (mit Sucuk)|Balıkesir|200|1 Stück|0.97|@ekmek:100,sucuk:40,kasar:40,butter:10|susurluk tostu||
+icecek|Susurluk ayranı|Susurluk-Ayran (schaumig)|Balıkesir|300|1 Glas|1.0|joghurt:600,wasser:400,salz:6|susurluk ayrani||
+tatli|Peynir helvası|Käse-Helva|Çanakkale|100|1 Portion|0.95|lor:400,griess:150,butter:80,zucker:180|peynir helvasi canakkale||
+hamur|Sembusek|Sembusek (Mardin-Fleischtasche)|Mardin|150|1 Stück|0.88|mehl:400,wasser:240,hefe:6,salz:7,rhack:350,zwiebel:100,butter:30|sembusek mardin||
+kebap|Küşleme|Küşleme (Lammrücken gegrillt)|Gaziantep|200|1 Portion|0.72|lammk:1000,salz:8|kusleme||R
+hamur|Biberli ekmek|Biberli ekmek (Brot mit Paprikapaste)|Hatay|150|1 Stück|0.9|mehl:400,wasser:240,hefe:6,salz:6,tmark:80,zwiebel:80,walnuss:40,olivoel:40,sesam:20|biberli ekmek hatay||
+peynir|Sürk|Sürk (gewürzter Käse, Näherung Lor)|Hatay|30|1 Portion|1.0|lor:95,olivoel:5|surk carra||
+meze|Batırık|Batırık (kalter Bulgur-Nuss-Salat)|Mersin|200|1 Schüssel|1.2|bulgur:150,tomate:300,gurke:150,walnuss:60,sesam:20,tmark:30,fzwiebel:40,petersilie:30,olivoel:40,wasser:200,salz:6|batirik||
+corba|Bamya çorbası (Konya)|Okra-Suppe|Konya|250|1 Teller|0.88|okra:200,lamm:200,tmark:30,zitrone:30,butter:20,wasser:1500,salz:10|bamya corbasi||
+kahvalti|Yağlama|Yağlama (geschichtete Fladen mit Hack)|Kayseri|250|1 Portion|0.92|mehl:300,wasser:180,rhack:250,zwiebel:100,tomate:150,joghurt:120,butter:30,salz:8|yaglama kayseri||
+kahvalti|Pastırmalı yumurta|Spiegelei mit Pastırma|Kayseri|160|1 Pfanne|0.85|ei:165,pastirma:50,butter:10|pastirmali yumurta||R
+doner|Cağ kebap dürüm|Cağ-Kebap im Lavaş|Erzurum|200|1 Stück|0.98|@lavas:60,@cag-kebabi:120,zwiebel:20,petersilie:5|cag durum||R
+tatli|Kadayıf (Erzurum)|siehe Kadayıf dolması|Erzurum|80|1 Stück|0.88|mehl:300,wasser:450,butter:180,walnuss:250,zucker:550,wasser2:400|erzurum kadayif||
+# ========== Block 2: weitere Klassiker
+tatli|Sütlü nuriye|Sütlü nuriye (Milch-Baklava)||80|2 Stück|1.0|@yufka-cig:400,butter:200,haselnuss:250,milch:700,zucker:500|sutlu nuriye||R
+tatli|Ekmek kadayıfı|Ekmek kadayıfı mit Kaymak||150|1 Portion|0.95|mehl:250,hefe:5,wasser:150,zucker:400,wasser2:400,kaymak:150|ekmek kadayifi kaymakli ekmek kadayifi||R
+tatli|Fıstıklı dürüm|Pistazien-Dürüm (Baklava)|Gaziantep|80|1 Stück|0.88|@yufka-cig:300,butter:200,pistazie:400,zucker:600,wasser:450|fistikli durum||
+tatli|Sarığı burma|Sarığı burma (Baklava-Turban)||80|1 Stück|0.88|@yufka-cig:400,butter:250,pistazie:250,zucker:650,wasser:450|sarigi burma||
+tatli|Bülbül yuvası|Bülbül yuvası (Baklava-Nest)||70|1 Stück|0.88|@yufka-cig:400,butter:250,pistazie:250,zucker:650,wasser:450|bulbul yuvasi||
+tatli|Dilber dudağı|Dilber dudağı (Teigtasche in Sirup)||60|1 Stück|0.88|mehl:300,butter:80,ei:55,walnuss:150,oel:150,zucker:600,wasser:450|dilber dudagi||
+tatli|Hanım göbeği|Hanım göbeği (Teig in Sirup)||60|1 Stück|0.88|mehl:300,wasser:400,butter:80,ei:110,oel:150,zucker:600,wasser2:450|hanim gobegi||
+tatli|Vezir parmağı|Vezir parmağı (Teigfinger in Sirup)||60|2 Stück|0.88|mehl:300,griess:50,butter:80,ei:55,oel:150,zucker:600,wasser:450|vezir parmagi||
+tatli|İrmik tatlısı (sütlü)|Grießpudding||150|1 Schüssel|0.95|milch:1000,griess:100,zucker:150,butter:20|irmik tatlisi sutlu irmik||
+tatli|Fırın sütlü kadayıf|Kadayıf mit Milchcreme (Ofen)||150|1 Portion|0.88|mehl:200,wasser:300,butter:120,milch:700,staerke:60,zucker:450,wasser2:300|sutlu kadayif||
+tatli|Elmalı turta|Apfelkuchen türkisch||100|1 Stück|0.9|mehl:350,butter:200,zucker:200,ei:55,apfel:800,walnuss:50|elmali turta||
+tatli|Un kurabiyesi|Mehlkekse (Un kurabiyesi)||20|1 Stück|0.95|mehl:500,butter:250,puderz:150|un kurabiyesi||
+tatli|Acıbadem kurabiyesi|Mandelmakronen||20|1 Stück|0.85|mandel:300,zucker:300,eiklar:100|acibadem kurabiyesi||
+hamur|Tuzlu kurabiye|Salzige Kekse||20|1 Stück|0.92|mehl:500,butter:200,joghurt:80,oel:80,ei:55,sesam:20,salz:8|tuzlu kurabiye||
+hamur|Kandil simidi|Kandil simidi (kleiner Sesamkringel)||25|1 Stück|0.92|mehl:500,butter:120,oel:80,zucker:60,ei:55,sesam:60,hefe:8,salz:6|kandil simidi||
+hamur|Pastane poğaçası|Konditorei-Poğaça||70|1 Stück|0.9|mehl:500,butter:150,margarine:100,milch:150,ei:55,feta:120,hefe:10,salz:6|pastane pogacasi||
+tatli|Kabak tatlısı (kaymaklı)|Kürbisdessert mit Kaymak||180|1 Portion|0.82|kuerbis:1000,zucker:300,walnuss:60,kaymak:120|kaymakli kabak tatlisi||
+tatli|Meyveli muhallebi|Pudding mit Früchten||180|1 Schüssel|0.95|milch:1000,zucker:140,staerke:60,erdbeere:200|meyveli muhallebi||
+tatli|Fırında tavuk göğsü? -|-||0|-|0||||SKIP
+tatli|Kemalpaşa (kaymaklı)|Kemalpaşa mit Kaymak|Bursa|110|3 Stück + Kaymak|0.88|mehl:200,griess:50,ei:110,lor:100,zucker:500,wasser:400,kaymak:120|kemalpasa kaymakli||
+tatli|Kaymaklı kadayıf|Kadayıf mit Kaymak||150|1 Portion|0.88|mehl:300,wasser:450,butter:200,kaymak:200,zucker:550,wasser2:400|kaymakli kadayif||R
+tatli|Cevizli baklava (ev)|Baklava hausgemacht (weniger Butter)||80|2 Stück|0.88|@yufka-cig:400,butter:180,oel:50,walnuss:250,zucker:600,wasser:500|ev baklavasi||
+tatli|Kurabiye (cevizli)|Walnusskekse||25|1 Stück|0.93|mehl:400,butter:200,zucker:150,walnuss:120,ei:55|cevizli kurabiye||
+tatli|Pişmaniye? -|-||0|-|0||||SKIP
+tatli|Maraş dondurması (kakaolu)|Maraş-Eis Kakao (Näherung)|Kahramanmaraş|100|2 Kugeln|0.95|milch:1000,zucker:200,staerke:15,sahne:100,kakao:40|kakaolu dondurma||
+tatli|Fıstıklı dondurma|Pistazieneis (Näherung)|Gaziantep|100|2 Kugeln|0.95|milch:1000,zucker:200,staerke:15,sahne:100,pistazie:80|fistikli dondurma||
+tatli|Kaymaklı dondurma|Kaymak-Eis (Näherung)||100|2 Kugeln|0.95|milch:1000,zucker:200,staerke:15,sahne:150,kaymak:50|kaymakli dondurma||
+meze|Pancar salatası|Rote-Bete-Salat||150|1 Portion|1.0|rotebete:600,olivoel:40,zitrone:30,knobl:5,petersilie:20,salz:4|pancar salatasi||
+meze|Pancar yoğurtlama|Rote Bete mit Joghurt (Pembe sultan)||150|1 Portion|1.0|rotebete:400,joghurt:400,knobl:5,olivoel:20,salz:4|pancar yogurtlama pembe sultan||
+meze|Kırmızı lahana salatası|Rotkohlsalat||150|1 Portion|1.0|rotkohl:600,olivoel:40,zitrone:40,salz:6|kirmizi lahana salatasi mor lahana salatasi||
+meze|Havuç salatası|Karottensalat||150|1 Portion|1.0|karotte:500,olivoel:30,zitrone:30,salz:4|havuc salatasi||
+meze|Turp salatası|Rettichsalat||100|1 Portion|1.0|radieschen:400,olivoel:20,zitrone:20,petersilie:20,salz:3|turp salatasi||
+meze|Börülce salatası|Augenbohnensalat||150|1 Portion|1.6|borulce:200,zwiebel:60,petersilie:30,olivoel:40,zitrone:30,salz:5|borulce salatasi||
+meze|Kabak tarator|Zucchini-Joghurt-Dip||100|1 Portion|0.9|zucchini:500,joghurt:400,knobl:8,olivoel:30,salz:4|kabak tarator||
+meze|Közlenmiş patlıcan (sade)|Geröstete Aubergine mit Öl||100|1 Portion|0.8|aubergine:800,olivoel:30,knobl:5,salz:3|kozde patlican||
+meze|Yeşil salata|Grüner Salat||150|1 Schüssel|1.0|salat:300,fzwiebel:30,petersilie:30,olivoel:30,zitrone:20,salz:3|yesil salata||
+meze|Domates salatası|Tomatensalat||150|1 Schüssel|1.0|tomate:500,zwiebel:80,petersilie:20,olivoel:30,salz:4|domates salatasi||
+meze|Söğüş (domates salatalık)|Tomaten- und Gurkenscheiben||150|1 Portion|1.0|tomate:300,gurke:300|sogus domates salatalik||
+meze|Zeytinyağlı kereviz|Knollensellerie in Olivenöl||200|1 Portion|0.88|sellerie:700,karotte:150,kartoffel:150,olivoel:80,zitrone:40,zucker:10,wasser:300,salz:8|zeytinyagli kereviz||
+meze|Zeytinyağlı patlıcan|Auberginen in Olivenöl||200|1 Portion|0.85|aubergine:800,tomate:300,zwiebel:200,olivoel:120,knobl:15,salz:8|zeytinyagli patlican||
+meze|Zeytinyağlı kabak|Zucchini in Olivenöl||200|1 Portion|0.88|zucchini:800,zwiebel:150,tomate:200,reis:40,olivoel:70,salz:8|zeytinyagli kabak||
+meze|Zeytinyağlı taze bakla|Frische Saubohnen in Olivenöl||200|1 Portion|0.88|tbakla:700,zwiebel:150,olivoel:80,joghurt:100,salz:8|zeytinyagli bakla taze bakla||
+meze|Zeytinyağlı karnabahar|Blumenkohl in Olivenöl||200|1 Portion|0.88|blumenkohl:800,karotte:100,olivoel:70,zitrone:30,salz:8|zeytinyagli karnabahar||
+meze|Zeytinyağlı lahana|Kohl in Olivenöl||200|1 Portion|0.88|kohl:800,reis:50,tmark:20,olivoel:80,salz:8|zeytinyagli lahana||
+meze|Zeytinyağlı bamya|Okra in Olivenöl||200|1 Portion|0.88|okra:700,tomate:250,zwiebel:150,olivoel:80,zitrone:30,salz:8|zeytinyagli bamya||
+ev|Kıymalı ıspanak (ev)|Spinat mit Hack (ohne Reis)||250|1 Teller|0.85|spinat:1000,rhack:250,zwiebel:150,oel:40,salz:8|kiymali ispanak ev||
+ev|Kıymalı kabak|Zucchini mit Hack||250|1 Teller|0.85|zucchini:900,rhack:250,zwiebel:150,tomate:200,oel:30,salz:8|kiymali kabak||
+ev|Kıymalı pırasa|Lauch mit Hack||250|1 Teller|0.85|lauch:900,rhack:200,reis:40,oel:30,wasser:200,salz:8|kiymali pirasa||
+ev|Kıymalı bezelye|Erbsen mit Hack||250|1 Teller|0.85|erbse:600,rhack:250,karotte:100,tmark:20,oel:30,wasser:300,salz:8|kiymali bezelye||
+ev|Etli kapuska|Kohl mit Fleisch|Karadeniz|300|1 Teller|0.85|kohl:1000,rind:250,zwiebel:150,tmark:40,oel:30,wasser:300,salz:10|etli kapuska||
+ev|Etli bamya|Okra mit Lammfleisch||250|1 Teller|0.85|okra:700,lamm:250,tomate:250,zwiebel:100,zitrone:30,butter:30,wasser:300,salz:8|etli bamya||
+ev|Etli patates|Kartoffeln mit Fleisch||300|1 Teller|0.85|kartoffel:900,rind:250,zwiebel:150,tmark:40,oel:30,wasser:400,salz:10|etli patates||
+ev|Etli Kuru bamya|Getrocknete Okra mit Fleisch (Näherung frische Okra)|Gaziantep|250|1 Teller|0.88|okra:300,lamm:250,tmark:30,zitrone:30,butter:30,wasser:800,salz:8|kuru bamya||
+ev|Tavuklu bezelye|Erbsen mit Hähnchen||300|1 Teller|0.85|erbse:600,huhn:300,karotte:100,kartoffel:200,oel:40,wasser:400,salz:10|tavuklu bezelye||
+ev|Tavuklu nohut|Kichererbsen mit Hähnchen||300|1 Teller|0.85|kicher:400,huhn:300,zwiebel:100,tmark:40,oel:40,wasser:1400,salz:10|tavuklu nohut||
+ev|Tavuklu güveç|Hähnchen-Güveç||350|1 Teller|0.85|hschenkel:600,aubergine:200,tomate:200,gpaprika:150,zwiebel:100,oel:40,salz:10|tavuklu guvec||
+ev|Fırında makarna|Nudelauflauf türkisch||300|1 Stück|1.3|nudel:400,milch:600,ei:110,kasar:150,butter:40,salz:6|firinda makarna makarna firin||
+ev|Fırında sebze|Ofengemüse||250|1 Teller|0.8|aubergine:300,zucchini:300,kartoffel:300,gpaprika:150,tomate:200,olivoel:80,salz:8|firinda sebze||
+ev|Patates püresi|Kartoffelpüree||200|1 Portion|0.95|kartoffel:1000,milch:200,butter:50,salz:8|patates puresi||
+ev|Kızarmış tavuk (but)|Gebratene Hähnchenschenkel||200|1 Stück|0.75|hschenkel:1000,oel:40,salz:10|kizarmis tavuk||
+ev|Tavuk şinitzel|Hähnchenschnitzel (paniert)||200|1 Stück|0.9|hbrust:800,mehl:60,ei:110,paniermehl:120,oel:120,salz:8|tavuk sinitzel tavuk snitzel||R
+ev|Tavuklu makarna|Nudeln mit Hähnchen||300|1 Teller|1.6|nudel:400,hbrust:300,sahne:150,pilz:150,oel:30,salz:8|tavuklu makarna||
+ev|Yumurtalı patates|Kartoffeln mit Ei||250|1 Pfanne|0.85|kartoffel:500,ei:165,oel:50,salz:5|yumurtali patates||
+ev|Sucuklu fasulye|Bohnen mit Sucuk||300|1 Teller|0.85|wbohne:500,sucuk:120,zwiebel:150,tmark:60,oel:30,wasser:1500,salz:8|sucuklu fasulye||
+ev|Kuru fasulye (zeytinyağlı, soğuk)|Weiße Bohnen in Olivenöl (kalt)||200|1 Portion|0.85|wbohne:400,karotte:100,zwiebel:100,olivoel:100,wasser:1200,salz:8|zeytinyagli kuru fasulye||
+ev|Mercimekli erişte|Erişte mit Linsen||300|1 Teller|1.4|enudel:200,linse:200,zwiebel:100,butter:40,wasser:800,salz:8|mercimekli eriste||
+ev|Arabaşı (hamur)|Arabaşı-Teig (Mehlgelee)|Yozgat|100|1 Stück|1.0|mehl:200,wasser:800,salz:4|arabasi hamuru||
+pilav|Kestaneli pilav|Reis mit Maronen (Näherung Stärke)|Bursa|200|1 Portion|0.92|reis:400,staerke:80,butter:50,wasser:850,salz:10|kestaneli pilav||
+pilav|Pirinç pilavı (tereyağsız)|Reis-Pilav mit Öl||200|1 Portion|0.92|reis:500,oel:40,wasser:800,salz:10|yagli pilav sade pilav||
+pilav|Bulgur pilavı (sade)|Bulgur-Pilav natur||200|1 Portion|0.92|bulgur:400,butter:30,wasser:800,salz:8|sade bulgur pilavi||
+pilav|Kıymalı pilav|Reis mit Hack||250|1 Portion|0.92|reis:400,rhack:200,erbse:80,butter:40,wasser:850,salz:10|kiymali pilav||
+pilav|Hamsi pilavı (ev)|siehe Hamsili pilav|Trabzon|300|1 Portion|0.88|reis:400,sardelle:600,zwiebel:100,butter:50,wasser:700,salz:12|ev hamsili pilav||
+corba|Ezogelin (ev)|Ezogelin hausgemacht (weniger Fett)||250|1 Teller|0.85|rlinse:150,bulgur:50,reis:30,zwiebel:100,tmark:30,oel:25,wasser:1800,salz:12|ezogelin ev||
+corba|Tavuklu yayla|Joghurtsuppe mit Hähnchen||250|1 Teller|0.88|joghurt:400,huhn:150,reis:50,eigelb:20,butter:20,wasser:1200,salz:8|tavuklu yayla corbasi||
+corba|Kremalı brokoli? -|-||0|-|0||||SKIP
+corba|Lahana çorbası (beyaz)|Weißkohlsuppe||250|1 Teller|0.88|kohl:400,reis:40,zwiebel:80,tmark:30,oel:30,wasser:1300,salz:8|beyaz lahana corbasi||
+corba|Kırmızı mercimek (sade)|Rote Linsensuppe ohne Butter||250|1 Teller|0.85|rlinse:200,zwiebel:100,karotte:80,oel:30,wasser:1800,salz:12|sade mercimek corbasi||
+corba|Paça (kuzu)|Lammfuß-Suppe (Näherung)||300|1 Teller|0.8|lamm:350,knobl:15,butter:30,wasser:2000,salz:12|kuzu paca||
+corba|Sütlü buğday çorbası|Milchsuppe mit Weizen||250|1 Teller|0.9|weizen:100,milch:800,butter:20,wasser:400,salz:5|sutlu bugday corbasi||
+balik|Hamsi tava (ev)|Frittierte Sardellen hausgemacht||200|1 Portion|0.85|sardelle:1000,maismehl:100,oel:90,salz:10|ev hamsi tava||
+balik|Levrek fırın|Wolfsbarsch aus dem Ofen (Näherung)||300|1 Portion|0.85|barsch:800,kartoffel:300,tomate:150,zwiebel:80,olivoel:50,zitrone:20,salz:8|firinda levrek||
+balik|Çipura buğulama|Gedünstete Dorade||300|1 Portion|0.88|brasse:700,tomate:200,gpaprika:80,zwiebel:100,olivoel:40,salz:8|cipura bugulama||
+balik|Somon buğulama|Gedünsteter Lachs||250|1 Portion|0.88|lachs:600,karotte:100,zwiebel:80,pilz:100,olivoel:30,salz:6|somon bugulama||
+balik|Karides şiş|Garnelenspieß||150|1 Portion|0.8|garnele:600,olivoel:30,knobl:10,salz:4|karides sis||
+balik|Kalamar dolma|Gefüllter Tintenfisch||200|1 Portion|0.85|tinten:600,reis:150,zwiebel:100,pinien:20,olivoel:50,salz:6|kalamar dolma||
+kahvalti|Patatesli yumurta (kahvaltı)|siehe Yumurtalı patates||250|1 Pfanne|0.85|kartoffel:500,ei:165,oel:50,salz:5|patatesli yumurta||
+kahvalti|Peynirli pişi|Pişi mit Käse||70|1 Stück|1.05|mehl:500,wasser:300,hefe:10,salz:6,feta:150,oel:100|peynirli pisi||
+kahvalti|Haşhaşlı çörek|Mohnschnecke (Näherung Sesam)|Afyon|90|1 Stück|0.88|mehl:500,milch:200,butter:80,zucker:120,sesam:150,hefe:12,ei:55|hashasli corek||
+kahvalti|Gözleme (ev, sade)|Gözleme natur mit Butter||150|1 Stück|0.95|@yufka-cig:250,butter:30|sade gozleme||
+kahvalti|Yumurtalı ekmek (sade)|Brot in Ei gebraten||120|1 Portion|0.95|@ekmek:100,ei:55,oel:20,salz:2|yumurtali ekmek||
+kahvalti|Kahvaltılık sos|Frühstücks-Paprikasoße||30|1 EL-Portion|0.85|tmark:200,rpaprika:200,olivoel:60,walnuss:30|kahvaltilik sos||
+kahvalti|Lor salatası|Lor-Salat mit Kräutern||100|1 Portion|1.0|lor:300,tomate:100,petersilie:30,olivoel:20|lor salatasi||
+icecek|Ayran (light)|Ayran mit fettarmem Joghurt||250|1 Glas|1.0|joghurt_light:500,wasser:450,salz:5|light ayran||
+icecek|Limonata (şekersiz)|Limonade ohne Zucker||250|1 Glas|1.0|zitrone:150,wasser:1000|sekersiz limonata||
+icecek|Ihlamur (ballı)|Lindenblütentee mit Honig||200|1 Tasse|1.0|tee:200,honig:10|ballı ihlamur||
+icecek|Sahlepli süt? -|-||0|-|0||||SKIP
+icecek|Kahve (sütlü filtre)|Filterkaffee mit Milch||250|1 Tasse|1.0|kaffeepulver:200,milch:50|sutlu filtre kahve||
+icecek|Meyveli soda (Näherung)|Mineralwasser mit Fruchtgeschmack, gesüßt||200|1 Flasche|1.0|zucker:20,wasser:200|meyveli soda||
+kuruyemis|Kavrulmuş leblebi (şekerli)|Zuckerüberzogene Leblebi|Çorum|30|1 Handvoll|0.85|kicher:70,zucker:30|sekerli leblebi||
+kuruyemis|Tuzlu fıstık karışık|Gesalzene Nussmischung||30|1 Handvoll|1.0|erdnuss:50,haselnuss:20,mandel:20,salz:2,oel:8|tuzlu karisik kuruyemis||
+kuruyemis|Kuru meyve karışık|Trockenfrüchte gemischt||40|1 Portion|1.0|aprikoseg:35,feigeg:35,rosine:30|kuru meyve karisik||
+kuruyemis|Cevizli kuru incir|Getrocknete Feige mit Walnuss|Aydın|40|1 Stück|1.0|feigeg:70,walnuss:30|cevizli incir||
+kuruyemis|Hurma (cevizli)|Datteln mit Walnuss||30|3 Stück|1.0|dattel:75,walnuss:25|cevizli hurma||
+sarkuteri|Sucuk (ızgara)|Sucuk gegrillt (Näherung)||60|1 Portion|0.85|sucuk:100|izgara sucuk||
+sarkuteri|Kavurma (konserve)|Kavurma aus der Dose (Näherung)||100|1 Portion|0.6|lamm:900,lfett:150,salz:15|konserve kavurma||
+sarkuteri|Dana jambon (Näherung)|Rinderschinken (Näherung Putenbrust gekocht)||30|3 Scheiben|1.0|putenbrust_koch:100|dana jambon||
+sarkuteri|Dana salam (Näherung)|Rinder-Salami (Näherung)||30|3 Scheiben|1.0|sucuk:100|dana salam salam||
+
+kebap|Abant kebabı|Abant-Kebap (Lamm-Gemüse-Schmortopf)|Bolu|350|1 Portion|0.82|lamm:600,kartoffel:250,erbse:100,karotte:100,zwiebel:100,tomate:150,butter:30,wasser:200,salz:10|abant kebabi||R
