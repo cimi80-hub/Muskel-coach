@@ -971,7 +971,7 @@ const MC=(function(){ const H='1o8nfmawtnm', TRIAL=10, D=864e5;
 const CNT={ns:'muskel-coach-cimi80', base:'https://abacus.jasoncameron.dev'};
 /* Eigener Server (Cloudflare Worker + D1, worker/muskel-worker.js): Statistik + Feedback.
    API_URL leer = nur bisheriges System (Abacus). USE_ABACUS: in der Übergangszeit parallel weiter in Abacus zählen (Rückfall-Sicherung). */
-const API_URL='';
+const API_URL='https://muskel-coach-server.cimi80.workers.dev';
 const USE_ABACUS=true;
 const apiOn=()=>!!API_URL;
 let CNT_ERR='';
@@ -4087,9 +4087,10 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-25q';
-const RELEASE='2026-11-25';
+const APP_VERSION='2026-11-26a';
+const RELEASE='2026-11-26';
 const CHANGES=[
+  ['⭐','Feedback & Bewertung','Sag uns, wie dir Dr. Muskel Coach gefällt: Sterne vergeben und einen Kommentar schreiben – auf der Startseite unter „Teilen“ oder im Profil. Name ist freiwillig.'],
   ['🇹🇷','Türkische Küche','Über 1.000 türkische Lebensmittel und Gerichte aus 70 Provinzen: Çorbalar, Kebap, Döner, Köfte, Pide, Börek, Mantı, Meze, Tatlılar und mehr – hausgemacht und Restaurant. Suche mit oder ohne Sonderzeichen (Köfte = Kofte), Einheiten wie Teller, Schüssel, EL und Glas.'],
   ['🍔','McDonald\'s, KFC & Subway','365 Produkte mit offiziellen Nährwerten: Big Mac, McNuggets in allen Größen, Hot Wings, Zinger, alle Subs in 15 und 30 cm, Wraps, Salate, Pommes, Shakes und Getränke. Sag einfach „Ich war bei McDonald\'s und hatte einen Big Mac und mittlere Pommes“.'],
   ['🍽️','Ernährungstracker','Neu auf der Startseite: über 32.000 Lebensmittel – 7.140 aus dem Bundeslebensmittelschlüssel und 25.000 Markenprodukte aus deutschen Supermärkten (ja!, K-Classic, Milbona, REWE, dmBio …) – offline, dazu Barcode-Scanner, eigene Rezepte, Wasser- und Gewichtsverlauf. Deine Ziele kommen automatisch aus „Mein Bedarf“.'],
