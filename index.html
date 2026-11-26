@@ -4061,7 +4061,7 @@ function gcalUrl(rt){ const w=SCHED.wd.length?SCHED.wd:[0], d=nextDateFor(w[0]),
 async function deliverFile(blob,name,title){
   try{ const file=new File([blob],name,{type:blob.type}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title}); return true; } }catch(e){ if(e&&e.name==='AbortError') return false; }
   const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},4000); return true; }
-const BAK_KEYS=['mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts','mc_dev_codes','mc_avatar'];
+const BAK_KEYS=['mc_fr','mc_log','mc_plan','mc_prof','mc_sched','mc_favs','mc_body','mc_badges','mc_rem','mc_look','mc_tests','mc_opts','mc_dev_codes','mc_avatar'];
 async function makeBackup(){ const data={}; BAK_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) data[k]=v; });
   const photos=await photoAll(); const obj={app:'muskel-coach',v:1,date:new Date().toISOString(),data,photos};
   const ok=await deliverFile(new Blob([JSON.stringify(obj)],{type:'application/json'}),'muskel-coach-backup-'+ymd(new Date())+'.json','Muskel-Coach Backup');
@@ -4087,9 +4087,10 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-26a';
+const APP_VERSION='2026-11-26b';
 const RELEASE='2026-11-26';
 const CHANGES=[
+  ['👥','Freunde & Gruppen','Trainiere gemeinsam: Lade Partner, Freunde oder eine ganze Gruppe per Link ein. Nach jedem Training seht ihr automatisch Dauer, bewegte Kilos und neue Rekorde – mit 💪🔥👏, Wochen-Rangliste, Serien und Meilensteinen. Nur mit Spitzname, jederzeit pausier- und löschbar.'],
   ['⭐','Feedback & Bewertung','Sag uns, wie dir Dr. Muskel Coach gefällt: Sterne vergeben und einen Kommentar schreiben – auf der Startseite unter „Teilen“ oder im Profil. Name ist freiwillig.'],
   ['🇹🇷','Türkische Küche','Über 1.000 türkische Lebensmittel und Gerichte aus 70 Provinzen: Çorbalar, Kebap, Döner, Köfte, Pide, Börek, Mantı, Meze, Tatlılar und mehr – hausgemacht und Restaurant. Suche mit oder ohne Sonderzeichen (Köfte = Kofte), Einheiten wie Teller, Schüssel, EL und Glas.'],
   ['🍔','McDonald\'s, KFC & Subway','365 Produkte mit offiziellen Nährwerten: Big Mac, McNuggets in allen Größen, Hot Wings, Zinger, alle Subs in 15 und 30 cm, Wraps, Salate, Pommes, Shakes und Getränke. Sag einfach „Ich war bei McDonald\'s und hatte einen Big Mac und mittlere Pommes“.'],
@@ -4205,7 +4206,7 @@ function renderInstallCard(){ const box=$('instBox'); if(!box) return; if(INST.s
   $('instCard').onclick=openInstall; }
 // automatisch anbieten: beim ersten Mal, danach höchstens alle 3 Tage – nur wenn nicht schon als App geöffnet
 (function autoInstall(){ if(INST.standalone()) return;
-  const busy=()=>{ const g=document.getElementById('gate'); return (g&&g.style.display!=='none')||document.querySelector('#wnPop.on,#fbPop.on,#fbAsk.on,.sheet.open'); };
+  const busy=()=>{ const g=document.getElementById('gate'); return (g&&g.style.display!=='none')||document.querySelector('#wnPop.on,#fbPop.on,#fbAsk.on,#frSheet.on,.sheet.open'); };
   let last=0; try{ last=+localStorage.getItem('mc_inst_pop')||0; }catch(e){}
   if(Date.now()-last<3*864e5) return;
   let tries=0; (function wait(){ if(busy()&&tries++<120) return setTimeout(wait,1000); setTimeout(()=>{ if(!busy()&&!INST.standalone()) openInstall(); },1500); })(); })();
@@ -4385,7 +4386,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
   const waUrl=BUY.whatsapp?('https://wa.me/'+BUY.whatsapp.replace(/\D/g,'')+'?text='+msg):('https://wa.me/?text='+msg);
   const ppUrl=BUY.paypal?('https://paypal.me/'+BUY.paypal+'/'+BUY.price.replace(/[^\d,.]/g,'').replace(',','.')+'EUR'):'';
   const dots=()=>Array.from({length:MC.TRIAL},(_,i)=>`<i class="${i<left?(left<=2?'hot':'on'):''}"></i>`).join('');
-  /* persönliche Bestellnummer pro Gerät – damit Cem die Zahlung zuordnen kann */
+  /* persönliche Bestellnummer pro Gerät – damit der Entwickler die Zahlung zuordnen kann */
   const orderNo=mcOrderNo();
   const stripeUrl=()=>BUY.stripe?BUY.stripe+(BUY.stripe.includes('?')?'&':'?')+'client_reference_id='+encodeURIComponent(orderNo)+'&locale='+(LANG==='en'?'en':'de'):'';
   function show(mode,why){
@@ -4673,6 +4674,192 @@ async function apiImport(){ const st=$('apiImpSt'), btn=$('apiImp'); if(!st||DEV
   DEVA.imp=false; btn.disabled=false; }
 (function(){ const prev=devRender; devRender=function(){ const r=prev.apply(this,arguments);
   try{ fbAdminMount(); apiBoxMount(); if(apiUse()){ const chk=$('devCheck'); if(chk) chk.onclick=()=>{ devStats(true); toast2('Status wird aktualisiert'); }; } }catch(e){} return r; }; })();
+</script>
+<style>
+/* ===== Freunde & Gruppen ===== */
+.qbtn.q6 i{background:linear-gradient(135deg,rgba(175,82,222,.32),rgba(175,82,222,.08))}
+.qbtn{position:relative}.frbadge{position:absolute;top:6px;right:8px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#ff453a;color:#fff;font:700 12px/20px system-ui;text-align:center;font-style:normal}
+.frtabs{display:flex;gap:6px;margin:10px 0 4px;position:sticky;top:calc(56px + env(safe-area-inset-top));z-index:1;background:var(--bg);padding:6px 0}
+.frtabs button{flex:1;padding:10px 6px;border-radius:11px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-weight:600;font-size:13.5px}
+.frtabs button.on{background:var(--acc);color:#111;border-color:var(--acc)}
+.fract{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.fract .h{display:flex;align-items:center;gap:9px}.fract .h b{flex:1;font-size:15px}.fract .h small{color:var(--mut);font-size:12px}
+.frav{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#111;flex:none}
+.fract .t{margin:8px 0 6px;font-weight:700}
+.frkp{display:flex;flex-wrap:wrap;gap:6px}.frkp span{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:4px 8px;font-size:12.5px}
+.frpr{margin-top:8px;font-size:13.5px;color:#FFC83D}
+.frre{display:flex;gap:6px;margin-top:10px}.frre button{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:5px 11px;font-size:15px;color:var(--txt)}
+.frre button.on{border-color:var(--acc);background:rgba(200,255,61,.12)}.frre button small{font-size:12px;margin-left:3px}
+.frrank{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}.frrank th{color:var(--mut);font-weight:600;font-size:11.5px;text-align:right;padding:6px 4px}
+.frrank td{padding:9px 4px;border-top:1px solid var(--line);text-align:right}.frrank td:nth-child(2),.frrank th:nth-child(2){text-align:left}.frrank td:first-child{font-weight:800;text-align:center;width:28px}
+.frrank tr.me td{background:rgba(200,255,61,.07)}
+.frmile{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}.frmile div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
+.frmile b{display:block;font-size:20px;color:var(--acc)}.frmile small{color:var(--mut);font-size:11.5px;display:block}.frmile i{display:block;height:5px;border-radius:5px;background:var(--line);margin-top:6px;overflow:hidden}.frmile i em{display:block;height:100%;background:var(--acc)}
+.frrow{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--line)}.frrow:first-of-type{border-top:0}.frrow b{flex:1}.frrow small{color:var(--mut)}
+.frrow .x{background:none;border:0;color:#ff8f8f;font-size:12.5px;padding:4px}
+.frin{display:flex;gap:8px;margin-top:8px}.frin input{flex:1;min-width:0;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px}
+.frin button{padding:0 14px;border-radius:11px;border:0;background:var(--acc);color:#111;font-weight:700}
+.frinv{border:1px solid var(--acc);background:rgba(200,255,61,.07)}
+.frsw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}
+</style>
+<script>
+/* =====================================================================
+   FREUNDE & GRUPPEN – freiwillig, anonym (Spitzname), über den eigenen Server (API_URL)
+   Geteilt wird nach jedem abgeschlossenen Training: Trainingstag, Dauer, Übungen, Sätze, bewegte Kilos, neue Rekorde.
+   Kein Körpergewicht, keine Ernährung. Teilen pausierbar, alles löschbar. Server löscht Aktivitäten nach 90 Tagen.
+   ===================================================================== */
+const FR={tab:'feed',scope:'all',feed:null,busy:false,last:0};
+const frMe=()=>{ try{ return JSON.parse(localStorage.getItem('mc_fr')||'null'); }catch(e){ return null; } };
+const frSave=v=>{ try{ v?localStorage.setItem('mc_fr',JSON.stringify(v)):localStorage.removeItem('mc_fr'); }catch(e){} };
+const frOn=()=>apiOn();
+const frNum=n=>Number(n||0).toLocaleString(LANG==='en'?'en-GB':'de-DE');
+const FR_COL=['#C8FF3D','#64D2FF','#FF9F0A','#FF6B8B','#BF5AF2','#30D158','#FFD60A','#5E9EFF'];
+const frAv=(n,id)=>`<span class="frav" style="background:${FR_COL[[...String(id||n)].reduce((a,c)=>a+c.charCodeAt(0),0)%FR_COL.length]}">${esc((n||'?').trim().charAt(0).toUpperCase())}</span>`;
+function frAgo(ts){ const m=Math.round((Date.now()-ts)/60000); if(m<1) return LX('gerade eben','just now'); if(m<60) return LX('vor '+m+' Min.',m+' min ago'); const h=Math.round(m/60); if(h<24) return LX('vor '+h+' Std.',h+' h ago'); const d=Math.round(h/24); return d===1?LX('gestern','yesterday'):LX('vor '+d+' Tagen',d+' days ago'); }
+async function frApi(p,b){ const F=frMe(); const h={'Content-Type':'application/json'}; if(F&&p!=='register'){ h['X-Mid']=F.id; h['X-Msec']=F.secret; }
+  try{ const r=await cntFetch(API_URL.replace(/\/$/,'')+'/f/'+p,10000,{method:'POST',headers:h,body:JSON.stringify(b||{})}); const j=await r.json().catch(()=>({})); return Object.assign({status:r.status},j); }
+  catch(e){ return {ok:false,status:0,error:'net'}; } }
+const frErr=j=>j.error==='net'?LX('Keine Verbindung – bitte später nochmal.','No connection – please try again later.'):j.error==='invalid'?LX('Dieser Code ist ungültig oder abgelaufen.','This code is invalid or expired.'):j.error==='full'?LX('Die Gruppe ist voll (max. 20).','The group is full (max. 20).'):j.error==='self'?LX('Das ist deine eigene Einladung 🙂','That is your own invite 🙂'):j.error==='rate'?LX('Zu viele Versuche – bitte später nochmal.','Too many attempts – please try later.'):j.error==='nick'||j.error==='name'?LX('Bitte mindestens 2 Zeichen.','Please use at least 2 characters.'):LX('Das hat nicht geklappt.','That did not work.');
+/* ---- Training teilen (nach jedem echten, abgeschlossenen Training) ---- */
+function frQueue(a){ let q=[]; try{ q=JSON.parse(localStorage.getItem('mc_fr_q')||'[]'); }catch(e){} q.push(a); try{ localStorage.setItem('mc_fr_q',JSON.stringify(q.slice(-10))); }catch(e){} frFlush(); }
+async function frFlush(){ if(!frOn()||!frMe()||FR.flushing) return; let q=[]; try{ q=JSON.parse(localStorage.getItem('mc_fr_q')||'[]'); }catch(e){} if(!q.length) return; FR.flushing=true;
+  while(q.length){ const j=await frApi('act',q[0]); if(!j.ok&&(j.status===0||j.status>=500)) break; q.shift(); try{ localStorage.setItem('mc_fr_q',JSON.stringify(q)); }catch(e){} }
+  FR.flushing=false; }
+(function(){ const prev=finishLive; finishLive=function(){
+  let act=null;
+  try{ if(frOn()&&frMe()&&LIVE&&!LIVE.test&&LIVE.items){ let ex=0,sets=0,vol=0; const prs=[];
+      for(const it of LIVE.items){ const done=(it.sets||[]).filter(s=>s.done); if(!done.length) continue; ex++; sets+=done.length;
+        if(it.id==='laufband'||isHold(it.target)) continue;
+        let top=0; for(const s of done){ const k=kgNum(s.kg), r=parseFloat(String(s.reps).replace(',','.'))||0; vol+=k*r; if(k>top) top=k; }
+        const rec=maxKgRec(it.id); if(rec&&top>rec.kg) prs.push({n:(exById(it.id)||{}).name||it.id,kg:top}); }
+      if(sets) act={name:LIVE.name||'',min:Math.max(1,Math.round((Date.now()-(LIVE.start||Date.now()))/60000)),ex,sets,vol:Math.round(vol),prs}; } }catch(e){}
+  const r=prev.apply(this,arguments); if(act) frQueue(act); return r; }; })();
+/* ---- Einladungslink ?fr=CODE ---- */
+/* (history ist in dieser App durch die Übungs-Funktion history() belegt – deshalb merken wir uns bearbeitete Codes statt die Adresse zu ändern) */
+const frUsed=()=>{ try{ return JSON.parse(localStorage.getItem('mc_fr_used')||'[]'); }catch(e){ return []; } };
+function frMarkUsed(c){ try{ localStorage.setItem('mc_fr_used',JSON.stringify([...frUsed().filter(x=>x!==c),c].slice(-30))); localStorage.removeItem('mc_fr_pending'); }catch(e){} }
+(function(){ try{ const u=new URL(location.href); let c=u.searchParams.get('fr'); if(!c) return; c=c.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12); if(!c||frUsed().includes(c)) return; localStorage.setItem('mc_fr_pending',c);
+  if(frOn()) (function w(n){ const g=document.getElementById('gate'); if((g&&g.style.display!=='none')&&n<40) return setTimeout(()=>w(n+1),500); setTimeout(()=>{ const wn=$('wnPop'); if(wn) wn.classList.remove('on'); frOpen(); },600); })(0); }catch(e){} })();
+/* ---- Startseite: Kachel + Zähler für Neuigkeiten ---- */
+(function(){ if(!frOn()) return; const q5=document.querySelector('.qbtn.q5'); if(!q5||$('frTile')) return;
+  const b=document.createElement('button'); b.className='qbtn q6'; b.id='frTile'; b.type='button'; b.style.gridColumn='1/-1';
+  b.innerHTML=`<i>👥</i><b>${LX('Freunde & Gruppen','Friends & groups')}</b><span>${LX('Trainings teilen, Rangliste, Rekorde','Share workouts, ranking, records')}</span>`;
+  b.onclick=()=>frOpen(); q5.after(b); })();
+function frBadge(){ const t=$('frTile'); if(!t) return; const F=frMe(), D=FR.feed; let n=0; const seen=+(localStorage.getItem('mc_fr_seen')||0);
+  if(F&&D) n=(D.acts||[]).filter(a=>a.m!==F.id&&a.ts>seen).length; let e=t.querySelector('.frbadge');
+  if(!n){ if(e) e.remove(); return; } if(!e){ e=document.createElement('em'); e.className='frbadge'; t.appendChild(e); } e.textContent=n>9?'9+':n; }
+async function frLoad(){ if(!frOn()||!frMe()||FR.busy) return FR.feed; FR.busy=true; const j=await frApi('feed'); FR.busy=false;
+  if(j.ok){ FR.feed=j; FR.last=Date.now(); try{ localStorage.setItem('mc_fr_feed',JSON.stringify(j)); }catch(e){} const F=frMe(); if(F&&j.me&&j.me.nick!==F.nick){ F.nick=j.me.nick; frSave(F); } }
+  else if(j.status===401){ frSave(null); FR.feed=null; }
+  frBadge(); return FR.feed; }
+try{ FR.feed=JSON.parse(localStorage.getItem('mc_fr_feed')||'null'); }catch(e){}
+if(frOn()){ setTimeout(()=>{ frFlush(); frLoad(); },3500); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&Date.now()-FR.last>5*60000){ frFlush(); frLoad(); } }); }
+/* ---- Oberfläche ---- */
+function frOpen(tab){ if(!frOn()){ toast2(LX('Gleich verfügbar.','Coming soon.')); return; } let ov=$('frSheet');
+  if(!ov){ ov=document.createElement('div'); ov.id='frSheet'; ov.className='devsheet'; document.body.appendChild(ov); }
+  if(tab) FR.tab=tab; ov.classList.add('on'); document.body.style.overflow='hidden'; frRender(); if(frMe()) frLoad().then(()=>{ if(ov.classList.contains('on')) frRender(); }); frPending(); }
+function frClose(){ const ov=$('frSheet'); if(ov) ov.classList.remove('on'); document.body.style.overflow=''; }
+function frRender(){ const ov=$('frSheet'); if(!ov) return; const F=frMe();
+  const top=`<div class="devtop"><button class="iconbtn" id="frBack">← ${LX('Zurück','Back')}</button><b>👥 ${LX('Freunde','Friends')}</b>${F?`<button class="iconbtn" id="frSet" aria-label="${LX('Einstellungen','Settings')}">⚙️</button>`:'<span style="width:44px"></span>'}</div>`;
+  if(!F){ ov.innerHTML=top+`<div class="devwrap"><div id="frInv"></div>
+    <div class="pc"><div style="font-size:42px;text-align:center">💪👥🏆</div><h3 style="margin:6px 0;text-align:center">${LX('Gemeinsam trainieren','Train together')}</h3>
+    <p class="muted" style="line-height:1.5">${LX('Verbinde dich mit Partner, Freunden oder einer ganzen Gruppe. Nach jedem Training seht ihr automatisch, wer trainiert hat – mit Dauer, bewegten Kilos und neuen Rekorden. Dazu Wochen-Rangliste, Serien und Meilensteine.','Connect with your partner, friends or a whole group. After every workout you automatically see who trained – with duration, weight moved and new records. Plus weekly ranking, streaks and milestones.')}</p>
+    <label class="fbf">${LX('Dein Spitzname (für deine Freunde sichtbar)','Your nickname (visible to your friends)')}<input id="frNick" maxlength="24" autocomplete="off" placeholder="${LX('z. B. Alex oder Muskelmax','e.g. Alex or Musclemax')}"></label>
+    <div class="fberr" id="frErr"></div><button class="savebtn" id="frGo">${LX('Teilen aktivieren','Turn on sharing')}</button>
+    <p class="fbnote">${LX('Gespeichert werden nur dein Spitzname und deine Trainings-Eckdaten (Tag, Dauer, Übungen, Sätze, Kilos, Rekorde) – kein Name, keine E-Mail, keine Telefonnummer, kein Körpergewicht, keine Ernährung. Sichtbar nur für Leute, mit denen du dich verbindest. Jederzeit pausierbar und komplett löschbar; Trainings werden nach 90 Tagen automatisch gelöscht.','Only your nickname and workout key data (day, duration, exercises, sets, kg, records) are stored – no name, email, phone number, body weight or nutrition. Visible only to people you connect with. Pause or delete everything any time; workouts are deleted automatically after 90 days.')}</p></div>
+    <div class="pc"><b>${LX('Handy gewechselt?','New phone?')}</b><p class="muted" style="margin:4px 0 0">${LX('Übertragungscode vom alten Handy eingeben:','Enter the transfer code from your old phone:')}</p><div class="frin"><input id="frTr" placeholder="MCF-…" autocomplete="off" autocapitalize="characters"><button id="frTrGo">OK</button></div></div></div>`;
+    $('frBack').onclick=frClose;
+    $('frGo').onclick=async()=>{ const n=$('frNick').value.trim(); if(n.length<2){ $('frErr').textContent=frErr({error:'nick'}); return; } $('frGo').disabled=true;
+      const j=await frApi('register',{nick:n}); $('frGo').disabled=false; if(!j.ok){ $('frErr').textContent=frErr(j); return; }
+      frSave({id:j.id,secret:j.secret,nick:j.nick}); FR.tab='link'; await frLoad(); frRender(); frPending(); };
+    $('frTrGo').onclick=async()=>{ const m=$('frTr').value.trim().match(/^MCF-([A-Z0-9]{10})-([A-Z0-9]{20,})$/i); if(!m){ toast2(LX('Code ungültig','Invalid code')); return; }
+      frSave({id:m[1].toUpperCase(),secret:m[2].toUpperCase(),nick:''}); const d=await frLoad(); if(!d){ frSave(null); toast2(LX('Code ungültig','Invalid code')); } frRender(); };
+    return; }
+  const tabs=[['feed',LX('Neuigkeiten','Feed')],['rank',LX('Rangliste','Ranking')],['link',LX('Verbinden','Connect')]];
+  ov.innerHTML=top+`<div class="devwrap"><div class="frtabs">${tabs.map(([k,l])=>`<button data-frt="${k}" class="${FR.tab===k?'on':''}">${l}</button>`).join('')}</div><div id="frInv"></div><div id="frBody"></div></div>`;
+  $('frBack').onclick=frClose; $('frSet').onclick=()=>{ FR.tab='set'; frRender(); };
+  ov.querySelectorAll('[data-frt]').forEach(b=>b.onclick=()=>{ FR.tab=b.dataset.frt; frRender(); });
+  const body=$('frBody'), D=FR.feed;
+  if(!D){ body.innerHTML=`<p class="muted" style="text-align:center;margin-top:30px">⏳ ${LX('Lade …','Loading …')}</p>`; frPending(); return; }
+  if(FR.tab==='feed') frFeed(body,D,F); else if(FR.tab==='rank') frRank(body,D,F); else if(FR.tab==='set') frSettings(body,D,F); else frLink(body,D,F);
+  frPending(); }
+const frPeople=D=>{ const o={}; (D.people||[]).forEach(p=>o[p.id]=p); return o; };
+function frFeed(body,D,F){ const P=frPeople(D); try{ localStorage.setItem('mc_fr_seen',String(Date.now())); }catch(e){} frBadge();
+  if(D.me&&D.me.paused) body.insertAdjacentHTML('beforeend',`<div class="pc" style="margin-top:10px">⏸️ ${LX('Dein Teilen ist pausiert – deine Trainings sieht gerade niemand.','Sharing is paused – nobody sees your workouts right now.')}</div>`);
+  const acts=D.acts||[];
+  if(!acts.length){ body.insertAdjacentHTML('beforeend',`<div class="pc" style="text-align:center;margin-top:10px"><div style="font-size:40px">🏋️</div><p class="muted">${(D.people||[]).length>1?LX('Noch keine Trainings. Das nächste abgeschlossene Training erscheint hier automatisch.','No workouts yet. Your next finished workout appears here automatically.'):LX('Noch niemand verbunden. Lade deinen Partner, Freunde oder deine Gruppe ein!','Nobody connected yet. Invite your partner, friends or your group!')}</p><button class="savebtn" id="frToLink">${LX('Jetzt einladen','Invite now')}</button></div>`); const b=$('frToLink'); if(b) b.onclick=()=>{ FR.tab='link'; frRender(); }; return; }
+  body.insertAdjacentHTML('beforeend',acts.map(a=>{ const p=P[a.m]||{nick:'?'}, mine=a.m===F.id, cnt={}; (a.re||[]).forEach(r=>cnt[r.e]=(cnt[r.e]||0)+1); const my=((a.re||[]).find(r=>r.m===F.id)||{}).e;
+    return `<div class="fract"><div class="h">${frAv(p.nick,a.m)}<b>${esc(p.nick)}${mine?` <small>(${LX('du','you')})</small>`:''}</b><small>${frAgo(a.ts)}</small></div>
+      <div class="t">${esc(a.name||LX('Training','Workout'))}</div>
+      <div class="frkp"><span>⏱️ ${a.min} Min</span><span>🏋️ ${a.ex} ${LX('Übungen','exercises')}</span><span>🔁 ${a.sets} ${LX('Sätze','sets')}</span>${a.vol?`<span>⚖️ ${frNum(a.vol)} kg</span>`:''}</div>
+      ${(a.prs||[]).length?`<div class="frpr">🏆 ${LX('Neuer Rekord','New record')}: ${a.prs.map(x=>esc(x.n)+' '+String(x.kg).replace('.',',')+' kg').join(' · ')}</div>`:''}
+      <div class="frre">${['💪','🔥','👏'].map(e=>`<button ${mine?'disabled':''} data-act="${a.id}" data-e="${e}" class="${my===e?'on':''}">${e}${cnt[e]?`<small>${cnt[e]}</small>`:''}</button>`).join('')}</div></div>`; }).join(''));
+  body.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{ const a=(D.acts||[]).find(x=>x.id==b.dataset.act); if(!a) return; const cur=((a.re||[]).find(r=>r.m===F.id)||{}).e, e=cur===b.dataset.e?'':b.dataset.e;
+    a.re=(a.re||[]).filter(r=>r.m!==F.id); if(e) a.re.push({m:F.id,e}); frRender(); const j=await frApi('react',{act:a.id,e}); if(!j.ok) toast2(frErr(j)); }); }
+function frRank(body,D,F){ const P=frPeople(D), gs=D.groups||[]; if(FR.scope!=='all'&&!gs.find(g=>g.id===FR.scope)) FR.scope='all';
+  const ids=FR.scope==='all'?(D.people||[]).map(p=>p.id):gs.find(g=>g.id===FR.scope).members;
+  const rows=ids.map(id=>P[id]).filter(Boolean).sort((a,b)=>(b.wk.tr-a.wk.tr)||(b.wk.vol-a.wk.vol)||(b.wk.min-a.wk.min));
+  const med=['🥇','🥈','🥉'];
+  body.innerHTML=`<div class="pc" style="margin-top:10px"><div class="pch"><b>🏆 ${LX('Diese Woche','This week')}</b>${gs.length?`<select id="frScope" style="padding:7px;border-radius:9px;background:var(--bg);color:var(--txt);border:1px solid var(--line)"><option value="all">${LX('Alle','All')}</option>${gs.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>`:''}</div>
+    <table class="frrank"><tr><th>#</th><th>${LX('Name','Name')}</th><th>${LX('Trainings','Workouts')}</th><th>Min</th><th>kg</th><th>🏆</th><th>🔥</th></tr>
+    ${rows.map((p,i)=>`<tr class="${p.id===F.id?'me':''}"><td>${p.wk.tr?(med[i]||i+1):'–'}</td><td>${esc(p.nick)}</td><td><b>${p.wk.tr}</b></td><td>${p.wk.min}</td><td>${frNum(p.wk.vol)}</td><td>${p.wk.pr}</td><td>${p.wk.streak?p.wk.streak+'W':'–'}</td></tr>`).join('')}</table>
+    <p class="muted" style="font-size:11.5px;margin:8px 0 0">${LX('Woche ab Montag. Sortiert nach Trainings, dann bewegten Kilos. 🔥 = Wochen in Folge mit mindestens 2 Trainings.','Week starts Monday. Sorted by workouts, then weight moved. 🔥 = weeks in a row with at least 2 workouts.')}</p></div>
+    ${frMiles(P[F.id])}`;
+  const sc=$('frScope'); if(sc){ sc.value=FR.scope; sc.onchange=()=>{ FR.scope=sc.value; frRender(); }; } }
+function frMiles(me){ if(!me) return ''; const t=me.tot||{}; const step=(v,arr)=>{ const nx=arr.find(x=>x>v)||arr[arr.length-1]; const pv=[0,...arr].filter(x=>x<=v).pop()||0; return {nx,p:nx===pv?100:Math.min(100,Math.round(100*(v-pv)/(nx-pv)))}; };
+  const tr=step(t.tr||0,[10,25,50,100,250,500,1000]), ton=(t.vol||0)/1000, vl=step(ton,[1,10,50,100,250,500,1000]), pr=step(t.pr||0,[5,10,25,50,100,250]);
+  return `<div class="pc"><b>🎖️ ${LX('Deine Meilensteine','Your milestones')}</b><div class="frmile">
+    <div><b>${frNum(t.tr||0)}</b><small>${LX('Trainings','workouts')}</small><i><em style="width:${tr.p}%"></em></i><small>${LX('nächstes','next')}: ${frNum(tr.nx)}</small></div>
+    <div><b>${ton.toLocaleString(LANG==='en'?'en-GB':'de-DE',{maximumFractionDigits:1})} t</b><small>${LX('bewegt','moved')}</small><i><em style="width:${vl.p}%"></em></i><small>${LX('nächstes','next')}: ${frNum(vl.nx)} t</small></div>
+    <div><b>${frNum(t.pr||0)}</b><small>${LX('Rekorde','records')}</small><i><em style="width:${pr.p}%"></em></i><small>${LX('nächstes','next')}: ${frNum(pr.nx)}</small></div></div>
+    <p class="muted" style="font-size:11.5px;margin:8px 0 0">${LX('Gezählt ab Aktivierung der Freunde-Funktion.','Counted since you turned on friends.')}</p></div>`; }
+async function frShare(code,kind,name){ const url=location.origin+location.pathname+'?fr='+code;
+  const txt=kind==='group'?LX(`Komm in meine Trainingsgruppe „${name}“ bei Dr. Muskel Coach 💪 Link öffnen oder in der App unter Freunde → Verbinden den Code ${code} eingeben:`,`Join my training group "${name}" on Dr. Muskel Coach 💪 Open the link or enter code ${code} in the app under Friends → Connect:`)
+    :LX(`Lass uns gemeinsam trainieren 💪 Verbinde dich mit mir bei Dr. Muskel Coach – Link öffnen oder in der App unter Freunde → Verbinden den Code ${code} eingeben:`,`Let's train together 💪 Connect with me on Dr. Muskel Coach – open the link or enter code ${code} in the app under Friends → Connect:`);
+  try{ if(navigator.share){ await navigator.share({title:'Dr. Muskel Coach',text:txt,url}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  const box=$('frShareBox'); if(box) box.innerHTML=`<div class="pc frinv"><b>${LX('Einladung','Invite')}: ${code}</b><p class="muted" style="margin:4px 0 8px">${LX('7 Tage gültig.','Valid for 7 days.')}</p><div class="devbtns"><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt+' '+url)}" target="_blank" rel="noopener">💬 WhatsApp</a><button class="savebtn sec2" id="frCopy">📋 ${LX('Kopieren','Copy')}</button></div></div>`;
+  const c=$('frCopy'); if(c) c.onclick=async()=>{ try{ await navigator.clipboard.writeText(txt+' '+url); toast2(LX('Kopiert ✓','Copied ✓')); }catch(e){ toast2(code); } }; }
+function frLink(body,D,F){ const P=frPeople(D), gs=D.groups||[], friends=(D.people||[]).filter(p=>p.friend);
+  body.innerHTML=`<div id="frShareBox"></div>
+    <div class="pc" style="margin-top:10px"><b>🤝 ${LX('Zu zweit','One-to-one')}</b><p class="muted" style="margin:4px 0 8px">${LX('Partner, Freund oder Kollege – ihr seht gegenseitig eure Trainings.','Partner, friend or colleague – you see each other\'s workouts.')}</p>
+      <button class="savebtn" id="frInvDuo">➕ ${LX('Freund einladen','Invite a friend')}</button>
+      ${friends.length?friends.map(p=>`<div class="frrow">${frAv(p.nick,p.id)}<b>${esc(p.nick)}</b><small>${p.last?frAgo(p.last):''}</small><button class="x" data-unl="${p.id}">${LX('Trennen','Remove')}</button></div>`).join(''):''}</div>
+    <div class="pc"><b>👥 ${LX('Gruppen','Groups')}</b><p class="muted" style="margin:4px 0 0">${LX('Bis zu 20 Leute, mit gemeinsamer Wochen-Rangliste.','Up to 20 people, with a shared weekly ranking.')}</p>
+      ${gs.map(g=>{ const own=g.owner===F.id; return `<div class="pc" style="margin:10px 0 0;background:var(--card2)"><div class="pch"><b>${esc(g.name)} <small class="muted">${g.members.length}/20</small></b><button class="iconbtn" data-ginv="${g.id}" data-gn="${esc(g.name)}">➕ ${LX('Einladen','Invite')}</button></div>
+        ${g.members.map(m=>{ const p=P[m]||{nick:'?'}; return `<div class="frrow">${frAv(p.nick,m)}<b>${esc(p.nick)}${m===g.owner?' 👑':''}${m===F.id?` <small>(${LX('du','you')})</small>`:''}</b>${own&&m!==F.id?`<button class="x" data-kick="${m}" data-g="${g.id}">${LX('Entfernen','Remove')}</button>`:''}</div>`; }).join('')}
+        <button class="x" style="background:none;border:0;color:#ff8f8f;margin-top:6px" data-leave="${g.id}" data-own="${own?1:0}">${own?LX('Gruppe auflösen','Dissolve group'):LX('Gruppe verlassen','Leave group')}</button></div>`; }).join('')}
+      <div class="frin"><input id="frGName" maxlength="24" placeholder="${LX('Neue Gruppe, z. B. Gym-Jungs','New group, e.g. Gym crew')}"><button id="frGNew">${LX('Erstellen','Create')}</button></div></div>
+    <div class="pc"><b>🔑 ${LX('Code erhalten?','Got a code?')}</b><div class="frin"><input id="frCode" maxlength="12" placeholder="${LX('Einladungscode','Invite code')}" autocapitalize="characters" autocomplete="off"><button id="frCodeGo">OK</button></div></div>`;
+  $('frInvDuo').onclick=async()=>{ const j=await frApi('invite',{}); if(!j.ok) return toast2(frErr(j)); frShare(j.code,'duo'); };
+  body.querySelectorAll('[data-ginv]').forEach(b=>b.onclick=async()=>{ const j=await frApi('invite',{g:b.dataset.ginv}); if(!j.ok) return toast2(frErr(j)); frShare(j.code,'group',b.dataset.gn); });
+  body.querySelectorAll('[data-unl]').forEach(b=>b.onclick=async()=>{ if(!confirm(LX('Verbindung trennen?','Remove this connection?'))) return; await frApi('unlink',{m:b.dataset.unl}); await frLoad(); frRender(); });
+  body.querySelectorAll('[data-kick]').forEach(b=>b.onclick=async()=>{ if(!confirm(LX('Aus der Gruppe entfernen?','Remove from group?'))) return; await frApi('kick',{g:b.dataset.g,m:b.dataset.kick}); await frLoad(); frRender(); });
+  body.querySelectorAll('[data-leave]').forEach(b=>b.onclick=async()=>{ if(!confirm(b.dataset.own==='1'?LX('Gruppe für alle auflösen?','Dissolve the group for everyone?'):LX('Gruppe verlassen?','Leave the group?'))) return; await frApi('leave',{g:b.dataset.leave}); await frLoad(); frRender(); });
+  $('frGNew').onclick=async()=>{ const n=$('frGName').value.trim(); const j=await frApi('group',{name:n}); if(!j.ok) return toast2(frErr(j)); await frLoad(); frRender(); const i=await frApi('invite',{g:j.g}); if(i.ok) frShare(i.code,'group',j.name); };
+  $('frCodeGo').onclick=()=>{ const c=$('frCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,''); if(!c) return; try{ localStorage.setItem('mc_fr_pending',c); }catch(e){} frPending(); }; }
+function frSettings(body,D,F){ const tr='MCF-'+F.id+'-'+F.secret;
+  body.innerHTML=`<div class="pc" style="margin-top:10px"><b>⚙️ ${LX('Einstellungen','Settings')}</b>
+      <label class="fbf">${LX('Spitzname','Nickname')}<div class="frin" style="margin:0"><input id="frNick2" maxlength="24" value="${esc(D.me.nick)}"><button id="frNickGo">${LX('Speichern','Save')}</button></div></label>
+      <div class="frsw"><span>${LX('Meine Trainings teilen','Share my workouts')}</span><button class="iconbtn" id="frPause">${D.me.paused?'⏸️ '+LX('Pausiert','Paused'):'✅ '+LX('Aktiv','On')}</button></div></div>
+    <div class="pc"><b>📲 ${LX('Übertragungscode','Transfer code')}</b><p class="muted" style="margin:4px 0 8px">${LX('Für ein neues Handy: dort unter Freunde eingeben, dann bleiben Freunde, Gruppen und Meilensteine erhalten. Nicht weitergeben – damit kann man dein Profil benutzen.','For a new phone: enter it there under Friends to keep friends, groups and milestones. Do not share it – it gives access to your profile.')}</p>
+      <button class="savebtn sec2" id="frTrShow">${LX('Code anzeigen','Show code')}</button><div id="frTrBox"></div></div>
+    <div class="pc"><b>🗑️ ${LX('Alle meine Daten löschen','Delete all my data')}</b><p class="muted" style="margin:4px 0 8px">${LX('Löscht Spitzname, Trainings, Reaktionen, Verbindungen und deine eigenen Gruppen sofort und endgültig.','Deletes nickname, workouts, reactions, connections and your own groups immediately and permanently.')}</p><button class="savebtn sec2" id="frDel" style="color:#ff8f8f">${LX('Endgültig löschen','Delete permanently')}</button></div>`;
+  $('frNickGo').onclick=async()=>{ const j=await frApi('me',{nick:$('frNick2').value.trim()}); if(!j.ok) return toast2(frErr(j)); F.nick=j.nick; frSave(F); await frLoad(); toast2(LX('Gespeichert ✓','Saved ✓')); frRender(); };
+  $('frPause').onclick=async()=>{ const j=await frApi('me',{paused:!D.me.paused}); if(!j.ok) return toast2(frErr(j)); await frLoad(); frRender(); };
+  $('frTrShow').onclick=()=>{ $('frTrBox').innerHTML=`<div class="devcode" style="font-size:14px;word-break:break-all;margin-top:8px">${tr}</div>`; try{ navigator.clipboard.writeText(tr); toast2(LX('Kopiert ✓','Copied ✓')); }catch(e){} };
+  $('frDel').onclick=async()=>{ if(!confirm(LX('Wirklich alles endgültig löschen?','Really delete everything permanently?'))) return; const j=await frApi('delete'); if(!j.ok&&j.status!==401) return toast2(frErr(j));
+    frSave(null); FR.feed=null; ['mc_fr_feed','mc_fr_q','mc_fr_seen'].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} }); frBadge(); FR.tab='feed'; toast2(LX('Gelöscht ✓','Deleted ✓')); frRender(); }; }
+async function frPending(){ let box=$('frInv'); let c=''; try{ c=localStorage.getItem('mc_fr_pending')||''; }catch(e){} if(!box||!c) return;
+  if(!frMe()){ box.innerHTML=`<div class="pc frinv">📩 ${LX('Du hast eine Einladung! Wähle zuerst einen Spitznamen.','You have an invite! First choose a nickname.')}</div>`; return; }
+  let j; if(FR.peek&&FR.peek.c===c) j=FR.peek.j; else { if(FR.peeking) return; FR.peeking=true; j=await frApi('peek',{code:c}); FR.peeking=false; FR.peek={c,j}; }
+  box=$('frInv'); if(!box) return; const done=()=>frMarkUsed(c);
+  if(!j.ok){ done(); box.innerHTML=`<div class="pc frinv">⚠️ ${frErr(j)}</div>`; return; }
+  if(j.already){ done(); box.innerHTML=`<div class="pc frinv">✅ ${j.kind==='group'?LX('Du bist schon in der Gruppe „'+esc(j.name)+'“.','You are already in "'+esc(j.name)+'".'):LX('Ihr seid schon verbunden.','You are already connected.')}</div>`; return; }
+  box.innerHTML=`<div class="pc frinv"><b>📩 ${j.kind==='group'?LX('Einladung in die Gruppe „'+esc(j.name)+'“ ('+j.n+(j.n===1?' Mitglied)':' Mitglieder)'),'Invite to group "'+esc(j.name)+'" ('+j.n+(j.n===1?' member)':' members)')):LX(esc(j.nick)+' möchte mit dir trainieren','"'+esc(j.nick)+'" wants to train with you')}</b>
+    <p class="muted" style="margin:4px 0 8px">${LX('Wenn du annimmst, seht ihr gegenseitig eure Trainings.','If you accept, you will see each other\'s workouts.')}</p>
+    <div class="row2" style="display:flex;gap:8px"><button class="savebtn sec2" id="frNo" style="margin:0;flex:1">${LX('Ablehnen','Decline')}</button><button class="savebtn" id="frYes" style="margin:0;flex:1">${LX('Annehmen','Accept')}</button></div></div>`;
+  $('frNo').onclick=()=>{ done(); box.innerHTML=''; };
+  $('frYes').onclick=async()=>{ const a=await frApi('accept',{code:c}); done(); if(!a.ok){ box.innerHTML=`<div class="pc frinv">⚠️ ${frErr(a)}</div>`; return; } toast2(LX('Verbunden 💪','Connected 💪')); FR.tab='feed'; await frLoad(); frRender(); }; }
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 <style>

@@ -65,3 +65,12 @@ Entwicklerbereich → oben **„📥 Altdaten aus Abacus übernehmen“** → **
 - Komplett zurück: `API_URL` wieder leer setzen – alles ist dann exakt wie vorher.
 - Nach stabiler Übergangszeit (2–4 Wochen): `USE_ABACUS=false` – dann zählt nur noch der eigene Server. Die Einmal-Prüfung der Verkaufs-Codes nutzt weiterhin zusätzlich den zweiten Zähldienst.
 - Die Datenbank lässt sich im Cloudflare-Dashboard bis zu 7 Tage zurück wiederherstellen (Time Travel).
+
+## Freunde & Gruppen
+Läuft über denselben Server (Tabellen `fr_*`). Freiwillig: Nutzer aktivieren es selbst mit einem Spitznamen.
+Geteilt werden nur Trainings-Eckdaten (Trainingstag, Dauer, Übungen, Sätze, bewegte Kilos, Rekorde). Kein Name, keine E-Mail, kein Körpergewicht, keine Ernährung.
+Einladungen gelten 7 Tage, Gruppen max. 20 Personen, Aktivitäten werden nach 90 Tagen gelöscht. „Alle meine Daten löschen“ entfernt alles sofort.
+Empfehlung für die Datenschutzerklärung: „Freunde & Gruppen (freiwillig): Spitzname und Trainings-Eckdaten werden über Cloudflare gespeichert und nur verbundenen Personen angezeigt. Löschung jederzeit in der App.“
+
+## Server aktualisieren
+Änderungen an `worker/` auf `main` werden automatisch über GitHub Actions („Server bereitstellen“) veröffentlicht.
