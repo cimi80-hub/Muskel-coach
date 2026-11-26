@@ -1,6 +1,6 @@
 /**
  * Dr. Muskel Coach – Server (Cloudflare Worker + D1, kostenloses Kontingent)
- * Feedback & Bewertungen + anonyme Nutzungsstatistik (Zähler) für den Entwicklerbereich.
+ * Feedback & Bewertungen + anonyme Nutzungsstatistik (Zähler) für den Entwicklerbereich + Freunde & Gruppen (freiwillig, Spitzname).
  *
  * Bindings / Einstellungen im Cloudflare-Dashboard:
  *   D1-Datenbank  → Binding-Name  DB
@@ -45,7 +45,7 @@ function cors(req, env) {
   return {
     'Access-Control-Allow-Origin': allow, 'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Mid, X-Msec',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -184,6 +184,200 @@ async function adminImport(req, env) { // Altdaten aus Abacus: setzt höchstens 
   return json(req, env, { ok: true, n: items.length });
 }
 
+/* ===================== Freunde & Gruppen ===================== */
+// Anonym: Spitzname + zufällige ID. Geheimnis nur als Hash gespeichert. Aktivitäten werden nach 90 Tagen gelöscht.
+const FR_GROUP_MAX = 20;
+const FR_ACT_KEEP = 90 * 86400e3;
+const FR_EMOJI = ['💪', '🔥', '👏'];
+const ABC = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const rid = (n) => { const b = crypto.getRandomValues(new Uint8Array(n)); return [...b].map((x) => ABC[x % ABC.length]).join(''); };
+let frReady = false;
+async function frSchema(db) {
+  if (frReady) return;
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS fr_members (id TEXT PRIMARY KEY, sh TEXT NOT NULL, nick TEXT NOT NULL, created INTEGER, last INTEGER,
+      paused INTEGER NOT NULL DEFAULT 0, tot_tr INTEGER NOT NULL DEFAULT 0, tot_min INTEGER NOT NULL DEFAULT 0, tot_vol INTEGER NOT NULL DEFAULT 0, tot_pr INTEGER NOT NULL DEFAULT 0)`),
+    db.prepare('CREATE TABLE IF NOT EXISTS fr_links (a TEXT NOT NULL, b TEXT NOT NULL, created INTEGER, PRIMARY KEY (a, b))'),
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_frl_b ON fr_links(b)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS fr_groups (id TEXT PRIMARY KEY, name TEXT NOT NULL, owner TEXT NOT NULL, created INTEGER)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS fr_gm (g TEXT NOT NULL, m TEXT NOT NULL, joined INTEGER, PRIMARY KEY (g, m))'),
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_frgm_m ON fr_gm(m)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS fr_inv (code TEXT PRIMARY KEY, kind TEXT NOT NULL, ref TEXT NOT NULL, created INTEGER, expires INTEGER)'),
+    db.prepare(`CREATE TABLE IF NOT EXISTS fr_acts (id INTEGER PRIMARY KEY AUTOINCREMENT, m TEXT NOT NULL, ts INTEGER NOT NULL, data TEXT NOT NULL)`),
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_fra_m ON fr_acts(m, ts)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS fr_reacts (act INTEGER NOT NULL, m TEXT NOT NULL, e TEXT NOT NULL, PRIMARY KEY (act, m))'),
+  ]);
+  frReady = true;
+}
+const nickOk = (s) => clean(s, 24).replace(/[<>]/g, '');
+async function frAuth(req, env) {
+  const id = req.headers.get('X-Mid') || '', sec = req.headers.get('X-Msec') || '';
+  if (!/^[A-Z0-9]{10}$/.test(id) || sec.length < 20) return null;
+  const m = await env.DB.prepare('SELECT * FROM fr_members WHERE id = ?').bind(id).first();
+  if (!m || !safeEqual(await sha256((env.SALT || 'salt') + '|fr|' + sec), m.sh)) return null;
+  return m;
+}
+// alle Mitglieder, deren Aktivitäten ich sehen darf (ich, direkte Freunde, Mitglieder meiner Gruppen)
+async function frVisible(db, me) {
+  const r = await db.batch([
+    db.prepare('SELECT b AS x FROM fr_links WHERE a = ? UNION SELECT a AS x FROM fr_links WHERE b = ?').bind(me, me),
+    db.prepare('SELECT DISTINCT o.m AS x FROM fr_gm o JOIN fr_gm mine ON o.g = mine.g WHERE mine.m = ?').bind(me),
+  ]);
+  const friends = (r[0].results || []).map((x) => x.x);
+  const s = new Set([me, ...friends, ...(r[1].results || []).map((x) => x.x)]);
+  return { friends, all: [...s] };
+}
+const wkStart = (ms) => { // Montag 0 Uhr (deutsche Zeit, vereinfacht UTC+1)
+  const d = new Date(ms + 3600e3); const day = (d.getUTCDay() + 6) % 7; d.setUTCHours(0, 0, 0, 0); return d.getTime() - day * 86400e3 - 3600e3;
+};
+async function friends(req, env, url) {
+  const db = env.DB; await frSchema(db);
+  const p = url.pathname.slice(3); // nach "/f/"
+  let body = {}; if (req.method === 'POST') { try { body = await req.json(); } catch (e) {} }
+  const J = (d, s) => json(req, env, d, s);
+  if (p === 'register') {
+    const k = await clientKey(req, env); const now = Date.now();
+    if (await countSince(db, k, 'frreg', now - 86400e3) >= 30) return J({ ok: false, error: 'rate' }, 429);
+    const nick = nickOk(body.nick); if (nick.length < 2) return J({ ok: false, error: 'nick' }, 400);
+    const id = rid(10), sec = rid(32);
+    await db.batch([
+      db.prepare('INSERT INTO fr_members (id, sh, nick, created, last) VALUES (?, ?, ?, ?, ?)').bind(id, await sha256((env.SALT || 'salt') + '|fr|' + sec), nick, now, now),
+      db.prepare('INSERT INTO rate (k, kind, ts) VALUES (?, ?, ?)').bind(k, 'frreg', now),
+    ]);
+    return J({ ok: true, id, secret: sec, nick });
+  }
+  const me = await frAuth(req, env); if (!me) return J({ ok: false, error: 'auth' }, 401);
+  const now = Date.now();
+  if (p === 'me') {
+    const nick = body.nick != null ? nickOk(body.nick) : me.nick; if (nick.length < 2) return J({ ok: false, error: 'nick' }, 400);
+    const paused = body.paused != null ? (body.paused ? 1 : 0) : me.paused;
+    await db.prepare('UPDATE fr_members SET nick = ?, paused = ?, last = ? WHERE id = ?').bind(nick, paused, now, me.id).run();
+    return J({ ok: true, nick, paused: !!paused });
+  }
+  if (p === 'delete') { // alles von mir löschen; eigene Gruppen werden aufgelöst
+    const own = ((await db.prepare('SELECT id FROM fr_groups WHERE owner = ?').bind(me.id).all()).results || []).map((x) => x.id);
+    const st = [
+      db.prepare('DELETE FROM fr_reacts WHERE m = ? OR act IN (SELECT id FROM fr_acts WHERE m = ?)').bind(me.id, me.id),
+      db.prepare('DELETE FROM fr_acts WHERE m = ?').bind(me.id),
+      db.prepare('DELETE FROM fr_links WHERE a = ? OR b = ?').bind(me.id, me.id),
+      db.prepare('DELETE FROM fr_gm WHERE m = ?').bind(me.id),
+      db.prepare("DELETE FROM fr_inv WHERE kind = 'duo' AND ref = ?").bind(me.id),
+      db.prepare('DELETE FROM fr_members WHERE id = ?').bind(me.id),
+    ];
+    for (const g of own.slice(0, 10)) st.push(db.prepare('DELETE FROM fr_gm WHERE g = ?').bind(g), db.prepare("DELETE FROM fr_inv WHERE kind = 'group' AND ref = ?").bind(g), db.prepare('DELETE FROM fr_groups WHERE id = ?').bind(g));
+    await db.batch(st); return J({ ok: true });
+  }
+  if (p === 'invite') {
+    let kind = 'duo', ref = me.id;
+    if (body.g) { const g = await db.prepare('SELECT g FROM fr_gm WHERE g = ? AND m = ?').bind(String(body.g), me.id).first(); if (!g) return J({ ok: false, error: 'group' }, 403); kind = 'group'; ref = g.g; }
+    const n = await db.prepare('SELECT COUNT(*) AS n FROM fr_inv WHERE ref = ? AND created > ?').bind(ref, now - 86400e3).first();
+    if (n && n.n >= 30) return J({ ok: false, error: 'rate' }, 429);
+    const code = rid(8);
+    await db.batch([
+      db.prepare('INSERT INTO fr_inv (code, kind, ref, created, expires) VALUES (?, ?, ?, ?, ?)').bind(code, kind, ref, now, now + 7 * 86400e3),
+      db.prepare('DELETE FROM fr_inv WHERE expires < ?').bind(now),
+    ]);
+    return J({ ok: true, code, kind });
+  }
+  if (p === 'peek' || p === 'accept') {
+    const code = String(body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const inv = await db.prepare('SELECT * FROM fr_inv WHERE code = ? AND expires > ?').bind(code, now).first();
+    if (!inv) return J({ ok: false, error: 'invalid' }, 404);
+    if (inv.kind === 'duo') {
+      const o = await db.prepare('SELECT id, nick FROM fr_members WHERE id = ?').bind(inv.ref).first();
+      if (!o) return J({ ok: false, error: 'invalid' }, 404);
+      if (o.id === me.id) return J({ ok: false, error: 'self' }, 400);
+      const [a, b] = [me.id, o.id].sort();
+      const has = await db.prepare('SELECT 1 AS x FROM fr_links WHERE a = ? AND b = ?').bind(a, b).first();
+      if (p === 'peek') return J({ ok: true, kind: 'duo', nick: o.nick, already: !!has });
+      await db.batch([db.prepare('INSERT OR IGNORE INTO fr_links (a, b, created) VALUES (?, ?, ?)').bind(a, b, now), db.prepare('DELETE FROM fr_inv WHERE code = ?').bind(code)]);
+      return J({ ok: true, kind: 'duo', nick: o.nick });
+    }
+    const g = await db.prepare('SELECT grp.id, grp.name, (SELECT COUNT(*) FROM fr_gm x WHERE x.g = grp.id) AS n, (SELECT 1 FROM fr_gm y WHERE y.g = grp.id AND y.m = ?) AS mine FROM fr_groups grp WHERE grp.id = ?').bind(me.id, inv.ref).first();
+    if (!g) return J({ ok: false, error: 'invalid' }, 404);
+    if (p === 'peek') return J({ ok: true, kind: 'group', name: g.name, n: g.n, already: !!g.mine });
+    if (!g.mine && g.n >= FR_GROUP_MAX) return J({ ok: false, error: 'full' }, 400);
+    await db.prepare('INSERT OR IGNORE INTO fr_gm (g, m, joined) VALUES (?, ?, ?)').bind(g.id, me.id, now).run();
+    return J({ ok: true, kind: 'group', name: g.name, g: g.id });
+  }
+  if (p === 'group') {
+    const name = nickOk(body.name); if (name.length < 2) return J({ ok: false, error: 'name' }, 400);
+    const n = await db.prepare('SELECT COUNT(*) AS n FROM fr_groups WHERE owner = ?').bind(me.id).first();
+    if (n && n.n >= 10) return J({ ok: false, error: 'limit' }, 400);
+    const id = rid(10);
+    await db.batch([db.prepare('INSERT INTO fr_groups (id, name, owner, created) VALUES (?, ?, ?, ?)').bind(id, name, me.id, now),
+      db.prepare('INSERT INTO fr_gm (g, m, joined) VALUES (?, ?, ?)').bind(id, me.id, now)]);
+    return J({ ok: true, g: id, name });
+  }
+  if (p === 'leave') {
+    const g = await db.prepare('SELECT * FROM fr_groups WHERE id = ?').bind(String(body.g || '')).first();
+    if (!g) return J({ ok: true });
+    if (g.owner === me.id) await db.batch([db.prepare('DELETE FROM fr_gm WHERE g = ?').bind(g.id), db.prepare("DELETE FROM fr_inv WHERE kind = 'group' AND ref = ?").bind(g.id), db.prepare('DELETE FROM fr_groups WHERE id = ?').bind(g.id)]);
+    else await db.prepare('DELETE FROM fr_gm WHERE g = ? AND m = ?').bind(g.id, me.id).run();
+    return J({ ok: true, dissolved: g.owner === me.id });
+  }
+  if (p === 'kick') {
+    const g = await db.prepare('SELECT * FROM fr_groups WHERE id = ? AND owner = ?').bind(String(body.g || ''), me.id).first();
+    if (!g || body.m === me.id) return J({ ok: false, error: 'forbidden' }, 403);
+    await db.prepare('DELETE FROM fr_gm WHERE g = ? AND m = ?').bind(g.id, String(body.m || '')).run(); return J({ ok: true });
+  }
+  if (p === 'unlink') {
+    const [a, b] = [me.id, String(body.m || '')].sort();
+    await db.prepare('DELETE FROM fr_links WHERE a = ? AND b = ?').bind(a, b).run(); return J({ ok: true });
+  }
+  if (p === 'act') {
+    if (me.paused) return J({ ok: true, paused: true });
+    const n = await db.prepare('SELECT COUNT(*) AS n FROM fr_acts WHERE m = ? AND ts > ?').bind(me.id, now - 86400e3).first();
+    if (n && n.n >= 12) return J({ ok: false, error: 'rate' }, 429);
+    const num = (v, max) => Math.max(0, Math.min(max, Math.round(Number(v) || 0)));
+    const prs = (Array.isArray(body.prs) ? body.prs : []).slice(0, 10).map((x) => ({ n: clean(x && x.n, 40), kg: Math.max(0, Math.min(1000, Number(x && x.kg) || 0)) })).filter((x) => x.n && x.kg);
+    const d = { name: clean(body.name, 40), min: num(body.min, 600), ex: num(body.ex, 60), sets: num(body.sets, 300), vol: num(body.vol, 200000), prs };
+    if (!d.sets) return J({ ok: false, error: 'empty' }, 400);
+    const st = [
+      db.prepare('INSERT INTO fr_acts (m, ts, data) VALUES (?, ?, ?)').bind(me.id, now, JSON.stringify(d)),
+      db.prepare('UPDATE fr_members SET tot_tr = tot_tr + 1, tot_min = tot_min + ?, tot_vol = tot_vol + ?, tot_pr = tot_pr + ?, last = ? WHERE id = ?').bind(d.min, d.vol, prs.length, now, me.id),
+    ];
+    if (Math.random() < 0.05) st.push(db.prepare('DELETE FROM fr_reacts WHERE act IN (SELECT id FROM fr_acts WHERE ts < ?)').bind(now - FR_ACT_KEEP), db.prepare('DELETE FROM fr_acts WHERE ts < ?').bind(now - FR_ACT_KEEP));
+    await db.batch(st); return J({ ok: true });
+  }
+  if (p === 'react') {
+    const act = Number(body.act); const e = FR_EMOJI.includes(body.e) ? body.e : '';
+    const a = await db.prepare('SELECT m FROM fr_acts WHERE id = ?').bind(act).first(); if (!a) return J({ ok: false, error: 'act' }, 404);
+    const vis = await frVisible(db, me.id); if (!vis.all.includes(a.m)) return J({ ok: false, error: 'forbidden' }, 403);
+    if (e) await db.prepare('INSERT INTO fr_reacts (act, m, e) VALUES (?, ?, ?) ON CONFLICT(act, m) DO UPDATE SET e = excluded.e').bind(act, me.id, e).run();
+    else await db.prepare('DELETE FROM fr_reacts WHERE act = ? AND m = ?').bind(act, me.id).run();
+    return J({ ok: true });
+  }
+  if (p === 'feed') {
+    const vis = await frVisible(db, me.id); const V = JSON.stringify(vis.all); const since = now - 70 * 86400e3;
+    const r = await db.batch([
+      db.prepare('SELECT id, nick, tot_tr, tot_min, tot_vol, tot_pr, last, paused FROM fr_members WHERE id IN (SELECT value FROM json_each(?))').bind(V),
+      db.prepare('SELECT g.id, g.name, g.owner, gm.m FROM fr_groups g JOIN fr_gm gm ON gm.g = g.id WHERE g.id IN (SELECT g FROM fr_gm WHERE m = ?) ORDER BY gm.joined').bind(me.id),
+      db.prepare('SELECT id, m, ts, data FROM fr_acts WHERE m IN (SELECT value FROM json_each(?)) AND ts > ? ORDER BY ts DESC LIMIT 1500').bind(V, since),
+      db.prepare('SELECT r.act, r.m, r.e FROM fr_reacts r JOIN (SELECT id FROM fr_acts WHERE m IN (SELECT value FROM json_each(?)) ORDER BY ts DESC LIMIT 60) x ON x.id = r.act').bind(V),
+      db.prepare('UPDATE fr_members SET last = ? WHERE id = ?').bind(now, me.id),
+    ]);
+    const mem = {}; (r[0].results || []).forEach((x) => { mem[x.id] = x; });
+    const groups = {}; (r[1].results || []).forEach((x) => { const g = groups[x.id] = groups[x.id] || { id: x.id, name: x.name, owner: x.owner, members: [] }; g.members.push(x.m); });
+    const acts = (r[2].results || []).map((x) => ({ id: x.id, m: x.m, ts: x.ts, ...JSON.parse(x.data) }));
+    const re = {}; (r[3].results || []).forEach((x) => { (re[x.act] = re[x.act] || []).push({ m: x.m, e: x.e }); });
+    // Wochenwerte + Serie (Wochen in Folge mit mind. 2 Trainings)
+    const w0 = wkStart(now), stats = {};
+    for (const id of vis.all) stats[id] = { tr: 0, min: 0, vol: 0, pr: 0, streak: 0 };
+    const perWeek = {};
+    for (const a of acts) {
+      const s = stats[a.m]; if (!s) continue;
+      if (a.ts >= w0) { s.tr++; s.min += a.min || 0; s.vol += a.vol || 0; s.pr += (a.prs || []).length; }
+      const wk = Math.round((w0 - wkStart(a.ts)) / (7 * 86400e3)); const k = a.m + '|' + wk; perWeek[k] = (perWeek[k] || 0) + 1;
+    }
+    for (const id of vis.all) { let n = 0, w = (perWeek[id + '|0'] || 0) >= 2 ? 0 : 1; while ((perWeek[id + '|' + w] || 0) >= 2) { n++; w++; } stats[id].streak = n; }
+    const people = Object.values(mem).map((x) => ({ id: x.id, nick: x.nick, last: x.last, tot: { tr: x.tot_tr, min: x.tot_min, vol: x.tot_vol, pr: x.tot_pr }, wk: stats[x.id], friend: vis.friends.includes(x.id) }));
+    return J({ ok: true, now, me: { id: me.id, nick: me.nick, paused: !!me.paused }, people, groups: Object.values(groups),
+      acts: acts.slice(0, 60).map((a) => ({ ...a, re: re[a.id] || [] })) });
+  }
+  return J({ ok: false, error: 'not_found' }, 404);
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -201,6 +395,11 @@ export default {
         const o = req.headers.get('Origin');
         if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
         return await postEvents(req, env);
+      }
+      if (url.pathname.startsWith('/f/')) {
+        const o = req.headers.get('Origin');
+        if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
+        return await friends(req, env, url);
       }
       if (url.pathname.startsWith('/admin/')) {
         const a = await isAdmin(req, env);
