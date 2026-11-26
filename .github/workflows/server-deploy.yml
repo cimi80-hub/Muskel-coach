@@ -1,0 +1,98 @@
+name: Server bereitstellen (Cloudflare)
+# Legt bei Cloudflare die Datenbank an, veröffentlicht worker/muskel-worker.js und setzt die Geheimnisse.
+# Benötigte Repository-Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, MC_ADMIN_KEY (mind. 12 Zeichen)
+on:
+  push:
+    branches: [main, stats-cloudflare]
+    paths: ['worker/**', '.github/workflows/server-deploy.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency: server-deploy
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      MC_ADMIN_KEY: ${{ secrets.MC_ADMIN_KEY }}
+      NAME: muskel-coach-server
+      DBNAME: muskel-coach-db
+    steps:
+      - name: Voraussetzungen prüfen
+        run: |
+          # Leerzeichen, Zeilenumbrüche und Anführungszeichen aus kopierten Werten entfernen (bleiben maskiert)
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID MC_ADMIN_KEY; do
+            t=$(printf '%s' "${!v}" | tr -d '[:space:]"'"'"); [ -n "$t" ] && echo "::add-mask::$t"; export $v="$t"; echo "$v=$t" >> $GITHUB_ENV
+          done
+          echo "Token: Länge ${#CLOUDFLARE_API_TOKEN}, beginnt mit ${CLOUDFLARE_API_TOKEN:0:5}… · Account-ID: Länge ${#CLOUDFLARE_ACCOUNT_ID} · Admin-Schlüssel: Länge ${#MC_ADMIN_KEY}"
+          ok=1
+          [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "::warning::Secret CLOUDFLARE_API_TOKEN fehlt"; ok=0; }
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::warning::Secret CLOUDFLARE_ACCOUNT_ID fehlt"; ok=0; }
+          [ ${#MC_ADMIN_KEY} -ge 12 ] || { echo "::warning::Secret MC_ADMIN_KEY fehlt oder ist kürzer als 12 Zeichen"; ok=0; }
+          if [ $ok = 1 ]; then
+            r=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+            echo "$r" | jq -e '.success==true' >/dev/null || r=$(curl -s "https://api.cloudflare.com/client/v4/user/tokens/verify" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+            echo "$r" | jq '{success, status: .result.status, errors}'
+            echo "$r" | jq -e '.success==true' >/dev/null || { echo "::error::Cloudflare-Token ungültig"; exit 1; }
+          fi
+          echo "READY=$ok" >> $GITHUB_ENV
+          [ $ok = 1 ] || echo "### ⏸️ Übersprungen – Secrets fehlen noch" >> $GITHUB_STEP_SUMMARY
+      - uses: actions/checkout@v4
+        if: env.READY == '1'
+      - uses: actions/setup-node@v4
+        if: env.READY == '1'
+        with: { node-version: 20 }
+      - name: Wrangler installieren
+        if: env.READY == '1'
+        run: npm i -g wrangler@4 >/dev/null 2>&1 && wrangler --version
+      - name: Datenbank anlegen (falls noch nicht vorhanden)
+        if: env.READY == '1'
+        run: |
+          id=$(wrangler d1 list --json | jq -r --arg n "$DBNAME" '.[]|select(.name==$n)|.uuid' | head -1)
+          if [ -z "$id" ]; then wrangler d1 create "$DBNAME" --location weur; id=$(wrangler d1 list --json | jq -r --arg n "$DBNAME" '.[]|select(.name==$n)|.uuid' | head -1); fi
+          [ -n "$id" ] || { echo "::error::Datenbank konnte nicht angelegt werden (Token braucht D1: Edit)"; exit 1; }
+          echo "DBID=$id" >> $GITHUB_ENV; echo "Datenbank: $DBNAME ($id)"
+      - name: workers.dev-Adresse sicherstellen
+        if: env.READY == '1'
+        run: |
+          A="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain"
+          sub=$(curl -s "$A" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.subdomain // empty')
+          if [ -z "$sub" ]; then
+            for cand in muskel-coach muskelcoach "muskel-coach-${CLOUDFLARE_ACCOUNT_ID:0:6}"; do
+              r=$(curl -s -X PUT "$A" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' -d "{\"subdomain\":\"$cand\"}")
+              if echo "$r" | jq -e '.success==true' >/dev/null; then sub=$cand; break; fi; echo "$r" | jq -c '.errors'
+            done
+          fi
+          [ -n "$sub" ] || { echo "::error::Keine workers.dev-Adresse"; exit 1; }
+          echo "SUB=$sub" >> $GITHUB_ENV
+      - name: Worker veröffentlichen
+        if: env.READY == '1'
+        run: |
+          cat > wrangler.toml <<TOML
+          name = "$NAME"
+          main = "worker/muskel-worker.js"
+          compatibility_date = "2025-09-01"
+          workers_dev = true
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "$DBNAME"
+          database_id = "$DBID"
+          TOML
+          wrangler deploy
+      - name: Geheimnisse setzen
+        if: env.READY == '1'
+        run: |
+          printf '%s' "$MC_ADMIN_KEY" | wrangler secret put ADMIN_KEY --name "$NAME"
+          if ! wrangler secret list --name "$NAME" | grep -q '"SALT"'; then openssl rand -hex 32 | tr -d '\n' | wrangler secret put SALT --name "$NAME"; fi
+      - name: Test
+        if: env.READY == '1'
+        run: |
+          URL="https://$NAME.$SUB.workers.dev"
+          for i in 1 2 3 4 5 6; do t=$(curl -s "$URL/" || true); [ "$t" = "Dr. Muskel Coach Server läuft" ] && break; sleep 10; done
+          echo "Antwort: $t"
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/admin/stats" -H 'Content-Type: application/json' -d '{}')
+          ok=$(curl -s -X POST "$URL/admin/stats" -H "Authorization: Bearer $MC_ADMIN_KEY" -H 'Content-Type: application/json' -d '{"k":["users"]}' | jq -r '.ok')
+          echo "Ohne Schlüssel: HTTP $code (erwartet 401) · mit Schlüssel: ok=$ok"
+          { echo "### ✅ Server läuft"; echo "Adresse: **$URL**"; echo "Antwort: $t · ohne Schlüssel HTTP $code · mit Schlüssel ok=$ok"; } >> $GITHUB_STEP_SUMMARY
+          [ "$t" = "Dr. Muskel Coach Server läuft" ] && [ "$code" = "401" ] && [ "$ok" = "true" ]
