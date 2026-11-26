@@ -1039,7 +1039,7 @@ function track(){ if(!statOk()) return; const today=bDay();
   try{ if(!localStorage.getItem('mc_counted')){ cntHit('users').then(v=>{ if(v!==null){ localStorage.setItem('mc_counted','1'); cntHit('n-'+today); } }); }
     const sa=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
     if(sa&&!localStorage.getItem('mc_cnt_inst')){ cntHit('inst').then(v=>{ if(v!==null) localStorage.setItem('mc_cnt_inst','1'); }); }
-    if(!isDevDev()&&localStorage.getItem('mc_day')!==today){ localStorage.setItem('mc_day',today); cntHit('d-'+today).then(v=>{ if(v===null) localStorage.removeItem('mc_day'); }); }
+    if(!isDevDev()&&localStorage.getItem('mc_day')!==today){ localStorage.setItem('mc_day',today); cntHit('d-'+today).then(v=>{ if(v===null) localStorage.removeItem('mc_day'); }); if(sa&&apiOn()) apiHit('di-'+today); }
     if(MC.unlocked&&MC.kind!=='master'&&!localStorage.getItem('mc_cnt_pro')){ cntHit('pro-users').then(v=>{ if(v!==null) localStorage.setItem('mc_cnt_pro','1'); }); }
   }catch(e){} }
 track(); /* auch wenn die App über Nacht offen bleibt und am nächsten Tag wieder hervorgeholt wird */
@@ -4091,7 +4091,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-26c';
+const APP_VERSION='2026-11-26d';
 const RELEASE='2026-11-26';
 const CHANGES=[
   ['👥','Freunde & Gruppen','Trainiere gemeinsam: Lade Partner, Freunde oder eine ganze Gruppe per Link ein. Nach jedem Training seht ihr automatisch Dauer, bewegte Kilos und neue Rekorde – mit 💪🔥👏, Wochen-Rangliste, Serien und Meilensteinen. Nur mit Spitzname, jederzeit pausier- und löschbar.'],
@@ -4329,10 +4329,10 @@ function secRender(box,tot,rows,old,sold){
   $('devSecRef').onclick=()=>devSec(); }
 /* Darstellung Kennzahlen + 7-Tage-Verlauf – genutzt von Abacus- und Server-Laden */
 function devDraw(S,days,note){ if(!$('devStats')) return; const red=DEVC.filter(c=>c.used).length; const f=v=>v===null||v===undefined?'–':Number(v).toLocaleString('de-DE');
-    $('devStats').innerHTML=`<div><b>${f(S.u)}</b><small>Geräte gesamt</small></div><div><b>${f(S.n)}</b><small>neu heute</small></div><div><b>${f(S.t)}</b><small>heute aktiv</small></div><div><b>${f(S.i)}</b><small>als App installiert</small></div><div><b>${f(S.p)}</b><small>Vollversion</small></div><div><b>${red}</b><small>Codes eingelöst</small></div>`;
+    $('devStats').innerHTML=`<div><b>${f(S.u)}</b><small>Geräte gesamt</small></div><div><b>${f(S.n)}</b><small>neu heute</small></div><div><b>${f(S.t)}</b><small>heute aktiv${S.ti!=null?`<br>📱 davon ${f(S.ti)} als App`:''}</small></div><div><b>${f(S.i)}</b><small>als App installiert</small></div><div><b>${f(S.p)}</b><small>Vollversion</small></div><div><b>${red}</b><small>Codes eingelöst</small></div>`;
     const vals=S.w||[]; const mx=Math.max(1,...vals.map(v=>v||0));
     $('devWeek').innerHTML=`<div class="pch"><b>Aktive Nutzer – letzte 7 Tage</b><button class="iconbtn" id="devRef" style="padding:4px 10px;font-size:12px">🔄</button></div>
-      ${vals.length?`<div class="devbars">${days.map((d,i)=>`<div><i style="height:${Math.round(100*(vals[i]||0)/mx)}%"></i><b>${vals[i]??'–'}</b><small>${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}</small></div>`).join('')}</div>`:''}
+      ${vals.length?`<div class="devbars">${days.map((d,i)=>`<div><i style="height:${Math.round(100*(vals[i]||0)/mx)}%"></i><b>${vals[i]??'–'}</b>${S.wi?`<small style="color:var(--acc)">📱${S.wi[i]||0}</small>`:''}<small>${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}</small></div>`).join('')}</div>`:''}
       <p class="muted" style="margin:6px 0 0;font-size:12px">${note}</p>`;
     const rb=$('devRef'); if(rb) rb.onclick=()=>devStats(true); }
 async function devStats(force){ if(force!=='auto'){ setTimeout(devCC,600); devLive(); } if(!$('devStats')) return;
@@ -4626,7 +4626,7 @@ function updLine(state){ const e=$('devUpd'); if(!e) return; const D=apiCache();
     :state==='err'?`⚠️ Server gerade nicht erreichbar${tm?' – angezeigt: Stand '+tm:''}`
     :tm?`✓ Zuletzt aktualisiert: <b>${tm}</b>${D.ms!=null?' <small>· geladen in '+(D.ms<1000?D.ms+' ms':(D.ms/1000).toFixed(1).replace('.',',')+' s')+'</small>':''}`:''; }
 function devApiKeys(){ const days=[...Array(7)].map((_,i)=>new Date(Date.now()-(6-i)*864e5)); const b=onBucket();
-  return {days,b,keys:['users','inst','pro-users','unlocks','um-all','uc-all','bad-all','reuse-all','n-'+bDay(),...days.map(d=>'d-'+bDay(d)),'on-'+b,'on-'+(b-1),...DEVC.map(c=>'c-'+c.code)]}; }
+  return {days,b,keys:['users','inst','pro-users','unlocks','um-all','uc-all','bad-all','reuse-all','n-'+bDay(),...days.map(d=>'d-'+bDay(d)),...days.map(d=>'di-'+bDay(d)),'on-'+b,'on-'+(b-1),...DEVC.map(c=>'c-'+c.code)]}; }
 function devApiDraw(D){ if(!D||!$('devStats')) return; const tm=new Date(D.at).toLocaleTimeString('de-DE');
   devDraw(D.S,D.days.map(t=>new Date(t)),'Eigener Server · Stand '+tm);
   const lv=$('devLive'); if(lv){ lv.querySelector('b').textContent=Date.now()-D.at<4*60000?D.live:'–'; const lt=$('devLiveT'); if(lt) lt.textContent='Stand '+tm; }
@@ -4644,7 +4644,7 @@ async function devApiLoad(){ if(!$('devStats')) return; try{ clearTimeout(devLiv
     const EV=['um','uc','bad','reuse'], tot={}; EV.forEach(e=>tot[e]=g(e+'-all'));
     const byDay={}; Object.keys(v).forEach(k=>{ const m=k.match(/^(um|uc|bad|reuse)-(\d{8})$/); if(m&&v[k]>0){ const o=byDay[m[2]]=byDay[m[2]]||{d:m[2],um:0,uc:0,bad:0,reuse:0}; o[m[1]]=v[k]; } });
     const D={at:Date.now(),ms:Math.round(performance.now()-t0),days:K.days.map(d=>d.getTime()),
-      S:{u:g('users'),n:g('n-'+today),t:g('d-'+today),i:g('inst'),p:Math.max(g('pro-users'),g('unlocks')),w:K.days.map(d=>g('d-'+bDay(d)))},
+      S:{u:g('users'),n:g('n-'+today),t:g('d-'+today),ti:g('di-'+today),i:g('inst'),p:Math.max(g('pro-users'),g('unlocks')),w:K.days.map(d=>g('d-'+bDay(d))),wi:K.days.map(d=>g('di-'+bDay(d)))},
       live:Math.max(g('on-'+K.b),g('on-'+(K.b-1))),cc,sec:{tot,rows:Object.values(byDay).sort((a,b)=>a.d<b.d?1:-1),old:Math.max(0,g('unlocks')-tot.um-tot.uc)},fb:j.fb||null};
     try{ localStorage.setItem('mc_dev_api',JSON.stringify(D)); }catch(e){}
     devApiDraw(D); ok=true;

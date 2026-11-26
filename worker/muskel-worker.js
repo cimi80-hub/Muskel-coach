@@ -133,7 +133,7 @@ function keyOk(k) {
   if (typeof k !== 'string' || k.length > 24) return false;
   if (/^(users|inst|pro-users|unlocks|(um|uc|bad|reuse)-all)$/.test(k)) return true;
   let m;
-  if ((m = k.match(/^(d|n|um|uc|bad|reuse)-(\d{8})$/))) return dateOk(m[2]);
+  if ((m = k.match(/^(d|di|n|um|uc|bad|reuse)-(\d{8})$/))) return dateOk(m[2]);
   if (/^cc-[A-Z]{2}$/.test(k)) return true;
   if (/^c-\d{6}$/.test(k)) return true;
   if ((m = k.match(/^on-(\d{6,10})$/))) return Math.abs(Number(m[1]) - Math.floor(Date.now() / ON_W)) <= 1;
