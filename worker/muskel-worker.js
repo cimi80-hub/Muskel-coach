@@ -1,5 +1,6 @@
 /**
- * Dr. Muskel Coach – Feedback-Dienst (Cloudflare Worker + D1, kostenloses Kontingent)
+ * Dr. Muskel Coach – Server (Cloudflare Worker + D1, kostenloses Kontingent)
+ * Feedback & Bewertungen + anonyme Nutzungsstatistik (Zähler) für den Entwicklerbereich.
  *
  * Bindings / Einstellungen im Cloudflare-Dashboard:
  *   D1-Datenbank  → Binding-Name  DB
@@ -8,6 +9,7 @@
  *   Variable (opt.) ALLOWED_ORIGINS  z. B. "https://cimi80-hub.github.io"
  *
  * Gespeichert wird nur: Sterne, Name (freiwillig, sonst „Anonym“), Kommentar, Datum, App-Version, Sprache.
+ * Statistik: nur anonyme Zähler (Schlüssel → Zahl), z. B. „heute aktiv“, Länder-Zähler. Keine Geräte-IDs.
  * Keine IP-Adressen. Für den Spamschutz wird ein Einweg-Hash (IP + SALT + Tag) max. 48 h gehalten.
  */
 const LIMIT_HOUR = 3;        // Einsendungen je Gerät/Netz pro Stunde
@@ -29,6 +31,7 @@ async function ensureSchema(db) {
     db.prepare('CREATE INDEX IF NOT EXISTS idx_fb_created ON feedback(created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS rate (k TEXT NOT NULL, kind TEXT NOT NULL, ts INTEGER NOT NULL)'),
     db.prepare('CREATE INDEX IF NOT EXISTS idx_rate ON rate(k, kind, ts)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS counters (k TEXT PRIMARY KEY, v INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID'),
   ]);
   schemaReady = true;
 }
@@ -117,6 +120,70 @@ async function adminList(req, env, url) {
   return json(req, env, { ok: true, count: stats.count || 0, avg: stats.avg == null ? null : Math.round(stats.avg * 100) / 100, dist: d, items: items.results || [] });
 }
 
+
+/* ===================== Statistik (Zähler) ===================== */
+const ON_W = 120000;                 // Online-Fenster der App (2 Min.)
+const EV_MAX = 10;                   // Zähler pro Anfrage
+const EV_LIMIT = 400;                // Zähler je Netz (anonym) pro 10 Min. – großzügig wegen Mobilfunk-Sammel-IPs
+const ymdUTC = (ms) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, '');
+function dateOk(s) { // nur gestern/heute/morgen (Zeitzonen-Spielraum) – alte Tage sind unveränderlich
+  const now = Date.now(); return [-1, 0, 1].some((o) => ymdUTC(now + o * 86400e3) === s);
+}
+function keyOk(k) {
+  if (typeof k !== 'string' || k.length > 24) return false;
+  if (/^(users|inst|pro-users|unlocks|(um|uc|bad|reuse)-all)$/.test(k)) return true;
+  let m;
+  if ((m = k.match(/^(d|n|um|uc|bad|reuse)-(\d{8})$/))) return dateOk(m[2]);
+  if (/^cc-[A-Z]{2}$/.test(k)) return true;
+  if (/^c-\d{6}$/.test(k)) return true;
+  if ((m = k.match(/^on-(\d{6,10})$/))) return Math.abs(Number(m[1]) - Math.floor(Date.now() / ON_W)) <= 1;
+  return false;
+}
+const evRate = new Map(); // pro Worker-Instanz, kostet keine Datenbank-Schreibvorgänge
+function evAllowed(k, n) {
+  const now = Date.now(); let e = evRate.get(k);
+  if (!e || now - e.t > 600e3) { e = { t: now, n: 0 }; evRate.set(k, e); }
+  if (evRate.size > 5000) evRate.clear();
+  e.n += n; return e.n <= EV_LIMIT;
+}
+async function postEvents(req, env) {
+  let body; try { body = await req.json(); } catch (e) { return json(req, env, { ok: false, error: 'bad_json' }, 400); }
+  const keys = [...new Set(Array.isArray(body.k) ? body.k : [])].slice(0, EV_MAX).filter(keyOk);
+  if (!keys.length) return json(req, env, { ok: false, error: 'keys' }, 400);
+  if (!evAllowed(await clientKey(req, env), keys.length)) return json(req, env, { ok: false, error: 'rate' }, 429);
+  const r = await env.DB.prepare(`INSERT INTO counters (k, v) SELECT value, 1 FROM json_each(?) WHERE true
+      ON CONFLICT(k) DO UPDATE SET v = v + 1 RETURNING k, v`).bind(JSON.stringify(keys)).all();
+  const out = {}; (r.results || []).forEach((x) => { out[x.k] = x.v; });
+  if (Math.random() < 0.01) { // alte Online-Zähler aufräumen (älter als 1 Tag)
+    const old = Math.floor(Date.now() / ON_W) - 720;
+    await env.DB.prepare("DELETE FROM counters WHERE k >= 'on-' AND k < ?").bind('on-' + old).run();
+  }
+  return json(req, env, { ok: true, v: out });
+}
+const RANGES = [['cc-', 'cc.'], ['um-2', 'um-3'], ['uc-2', 'uc-3'], ['bad-2', 'bad-3'], ['reuse-2', 'reuse-3']];
+async function adminStats(req, env) {
+  let body = {}; try { body = await req.json(); } catch (e) {}
+  const keys = (Array.isArray(body.k) ? body.k : []).filter((k) => typeof k === 'string' && k.length <= 24).slice(0, 500);
+  const db = env.DB;
+  const res = await db.batch([
+    db.prepare('SELECT k, v FROM counters WHERE k IN (SELECT value FROM json_each(?))').bind(JSON.stringify(keys)),
+    ...RANGES.map(([a, b]) => db.prepare('SELECT k, v FROM counters WHERE k >= ? AND k < ?').bind(a, b)),
+    db.prepare('SELECT COUNT(*) AS n, AVG(rating) AS avg FROM feedback'),
+  ]);
+  const v = {}; res.slice(0, 1 + RANGES.length).forEach((r) => (r.results || []).forEach((x) => { v[x.k] = x.v; }));
+  const fb = (res[res.length - 1].results || [])[0] || {};
+  return json(req, env, { ok: true, now: Date.now(), v, fb: { n: fb.n || 0, avg: fb.avg == null ? null : Math.round(fb.avg * 100) / 100 } });
+}
+async function adminImport(req, env) { // Altdaten aus Abacus: setzt höchstens hoch (MAX), nie runter – beliebig oft wiederholbar
+  let body = {}; try { body = await req.json(); } catch (e) {}
+  const items = (Array.isArray(body.items) ? body.items : []).filter((x) => Array.isArray(x) && typeof x[0] === 'string' && x[0].length <= 24
+    && /^[a-z]+(-[A-Za-z0-9]+)*$/.test(x[0]) && Number.isInteger(x[1]) && x[1] >= 0 && x[1] < 1e9).slice(0, 1000);
+  if (!items.length) return json(req, env, { ok: true, n: 0 });
+  await env.DB.prepare(`INSERT INTO counters (k, v) SELECT json_extract(value, '$[0]'), json_extract(value, '$[1]') FROM json_each(?) WHERE true
+      ON CONFLICT(k) DO UPDATE SET v = MAX(v, excluded.v)`).bind(JSON.stringify(items)).run();
+  return json(req, env, { ok: true, n: items.length });
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -124,17 +191,24 @@ export default {
     if (!env.DB) return json(req, env, { ok: false, error: 'no_db' }, 500);
     await ensureSchema(env.DB);
     try {
-      if (url.pathname === '/' && req.method === 'GET') return new Response('Dr. Muskel Coach Feedback läuft', { headers: { 'Content-Type': 'text/plain; charset=utf-8', ...cors(req, env) } });
+      if (url.pathname === '/' && req.method === 'GET') return new Response('Dr. Muskel Coach Server läuft', { headers: { 'Content-Type': 'text/plain; charset=utf-8', ...cors(req, env) } });
       if (url.pathname === '/feedback' && req.method === 'POST') {
         const o = req.headers.get('Origin');
         if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
         return await postFeedback(req, env);
+      }
+      if (url.pathname === '/e' && req.method === 'POST') {
+        const o = req.headers.get('Origin');
+        if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
+        return await postEvents(req, env);
       }
       if (url.pathname.startsWith('/admin/')) {
         const a = await isAdmin(req, env);
         if (a === 'locked') return json(req, env, { ok: false, error: 'locked' }, 429);
         if (a !== 'ok') return json(req, env, { ok: false, error: 'unauthorized' }, 401);
         if (url.pathname === '/admin/feedback' && req.method === 'GET') return await adminList(req, env, url);
+        if (url.pathname === '/admin/stats' && req.method === 'POST') return await adminStats(req, env);
+        if (url.pathname === '/admin/import' && req.method === 'POST') return await adminImport(req, env);
         const m = url.pathname.match(/^\/admin\/feedback\/(\d+)$/);
         if (m && req.method === 'DELETE') { await env.DB.prepare('DELETE FROM feedback WHERE id = ?').bind(Number(m[1])).run(); return json(req, env, { ok: true }); }
       }
