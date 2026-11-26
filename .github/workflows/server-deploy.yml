@@ -21,6 +21,11 @@ jobs:
     steps:
       - name: Voraussetzungen prüfen
         run: |
+          # Leerzeichen, Zeilenumbrüche und Anführungszeichen aus kopierten Werten entfernen (bleiben maskiert)
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID MC_ADMIN_KEY; do
+            t=$(printf '%s' "${!v}" | tr -d '[:space:]"'"'"); [ -n "$t" ] && echo "::add-mask::$t"; export $v="$t"; echo "$v=$t" >> $GITHUB_ENV
+          done
+          echo "Token: Länge ${#CLOUDFLARE_API_TOKEN}, beginnt mit ${CLOUDFLARE_API_TOKEN:0:5}… · Account-ID: Länge ${#CLOUDFLARE_ACCOUNT_ID} · Admin-Schlüssel: Länge ${#MC_ADMIN_KEY}"
           ok=1
           [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "::warning::Secret CLOUDFLARE_API_TOKEN fehlt"; ok=0; }
           [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::warning::Secret CLOUDFLARE_ACCOUNT_ID fehlt"; ok=0; }
