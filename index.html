@@ -1047,8 +1047,13 @@ track(); /* auch wenn die App über Nacht offen bleibt und am nächsten Tag wied
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') track(); }); setInterval(track,5*60000);
 /* Basis-Version (nach der 10-Tage-Demo): nur diese 3 Übungen, kein Trainingsplan, kein Training, kein Kalender */
 const FREE_EX=['bankdruecken','kh-curls','kniebeuge'];
-const PRO_FEATURES=[['💭','Coach-Chat – dein Personal Trainer','Frag ihn alles: Übungen, Abnehmen, Supplements. Er kennt deine Rekorde und deinen Plan … und sagt dir, was als Nächstes kommt','neu'],['🎙️','Sprach-Coach','Hantel in der Hand? Sag einfach „Latzug 20 Kilo, 8 Wiederholungen“ – er trägt ein und verrät dir, ob du heute stärker bist als letztes Mal','neu'],['📍','Mein Studio live','Nie wieder Stoßzeiten: Sieh schon zu Hause, wie voll dein Studio gerade ist – und trainier, wenn die Geräte frei sind','neu'],
-  ['🏋️','Alle 90 Übungen','statt nur 3 – inkl. Maschinen, Kabel- & Freihantel-Übungen'],['📋','Trainingsplan & Training','eigener Plan, geführtes Training mit Satz-Timer und Pausen'],['📅','Kalender','Trainingstage planen und abhaken'],['🧍','3D-Bodybuilder','360° drehbar aus jeder Perspektive, Muskeln leuchten, 14 Looks – Männer, Frauen, Anatomie & Pro Athlet'],
+const PRO_FEATURES=[['🤖','All-in-One mit KI','Training, Ernährung, Coach und Community – alles in einer App, smart unterstützt von KI','neu'],
+  ['💬','Persönlicher KI-Chat','Dein Personal Trainer kennt deinen Plan, deine Rekorde und deine Ernährung – frag ihn alles: Übungen, Abnehmen, Supplements','neu'],
+  ['🍽️','Food-Tracker','Über 33.000 Lebensmittel, Barcode-Scanner, Fastfood & türkische Küche – einfach sagen, was du gegessen hast (auch in der Basis-Version)','neu'],
+  ['👥','Freunde & Gruppen','Teilt eure Trainings und pusht euch gegenseitig: Rekorde, Wochen-Rangliste, Serien (auch in der Basis-Version)','neu'],
+  ['🧍','3D & 360° Übungen','Alle 90 Übungen statt nur 3 – mit 3D-Vorführung, 360° drehbar, Muskeln leuchten, 14 Looks','neu'],
+  ['🎙️','Sprach-Coach','Hantel in der Hand? Sag einfach „Latzug 20 Kilo, 8 Wiederholungen“ – er trägt ein und verrät dir, ob du heute stärker bist als letztes Mal'],['📍','Mein Studio live','Sieh schon zu Hause, wie voll dein Studio gerade ist – und trainier, wenn die Geräte frei sind'],
+  ['📋','Trainingsplan & Training','eigener Plan, geführtes Training mit Satz-Timer und Pausen'],['📅','Kalender','Trainingstage planen und abhaken'],
   ['🏆','Rekord-Speicher','merkt sich dein schwerstes Gewicht & feiert jeden neuen Rekord'],['📈','Fortschritt','Statistik, Körper & Maße, Fortschrittsfotos, 21 Abzeichen'],
   ['🔥','Grenztest & Profi-Helfer','Maximalkraft testen, Scheiben-Rechner, Aufwärmsätze im Training']];
 const isLocked=e=>!MC.pro&&!!e&&!FREE_EX.includes(e.id);
