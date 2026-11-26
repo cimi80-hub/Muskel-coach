@@ -192,6 +192,7 @@
   .wnfit li b{font-size:var(--wf,14px);line-height:1.25} .wnfit li small{font-size:calc(var(--wf,14px) - 2px);display:-webkit-box;-webkit-line-clamp:var(--wl,3);-webkit-box-orient:vertical;overflow:hidden}
   .wnfit .wnmore{flex:none;background:none;border:0;color:var(--acc);font-weight:700;font-size:13px;padding:2px 0 8px}
   .wnfit .savebtn{flex:none;margin-top:0}
+  .wn2 li.isnew{background:linear-gradient(90deg,rgba(198,255,61,.13),transparent);border-radius:10px;padding:7px 8px;margin:0 -4px}.wn2 li b .nbadge{vertical-align:2px;margin-left:4px}
   .wnbanner{width:100%;display:flex;gap:12px;align-items:center;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#1d2410,#171a1c 80%);border:1px solid #3c4d1a}
   .wnbanner>span{font-size:24px} .wnbanner div{flex:1} .wnbanner b{display:block;font-size:14px} .wnbanner small{display:block;font-size:12px;color:var(--mut)}
   .wnbanner em{font-style:normal;font-size:10.5px;font-weight:800;background:var(--acc);color:#111;border-radius:6px;padding:2px 7px}
@@ -4091,7 +4092,7 @@ function backupNag(){ const bak=localStorage.getItem('mc_bak'); if(LOG.length<3)
    „WAS IST NEU“ – bei jedem Update einmal anzeigen, 5 Tage als NEU markieren
    Für ein neues Update: APP_VERSION ändern, RELEASE-Datum setzen, CHANGES ausfüllen.
    ===================================================================== */
-const APP_VERSION='2026-11-26d';
+const APP_VERSION='2026-11-26e';
 const RELEASE='2026-11-26';
 const CHANGES=[
   ['👥','Freunde & Gruppen','Trainiere gemeinsam: Lade Partner, Freunde oder eine ganze Gruppe per Link ein. Nach jedem Training seht ihr automatisch Dauer, bewegte Kilos und neue Rekorde – mit 💪🔥👏, Wochen-Rangliste, Serien und Meilensteinen. Nur mit Spitzname, jederzeit pausier- und löschbar.'],
@@ -4138,15 +4139,20 @@ const NEW_DAYS=5;
 const isFresh=(d)=>{ const until=addD(parseD(d||RELEASE),NEW_DAYS); return ymd(new Date())<=ymd(until); };
 const isNewEx=e=>!!(e&&e.neu&&isFresh(e.neuDate||RELEASE));
 const WN_SHOW=5; /* so viele Neuigkeiten sieht man sofort, der Rest per „weitere anzeigen“ */
-function whatsNewHTML(all){ const d=parseD(RELEASE); const n=CHANGES.length;
-  const list=all?CHANGES:CHANGES.slice(0,WN_SHOW);
-  /* je mehr Einträge, desto kompakter: Schriftgröße, Abstand, Textzeilen */
-  const k=list.length, f=k<=3?15:k<=5?14:k<=8?13:12.5, gap=k<=5?10:7, lines=k<=3?3:k<=6?2:1;
-  return `<div class="wnbox wnfit" style="--wf:${f}px;--wg:${gap}px;--wl:${lines}"><button class="wnx" id="wnX" aria-label="Schließen">✕</button>
-    <div class="wnhd"><span>✨</span><div><b>Neu in Muskel-Coach</b><small>Update vom ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}</small></div></div>
-    <ul>${list.map(c=>`<li><i>${c[0]}</i><div><b>${esc(c[1])}</b><small>${esc(c[2])}</small></div></li>`).join('')}</ul>
-    ${!all&&n>WN_SHOW?`<button class="wnmore" id="wnMore">+ ${n-WN_SHOW} weitere Neuerung${n-WN_SHOW>1?'en':''} anzeigen</button>`:''}
-    <button class="savebtn" id="wnOk">Alles klar 💪</button></div>`; }
+/* Update 2.0: im „Was ist neu“-Fenster nur die Highlights (CHANGES bleibt als Verlauf erhalten) */
+const WN_VER='2.0';
+const WN_HIGHLIGHTS=[
+  ['🤖',LX('All-in-One mit KI','All-in-one with AI'),LX('Training, Ernährung, Coach und Community – alles in einer App, smart unterstützt von KI.','Training, nutrition, coach and community – all in one app, powered by AI.')],
+  ['💬',LX('Persönlicher KI-Chat','Personal AI chat'),LX('Dein Personal Trainer kennt deinen Plan, deine Rekorde und deine Ernährung – frag ihn alles, auch per Sprache.','Your personal trainer knows your plan, records and nutrition – ask anything, by voice too.')],
+  ['🍽️',LX('Food-Tracker','Food tracker'),LX('Über 33.000 Lebensmittel, Barcode-Scanner, Fastfood und türkische Küche – einfach sagen, was du gegessen hast.','33,000+ foods, barcode scanner, fast food and Turkish cuisine – just say what you ate.')],
+  ['👥',LX('Freunde & Gruppen','Friends & groups'),LX('Teilt eure Trainings und pusht euch gegenseitig: Rekorde, Wochen-Rangliste und Serien.','Share your workouts and push each other: records, weekly ranking and streaks.')],
+  ['🧍',LX('3D & 360° Übungen','3D & 360° exercises'),LX('90 Übungen mit 3D-Vorführung – frei drehbar um 360°, die trainierten Muskeln leuchten.','90 exercises with 3D demos – rotate 360°, the trained muscles light up.')],
+];
+function whatsNewHTML(){
+  return `<div class="wnbox wnfit wn2" style="--wf:15px;--wg:10px;--wl:3"><button class="wnx" id="wnX" aria-label="${LX('Schließen','Close')}">✕</button>
+    <div class="wnhd"><span>🚀</span><div><b>${LX('Update '+WN_VER+' ist da!','Update '+WN_VER+' is here!')}</b><small>${LX('Die Highlights auf einen Blick','The highlights at a glance')}</small></div></div>
+    <ul>${WN_HIGHLIGHTS.map(c=>`<li class="isnew"><i>${c[0]}</i><div><b>${esc(c[1])} <em class="nbadge">${LX('NEU','NEW')}</em></b><small>${esc(c[2])}</small></div></li>`).join('')}</ul>
+    <button class="savebtn" id="wnOk">${LX('Los geht’s 💪','Let’s go 💪')}</button></div>`; }
 function showWhatsNew(force){ let seen=''; try{ seen=localStorage.getItem('mc_seen_ver')||''; }catch(e){}
   if(!force&&seen===APP_VERSION) return;
   let ov=$('wnPop'); if(!ov){ ov=document.createElement('div'); ov.id='wnPop'; ov.className='wnpop'; document.body.appendChild(ov); }
@@ -4155,7 +4161,7 @@ function showWhatsNew(force){ let seen=''; try{ seen=localStorage.getItem('mc_se
   const draw=all=>{ ov.innerHTML=whatsNewHTML(all); $('wnX').onclick=close; $('wnOk').onclick=close; const m=$('wnMore'); if(m) m.onclick=e=>{ e.stopPropagation(); draw(true); }; };
   draw(false); ov.classList.add('on'); ov.onclick=e=>{ if(e.target===ov) close(); }; }
 function newBanner(){ if(!isFresh(RELEASE)) return '';
-  return `<button class="wnbanner" id="wnBan"><span>✨</span><div><b>Neu: ${esc(CHANGES[0][1])}${CHANGES.length>1?` &amp; ${CHANGES.length-1} weitere Neuerung${CHANGES.length>2?'en':''}`:''}</b><small>Tippen für alle Neuigkeiten</small></div><em>NEU</em></button>`; }
+  return `<button class="wnbanner" id="wnBan"><span>🚀</span><div><b>${LX('Update '+WN_VER+' ist da!','Update '+WN_VER+' is here!')}</b><small>${LX('KI-Coach, Food-Tracker, Freunde & Gruppen, 3D – tippen für die Highlights','AI coach, food tracker, friends & groups, 3D – tap for highlights')}</small></div><em>${LX('NEU','NEW')}</em></button>`; }
 (function waitGate(){ const gg=document.getElementById('gate'); if(gg&&gg.style.display!=='none') return setTimeout(waitGate,500); setTimeout(()=>showWhatsNew(false),700); })();
 
 
