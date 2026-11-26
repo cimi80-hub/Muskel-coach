@@ -1027,8 +1027,8 @@ function myCountry(){ let tz=''; try{ tz=Intl.DateTimeFormat().resolvedOptions()
 const ccFlag=c=>c==='XX'?'🌍':String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0)));
 /* Tageszählung nach deutscher Uhrzeit (nicht UTC), damit „heute“ um 0 Uhr in Deutschland beginnt */
 function bDay(d){ d=d||new Date(); try{ return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).format(d).replace(/\D/g,''); }catch(e){ return d.toISOString().slice(0,10).replace(/-/g,''); } }
-/* Anonyme Statistik nur mit Zustimmung (mc_stat: '1' = ja, '0' = nein, leer = noch nicht gefragt) */
-const statOk=()=>{ try{ return localStorage.getItem('mc_stat')==='1'; }catch(e){ return false; } };
+/* Anonyme Statistik: standardmäßig an, im Profil abschaltbar (mc_stat '0' = aus) */
+const statOk=()=>{ try{ return localStorage.getItem('mc_stat')!=='0'; }catch(e){ return true; } };
 const isDevDev=()=>{ try{ return localStorage.getItem('mc_isdev')==='1'; }catch(e){ return false; } };
 const ON_W=120000; let onLast=-1; /* 2-Min.-Fenster – halbiert die Anfragen */
 function onBucket(){ return Math.floor(Date.now()/ON_W); }
@@ -4878,7 +4878,6 @@ function statAsk(){ let st=''; try{ st=localStorage.getItem('mc_stat')||''; }cat
   el.innerHTML=`<p>📊 <b>${LX('Hilfst du uns ein bisschen?','Can you help us a little?')}</b><br>${LX('Darf Dr. Muskel Coach anonym mitzählen, wie viele Geräte die App nutzen und aus welchem Land (ohne Namen, ohne Trainings- oder Körperdaten)?','May Dr. Muskel Coach anonymously count how many devices use the app and from which country (no names, no workout or body data)?')} <a href="datenschutz.html#statistik">${LX('Mehr','More')}</a></p>
     <div class="row2"><button class="savebtn sec2" id="statNo">${LX('Nein danke','No thanks')}</button><button class="savebtn" id="statYes">${LX('Ja, gern','Yes, sure')}</button></div>`;
   el.classList.add('on'); $('statNo').onclick=()=>{ statSet(false); el.classList.remove('on'); }; $('statYes').onclick=()=>{ statSet(true); el.classList.remove('on'); toast2(LX('Danke! 💪','Thanks! 💪')); }; }
-setTimeout(statAsk,5000);
 function statProfBtn(){ const sb=$('setBox'); if(!sb) return; let b=$('statProf');
   if(!b){ b=document.createElement('button'); b.type='button'; b.id='statProf'; b.className='savebtn sec2'; sb.parentNode.insertBefore(b,sb); b.onclick=()=>{ statSet(!statOk()); toast2(statOk()?LX('Anonyme Statistik an','Anonymous statistics on'):LX('Anonyme Statistik aus','Anonymous statistics off')); }; }
   b.textContent='📊 '+LX('Anonyme Statistik','Anonymous statistics')+': '+(statOk()?LX('An','On'):LX('Aus','Off')); }
