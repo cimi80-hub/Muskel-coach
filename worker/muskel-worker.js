@@ -380,21 +380,30 @@ async function friends(req, env, url) {
 
 /* ===================== Freischalt-Codes mit Laufzeit ===================== */
 // 8-stellige Codes, nur auf dem Server erzeugt und geprüft; Laufzeit 1–12 Monate; jeder Code genau einmal.
+let codeReady = false;
 async function codeSchema(db) {
-  await db.prepare('CREATE TABLE IF NOT EXISTS codes (code TEXT PRIMARY KEY, months INTEGER NOT NULL, created INTEGER, redeemed INTEGER)').run();
+  if (codeReady) return;
+  await db.prepare('CREATE TABLE IF NOT EXISTS codes (code TEXT PRIMARY KEY, months INTEGER NOT NULL, created INTEGER, redeemed INTEGER, expires INTEGER, tag TEXT)').run();
+  for (const col of ['expires INTEGER', 'tag TEXT']) { try { await db.prepare('ALTER TABLE codes ADD COLUMN ' + col).run(); } catch (e) { /* Spalte existiert schon */ } }
+  codeReady = true;
 }
-async function adminCode(req, env) {
+async function adminCode(req, env) { // ein Code oder ein ganzer Stapel (Kooperationen)
   let body = {}; try { body = await req.json(); } catch (e) {}
   const months = Math.round(Number(body.months));
   if (!(months >= 1 && months <= 12)) return json(req, env, { ok: false, error: 'months' }, 400);
+  const count = Math.max(1, Math.min(50, Math.round(Number(body.count) || 1)));
+  const expires = Number(body.expires) > Date.now() ? Math.round(Number(body.expires)) : null;
+  const tag = clean(body.tag, 40) || null;
   await codeSchema(env.DB);
-  for (let i = 0; i < 5; i++) {
-    const b = crypto.getRandomValues(new Uint32Array(1))[0];
-    const code = String(10000000 + (b % 90000000));
-    const r = await env.DB.prepare('INSERT OR IGNORE INTO codes (code, months, created) VALUES (?, ?, ?)').bind(code, months, Date.now()).run();
-    if (r.meta && r.meta.changes) return json(req, env, { ok: true, code, months });
+  const out = [], now = Date.now();
+  for (let round = 0; round < 3 && out.length < count; round++) {
+    const want = new Set(); while (want.size < count - out.length) want.add(String(10000000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 90000000)));
+    const r = await env.DB.prepare(`INSERT INTO codes (code, months, created, expires, tag) SELECT value, ?, ?, ?, ? FROM json_each(?) WHERE true
+        ON CONFLICT(code) DO NOTHING RETURNING code`).bind(months, now, expires, tag, JSON.stringify([...want])).all();
+    (r.results || []).forEach((x) => out.push(x.code));
   }
-  return json(req, env, { ok: false, error: 'server' }, 500);
+  if (!out.length) return json(req, env, { ok: false, error: 'server' }, 500);
+  return json(req, env, { ok: true, code: out[0], codes: out, months, expires, tag });
 }
 async function redeem(req, env) {
   let body = {}; try { body = await req.json(); } catch (e) {}
@@ -404,9 +413,10 @@ async function redeem(req, env) {
   if (await countSince(db, k, 'codefail', now - 3600e3) >= 10) return json(req, env, { ok: false, error: 'rate' }, 429);
   const fail = async (error, status) => { await db.prepare('INSERT INTO rate (k, kind, ts) VALUES (?, ?, ?)').bind(k, 'codefail', now).run(); return json(req, env, { ok: false, error }, status); };
   if (!/^\d{8}$/.test(code)) return fail('invalid', 400);
-  const row = await db.prepare('SELECT months, redeemed FROM codes WHERE code = ?').bind(code).first();
+  const row = await db.prepare('SELECT months, redeemed, expires FROM codes WHERE code = ?').bind(code).first();
   if (!row) return fail('invalid', 404);
   if (row.redeemed) return fail('used', 409);
+  if (row.expires && now > row.expires) return json(req, env, { ok: false, error: 'expired' }, 410);
   const r = await db.prepare('UPDATE codes SET redeemed = ? WHERE code = ? AND redeemed IS NULL').bind(now, code).run();
   if (!(r.meta && r.meta.changes)) return fail('used', 409);
   await db.prepare("INSERT INTO counters (k, v) VALUES (?, 1) ON CONFLICT(k) DO UPDATE SET v = v + 1").bind('c-' + code).run();

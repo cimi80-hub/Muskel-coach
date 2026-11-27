@@ -4271,8 +4271,8 @@ function devRender(){ const ov=$('devSheet');
     <h3 class="vh">🛡️ Freischaltungen &amp; Sicherheit</h3>
     <div class="pc" id="devSec"><p class="muted" style="margin:0">Lade Protokoll …</p></div>
     <p class="muted">Gezählt ab 25.11.2026, pro Tag nach deutscher Zeit. Master-Code-Freischaltungen sollten nur deine eigenen Geräte sein. Fehlversuche = falsche Codes; „doppelt“ = jemand wollte einen schon benutzten Code nochmal einlösen.</p>
-    <h3 class="vh">📋 Vergebene Codes <small style="text-transform:none;letter-spacing:0">${DEVC.length}</small></h3>
-    <div class="pc">${DEVC.length?`<div class="devlist">${DEVC.slice().reverse().map(c=>`<div data-c="${c.code}"><code>${c.code}</code><span>${esc(c.who||c.mail||'–')}<small>${fmtD(parseD(c.date))} · ${c.m&&c.m!==12?c.m+' Mon.':'1 Jahr'}${c.ord?' · '+esc(c.ord):''}${c.mail&&c.who?' · '+esc(c.mail):''}</small></span><em class="st">${c.used?'✅ eingelöst':'⏳ offen'}</em></div>`).join('')}</div>
+    <h3 class="vh">📋 Vergebene Codes <small style="text-transform:none;letter-spacing:0">${DEVC.filter(c=>!c.co).length}</small></h3>
+    <div class="pc">${DEVC.filter(c=>!c.co).length?`<div class="devlist">${DEVC.filter(c=>!c.co).reverse().map(c=>`<div data-c="${c.code}"><code>${c.code}</code><span>${esc(c.who||c.mail||'–')}<small>${fmtD(parseD(c.date))} · ${c.m&&c.m!==12?c.m+' Mon.':'1 Jahr'}${c.ord?' · '+esc(c.ord):''}${c.mail&&c.who?' · '+esc(c.mail):''}</small></span><em class="st">${c.used?'✅ eingelöst':'⏳ offen'}</em></div>`).join('')}</div>
       <button class="savebtn sec2" id="devCheck">🔄 Status aller Codes prüfen</button>`:'<p class="muted" style="margin:0">Noch keine Codes erzeugt.</p>'}</div>
     <h3 class="vh">🧪 Test-Werkzeuge</h3>
     <div class="pc"><p class="muted" style="margin:0 0 8px">So sieht die App für Kunden aus – nur zum Ansehen. Deine eigene Freischaltung bleibt erhalten.</p>
@@ -4463,6 +4463,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
           if(j.ok) return okUnlock('code',j.months);
           if(j.error==='used'){ failAdd(); secHit('reuse'); err.textContent='Dieser Code wurde schon verwendet. Jeder Code gilt nur einmal – bitte neuen Code anfragen.'; }
           else if(j.error==='rate') err.textContent='Zu viele Versuche – bitte in einer Stunde nochmal versuchen.';
+          else if(j.error==='expired') err.textContent='Dieser Code ist abgelaufen und kann nicht mehr eingelöst werden.';
           else if(j.error==='net'||!API_URL) err.textContent='Keine Internetverbindung – bitte Internet einschalten und nochmal versuchen.';
           else { failAdd(); secHit('bad'); err.textContent='Falscher Code – bitte nochmal prüfen.'; }
           shake(); })(); return; }
@@ -4668,7 +4669,7 @@ async function devApiLoad(){ if(!$('devStats')) return; try{ clearTimeout(devLiv
     if(r.status===401||r.status===429){ DEVA.busy=false; try{ sessionStorage.removeItem('mc_api_key'); }catch(e){} apiBoxRender(); fbAdminRender(); const e=$('apiKeyErr'); if(e) e.textContent=r.status===429?'Zu viele Fehlversuche – bitte in 1 Stunde erneut.':'Schlüssel falsch.'; devFallback(); return; }
     if(!r.ok||!j.ok) throw new Error('HTTP '+r.status);
     const v=j.v||{}, g=k=>v[k]||0, today=bDay();
-    DEVC.forEach(c=>{ if(g('c-'+c.code)>0) c.used=true; }); saveDevC();
+    DEVC.forEach(c=>{ if(g('c-'+c.code)>0) c.used=true; }); saveDevC(); try{ if(!$('coGo')) coRender(); else coList(); }catch(e){}
     const cc={}; Object.keys(v).forEach(k=>{ if(k.startsWith('cc-')) cc[k.slice(3)]=v[k]; });
     const EV=['um','uc','bad','reuse'], tot={}; EV.forEach(e=>tot[e]=g(e+'-all'));
     const byDay={}; Object.keys(v).forEach(k=>{ const m=k.match(/^(um|uc|bad|reuse)-(\d{8})$/); if(m&&v[k]>0){ const o=byDay[m[2]]=byDay[m[2]]||{d:m[2],um:0,uc:0,bad:0,reuse:0}; o[m[1]]=v[k]; } });
@@ -4911,6 +4912,59 @@ function statProfBtn(){ const sb=$('setBox'); if(!sb) return; let b=$('statProf'
   if(!b){ b=document.createElement('button'); b.type='button'; b.id='statProf'; b.className='savebtn sec2'; sb.parentNode.insertBefore(b,sb); b.onclick=()=>{ statSet(!statOk()); toast2(statOk()?LX('Anonyme Statistik an','Anonymous statistics on'):LX('Anonyme Statistik aus','Anonymous statistics off')); }; }
   b.textContent='📊 '+LX('Anonyme Statistik','Anonymous statistics')+': '+(statOk()?LX('An','On'):LX('Aus','Off')); }
 statProfBtn();
+</script>
+<style>
+.cochips{display:flex;gap:6px;margin:4px 0 10px}.cochips button{flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-weight:700}
+.cochips button.on{background:var(--acc);color:#111;border-color:var(--acc)}
+.cogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0}.cogrid code{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center;font-size:15px;letter-spacing:1px}
+.cogrid code.u{opacity:.45;text-decoration:line-through}
+.coit{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}.coit:first-child{border-top:0}.coit div{flex:1}.coit small{display:block;color:var(--mut);font-size:12px}
+.cobar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:5px}.cobar i{display:block;height:100%;background:var(--acc)}
+</style>
+<script>
+/* ===== Kooperationen / Influencer: viele Codes auf einmal ===== */
+const COOP={n:10};
+function coGroups(){ const g={}; DEVC.filter(c=>c.co).forEach(c=>{ const k=c.co+'|'+c.batch; (g[k]=g[k]||{tag:c.co,batch:c.batch,m:c.m,exp:c.exp,date:c.date,codes:[]}).codes.push(c); }); return Object.values(g).sort((a,b)=>b.batch-a.batch); }
+const coDur=m=>m===12?'1 Jahr':m===1?'1 Monat':m+' Monate';
+const coExpTxt=e=>e?new Date(e).toLocaleDateString('de-DE'):'';
+function coText(G){ const url=appUrl(); return `Hallo! Hier sind deine ${G.codes.length} Freischalt-Codes für Dr. Muskel Coach 💪\nJeder Code schaltet die Vollversion für ${coDur(G.m)} frei und funktioniert genau einmal${G.exp?` – einlösbar bis ${coExpTxt(G.exp)}`:''}.\n\nSo geht's: App öffnen (${url}) → „Code eingeben“ → Code eintippen.\n\n${G.codes.map(c=>c.code).join('\n')}`; }
+function coMount(){ if(!$('devSheet')||$('coBox')) return; const ref=[...document.querySelectorAll('#devSheet .devwrap h3')].find(h=>/Freischaltungen/.test(h.textContent)); if(!ref) return;
+  const h=document.createElement('h3'); h.className='vh'; h.textContent='🤝 Kooperation / Influencer'; const box=document.createElement('div'); box.className='pc'; box.id='coBox';
+  ref.parentNode.insertBefore(h,ref); ref.parentNode.insertBefore(box,ref); coRender(); }
+function coRender(){ const box=$('coBox'); if(!box) return; const key=(typeof apiKey==='function')?apiKey():'';
+  if(!apiOn()||!key){ box.innerHTML='<p class="muted" style="margin:0">🔑 Oben den Server-Schlüssel eingeben – dann kannst du hier 10, 20, 30 oder 50 Codes auf einmal für eine Kooperation erzeugen.</p>'; return; }
+  box.innerHTML=`<label class="f2">Name der Kooperation<input id="coTag" maxlength="40" placeholder="z. B. @fitmax oder Studio Nord"></label>
+    <div class="muted" style="font-size:13px">Anzahl Codes</div><div class="cochips">${[10,20,30,50].map(n=>`<button type="button" data-con="${n}" class="${COOP.n===n?'on':''}">${n}</button>`).join('')}</div>
+    <label class="f2">Laufzeit pro Code<select id="coM" style="padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px">${[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>`<option value="${m}"${m===(COOP.m||1)?' selected':''}>${coDur(m)}</option>`).join('')}</select></label>
+    <label class="f2">Einlösbar bis (freiwillig)<input id="coExp" type="date" min="${new Date(Date.now()+864e5).toISOString().slice(0,10)}" style="padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px"></label>
+    <p class="muted" style="font-size:12px;margin:2px 0 8px">Nach diesem Datum lassen sich nicht eingelöste Codes nicht mehr verwenden. Leer = unbegrenzt einlösbar.</p>
+    <button class="savebtn" id="coGo">🎲 ${COOP.n} Codes erzeugen</button><div id="coOut"></div><div id="coList"></div>`; coList();
+  box.querySelectorAll('[data-con]').forEach(b=>b.onclick=()=>{ COOP.n=+b.dataset.con; COOP.m=+$('coM').value; const t=$('coTag').value, e=$('coExp').value; coRender(); $('coTag').value=t; $('coExp').value=e; });
+  $('coGo').onclick=async()=>{ const tag=$('coTag').value.trim(); if(tag.length<2){ toast2('Bitte einen Namen für die Kooperation eingeben'); $('coTag').focus(); return; }
+    const m=+$('coM').value; COOP.m=m; const ev=$('coExp').value; const exp=ev?new Date(ev+'T23:59:59').getTime():null;
+    if(!confirm(`${COOP.n} Codes für „${tag}“ erzeugen?\nLaufzeit je ${coDur(m)}${exp?', einlösbar bis '+coExpTxt(exp):''}.`)) return;
+    const b=$('coGo'); b.disabled=true; b.textContent='⏳ Erzeuge …'; let j={};
+    try{ const r=await fetch(API_URL.replace(/\/$/,'')+'/admin/code',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({months:m,count:COOP.n,tag,expires:exp})}); j=await r.json().catch(()=>({})); }catch(e){}
+    b.disabled=false; b.textContent=`🎲 ${COOP.n} Codes erzeugen`;
+    if(!j.ok||!j.codes){ toast2('Codes konnten nicht erzeugt werden – Internet/Server-Schlüssel prüfen'); return; }
+    const batch=Date.now(), date=ymd(new Date()); j.codes.forEach(code=>DEVC.push({code,who:tag,mail:'',ord:'',date,used:false,m,co:tag,batch,exp:j.expires||null})); saveDevC();
+    coRender(); coShow(coGroups().find(G=>G.batch===batch)); toast2(`${j.codes.length} Codes erzeugt ✓`); }; }
+function coList(){ const el=$('coList'); if(!el) return; const gs=coGroups();
+  el.innerHTML=gs.length?`<div style="margin-top:14px"><b>Deine Kooperationen</b>${gs.map((G,i)=>{ const u=G.codes.filter(c=>c.used).length, ex=G.exp&&Date.now()>G.exp;
+      return `<div class="coit"><div><b>${esc(G.tag)}</b><small>${G.codes.length} Codes · ${coDur(G.m)} · ${fmtD(parseD(G.date))}${G.exp?` · ${ex?'abgelaufen':'bis '+coExpTxt(G.exp)}`:''}</small><small><b style="color:var(--acc)">${u} von ${G.codes.length} eingelöst</b></small><div class="cobar"><i style="width:${Math.round(100*u/G.codes.length)}%"></i></div></div><button class="iconbtn" data-cos="${i}">Codes</button></div>`; }).join('')}</div>`:'';
+  el.querySelectorAll('[data-cos]').forEach(b=>b.onclick=()=>coShow(gs[+b.dataset.cos])); }
+function coShow(G){ const out=$('coOut'); if(!out||!G) return; const txt=coText(G);
+  out.innerHTML=`<div class="pc frinv" style="margin-top:12px"><b>${esc(G.tag)} · ${G.codes.length} Codes · ${coDur(G.m)}${G.exp?' · bis '+coExpTxt(G.exp):''}</b>
+    <div class="cogrid">${G.codes.map(c=>`<code class="${c.used?'u':''}">${c.code}</code>`).join('')}</div>
+    <div class="devbtns"><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">💬 Per WhatsApp senden</a><a class="buy mail" href="mailto:?subject=${encodeURIComponent('Deine Freischalt-Codes für Dr. Muskel Coach')}&body=${encodeURIComponent(txt)}">✉️ Per E-Mail senden</a>
+    <button class="savebtn sec2" id="coCopy">📋 Alle kopieren</button><button class="savebtn sec2" id="coFile">📄 Als Liste speichern</button></div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0">Durchgestrichen = schon eingelöst.</p></div>`;
+  $('coCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); toast2('Kopiert ✓'); }catch(e){ toast2('Kopieren nicht möglich'); } };
+  $('coFile').onclick=async()=>{ const name=`codes-${G.tag.replace(/[^a-z0-9]+/gi,'-')}-${G.date}.txt`; const file=new File([txt],name,{type:'text/plain'});
+    try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:name}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+    const a=document.createElement('a'); a.href=URL.createObjectURL(file); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
+  out.scrollIntoView({behavior:'smooth',block:'start'}); }
+(function(){ const prev=devRender; devRender=function(){ const r=prev.apply(this,arguments); try{ coMount(); }catch(e){} return r; }; })();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 <style>
