@@ -29,7 +29,7 @@ jobs:
           ok=1
           [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "::warning::Secret CLOUDFLARE_API_TOKEN fehlt"; ok=0; }
           [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::warning::Secret CLOUDFLARE_ACCOUNT_ID fehlt"; ok=0; }
-          [ ${#MC_ADMIN_KEY} -ge 12 ] || { echo "::warning::Secret MC_ADMIN_KEY fehlt oder ist kürzer als 12 Zeichen"; ok=0; }
+          [ ${#MC_ADMIN_KEY} -ge 6 ] || { echo "::warning::Secret MC_ADMIN_KEY fehlt oder ist kürzer als 6 Zeichen"; ok=0; }
           if [ $ok = 1 ]; then
             r=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
             echo "$r" | jq -e '.success==true' >/dev/null || r=$(curl -s "https://api.cloudflare.com/client/v4/user/tokens/verify" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")

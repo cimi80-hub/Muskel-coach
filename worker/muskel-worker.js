@@ -14,7 +14,8 @@
  */
 const LIMIT_HOUR = 3;        // Einsendungen je Gerät/Netz pro Stunde
 const LIMIT_DAY = 10;        // … pro Tag
-const ADMIN_FAIL_LIMIT = 10; // falsche Admin-Versuche pro Stunde
+const ADMIN_FAIL_LIMIT = 10; // falsche Admin-Versuche pro Stunde je Netz
+const ADMIN_FAIL_GLOBAL = 30; // falsche Admin-Versuche pro Stunde insgesamt (Schutz gegen Durchprobieren von vielen Adressen)
 const DEFAULT_ORIGINS = ['https://cimi80-hub.github.io'];
 
 let schemaReady = false;
@@ -99,9 +100,11 @@ async function postFeedback(req, env) {
 async function isAdmin(req, env) {
   const k = await clientKey(req, env); const now = Date.now();
   if (await countSince(env.DB, k, 'adminfail', now - 3600e3) >= ADMIN_FAIL_LIMIT) return 'locked';
+  const g = await env.DB.prepare("SELECT COUNT(*) AS n FROM rate WHERE kind = 'adminfail' AND ts > ?").bind(now - 3600e3).first();
+  if (g && g.n >= ADMIN_FAIL_GLOBAL) return 'locked';
   const auth = req.headers.get('Authorization') || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (env.ADMIN_KEY && env.ADMIN_KEY.length >= 12 && safeEqual(token, env.ADMIN_KEY)) return 'ok';
+  if (env.ADMIN_KEY && env.ADMIN_KEY.length >= 6 && safeEqual(token, env.ADMIN_KEY)) return 'ok';
   await env.DB.prepare('INSERT INTO rate (k, kind, ts) VALUES (?, ?, ?)').bind(k, 'adminfail', now).run();
   return 'denied';
 }
