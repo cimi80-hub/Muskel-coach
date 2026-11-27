@@ -378,6 +378,41 @@ async function friends(req, env, url) {
   return J({ ok: false, error: 'not_found' }, 404);
 }
 
+/* ===================== Freischalt-Codes mit Laufzeit ===================== */
+// 8-stellige Codes, nur auf dem Server erzeugt und geprüft; Laufzeit 1–12 Monate; jeder Code genau einmal.
+async function codeSchema(db) {
+  await db.prepare('CREATE TABLE IF NOT EXISTS codes (code TEXT PRIMARY KEY, months INTEGER NOT NULL, created INTEGER, redeemed INTEGER)').run();
+}
+async function adminCode(req, env) {
+  let body = {}; try { body = await req.json(); } catch (e) {}
+  const months = Math.round(Number(body.months));
+  if (!(months >= 1 && months <= 12)) return json(req, env, { ok: false, error: 'months' }, 400);
+  await codeSchema(env.DB);
+  for (let i = 0; i < 5; i++) {
+    const b = crypto.getRandomValues(new Uint32Array(1))[0];
+    const code = String(10000000 + (b % 90000000));
+    const r = await env.DB.prepare('INSERT OR IGNORE INTO codes (code, months, created) VALUES (?, ?, ?)').bind(code, months, Date.now()).run();
+    if (r.meta && r.meta.changes) return json(req, env, { ok: true, code, months });
+  }
+  return json(req, env, { ok: false, error: 'server' }, 500);
+}
+async function redeem(req, env) {
+  let body = {}; try { body = await req.json(); } catch (e) {}
+  const code = String(body.code || '').replace(/\D/g, '');
+  const db = env.DB; await codeSchema(db);
+  const k = await clientKey(req, env), now = Date.now();
+  if (await countSince(db, k, 'codefail', now - 3600e3) >= 10) return json(req, env, { ok: false, error: 'rate' }, 429);
+  const fail = async (error, status) => { await db.prepare('INSERT INTO rate (k, kind, ts) VALUES (?, ?, ?)').bind(k, 'codefail', now).run(); return json(req, env, { ok: false, error }, status); };
+  if (!/^\d{8}$/.test(code)) return fail('invalid', 400);
+  const row = await db.prepare('SELECT months, redeemed FROM codes WHERE code = ?').bind(code).first();
+  if (!row) return fail('invalid', 404);
+  if (row.redeemed) return fail('used', 409);
+  const r = await db.prepare('UPDATE codes SET redeemed = ? WHERE code = ? AND redeemed IS NULL').bind(now, code).run();
+  if (!(r.meta && r.meta.changes)) return fail('used', 409);
+  await db.prepare("INSERT INTO counters (k, v) VALUES (?, 1) ON CONFLICT(k) DO UPDATE SET v = v + 1").bind('c-' + code).run();
+  return json(req, env, { ok: true, months: row.months });
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -396,6 +431,11 @@ export default {
         if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
         return await postEvents(req, env);
       }
+      if (url.pathname === '/code' && req.method === 'POST') {
+        const o = req.headers.get('Origin');
+        if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
+        return await redeem(req, env);
+      }
       if (url.pathname.startsWith('/f/')) {
         const o = req.headers.get('Origin');
         if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
@@ -408,6 +448,7 @@ export default {
         if (url.pathname === '/admin/feedback' && req.method === 'GET') return await adminList(req, env, url);
         if (url.pathname === '/admin/stats' && req.method === 'POST') return await adminStats(req, env);
         if (url.pathname === '/admin/import' && req.method === 'POST') return await adminImport(req, env);
+        if (url.pathname === '/admin/code' && req.method === 'POST') return await adminCode(req, env);
         const m = url.pathname.match(/^\/admin\/feedback\/(\d+)$/);
         if (m && req.method === 'DELETE') { await env.DB.prepare('DELETE FROM feedback WHERE id = ?').bind(Number(m[1])).run(); return json(req, env, { ok: true }); }
       }
