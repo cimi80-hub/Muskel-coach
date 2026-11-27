@@ -957,7 +957,8 @@ const MC=(function(){ const H='1o8nfmawtnm', TRIAL=10, D=864e5;
   if(unlocked&&['basic','trial','expired','renew'].includes(pv)){ o.preview=pv;
     if(pv==='renew'){ o.kind='code'; o.daysLeft=5; o.until=Date.now()+5*D; }
     else { o.unlocked=false; o.expired=pv==='expired'; o.left=pv==='trial'?7:0; o.trial=pv==='trial'; o.pro=pv==='trial'; } }
-  o.grant=(k)=>{ try{ localStorage.removeItem('mc_dev_view'); }catch(e){} const now=Date.now(); let u=k==='master'?0:Math.max(now,(unlocked&&kind!=='master'?until:0))+YEAR*D;
+  o.grant=(k,months)=>{ try{ localStorage.removeItem('mc_dev_view'); }catch(e){} const now=Date.now(); const base=Math.max(now,(unlocked&&kind!=='master'?until:0));
+    let u=k==='master'?0:base+YEAR*D; if(k!=='master'&&months>=1&&months<=12){ const d=new Date(base); d.setMonth(d.getMonth()+months); u=d.getTime(); }
     try{ localStorage.setItem('mc_unlock',H); localStorage.setItem('mc_unlock_kind',k); if(u) localStorage.setItem('mc_unlock_until',String(u)); else localStorage.removeItem('mc_unlock_until'); localStorage.removeItem('mc_renew_pop'); localStorage.removeItem('mc_exp_seen'); }catch(e){}
     try{ document.cookie='mc_uu='+(u||'')+';max-age='+(u?315360000:0)+';path=/;SameSite=Lax'; }catch(e){} return u; };
   const idbPut=v=>{ try{ const r=indexedDB.open('mc_meta',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>{ try{ r.result.transaction('kv','readwrite').objectStore('kv').put(v,'trial'); }catch(e){} }; }catch(e){} };
@@ -4262,15 +4263,16 @@ function devRender(){ const ov=$('devSheet');
       <label class="f2">E-Mail des Kunden (aus Stripe)<input id="devMail" type="email" inputmode="email" autocapitalize="off" placeholder="kunde@beispiel.de"></label>
       <input id="devOrd" type="hidden" value="">
       <div class="devlang"><span>Sprache der Mail:</span><button type="button" data-ml="de" class="on">🇩🇪 Deutsch</button><button type="button" data-ml="en">🇬🇧 English</button></div>
-      <button class="savebtn" id="devGen">🎲 Neuen 6-stelligen Code erzeugen</button>
+      <label class="f2">Laufzeit der Vollversion<select id="devMonths" style="padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px">${[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>`<option value="${m}"${m===(window.DEVM||12)?' selected':''}>${m===12?'12 Monate (1 Jahr)':m+(m===1?' Monat':' Monate')}</option>`).join('')}</select></label>
+      <button class="savebtn" id="devGen">🎲 Neuen Code erzeugen</button>
       <div id="devNew"></div>
-      <p class="muted">Jeder Code funktioniert <b>genau einmal</b> – danach ist er verbraucht. Für jeden Käufer einen neuen Code erzeugen.</p>
+      <p class="muted">Jeder Code funktioniert <b>genau einmal</b> – danach ist er verbraucht. Für jeden Käufer einen neuen Code erzeugen. Mit Server-Schlüssel entstehen 8-stellige Codes mit frei wählbarer Laufzeit (1–12 Monate), die der Server prüft. Verlängert jemand vor Ablauf, wird die neue Laufzeit angehängt.</p>
     </div>
     <h3 class="vh">🛡️ Freischaltungen &amp; Sicherheit</h3>
     <div class="pc" id="devSec"><p class="muted" style="margin:0">Lade Protokoll …</p></div>
     <p class="muted">Gezählt ab 25.11.2026, pro Tag nach deutscher Zeit. Master-Code-Freischaltungen sollten nur deine eigenen Geräte sein. Fehlversuche = falsche Codes; „doppelt“ = jemand wollte einen schon benutzten Code nochmal einlösen.</p>
     <h3 class="vh">📋 Vergebene Codes <small style="text-transform:none;letter-spacing:0">${DEVC.length}</small></h3>
-    <div class="pc">${DEVC.length?`<div class="devlist">${DEVC.slice().reverse().map(c=>`<div data-c="${c.code}"><code>${c.code}</code><span>${esc(c.who||c.mail||'–')}<small>${fmtD(parseD(c.date))}${c.ord?' · '+esc(c.ord):''}${c.mail&&c.who?' · '+esc(c.mail):''}</small></span><em class="st">${c.used?'✅ eingelöst':'⏳ offen'}</em></div>`).join('')}</div>
+    <div class="pc">${DEVC.length?`<div class="devlist">${DEVC.slice().reverse().map(c=>`<div data-c="${c.code}"><code>${c.code}</code><span>${esc(c.who||c.mail||'–')}<small>${fmtD(parseD(c.date))} · ${c.m&&c.m!==12?c.m+' Mon.':'1 Jahr'}${c.ord?' · '+esc(c.ord):''}${c.mail&&c.who?' · '+esc(c.mail):''}</small></span><em class="st">${c.used?'✅ eingelöst':'⏳ offen'}</em></div>`).join('')}</div>
       <button class="savebtn sec2" id="devCheck">🔄 Status aller Codes prüfen</button>`:'<p class="muted" style="margin:0">Noch keine Codes erzeugt.</p>'}</div>
     <h3 class="vh">🧪 Test-Werkzeuge</h3>
     <div class="pc"><p class="muted" style="margin:0 0 8px">So sieht die App für Kunden aus – nur zum Ansehen. Deine eigene Freischaltung bleibt erhalten.</p>
@@ -4280,18 +4282,25 @@ function devRender(){ const ov=$('devSheet');
   </div>`;
   document.querySelectorAll('[data-ml]').forEach(b=>b.onclick=()=>document.querySelectorAll('[data-ml]').forEach(x=>x.classList.toggle('on',x===b)));
   $('devBack').onclick=devClose; $('devLock').onclick=()=>{ sessionStorage.removeItem('mc_dev'); devClose(); toast2('Entwickler-Modus gesperrt'); };
-  $('devGen').onclick=()=>{ let code; do{ code=makeCode(); }while(DEVC.some(c=>c.code===code));
+  $('devGen').onclick=async()=>{ const months=+($('devMonths')||{}).value||12; window.DEVM=months; let code;
+    /* Mit Server-Schlüssel: 8-stelliger Code, Laufzeit und Einmal-Nutzung prüft der Server. Ohne: bisheriger 6-stelliger Code (12 Monate). */
+    const key=(typeof apiKey==='function')?apiKey():'';
+    if(apiOn()&&key){ const b=$('devGen'); b.disabled=true; b.textContent='⏳ …'; let j={};
+      try{ const r=await fetch(API_URL.replace(/\/$/,'')+'/admin/code',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({months})}); j=await r.json().catch(()=>({})); }catch(e){}
+      b.disabled=false; b.textContent='🎲 Neuen Code erzeugen'; if(!j.ok){ toast2('Code konnte nicht erzeugt werden – Internet/Server-Schlüssel prüfen'); return; } code=j.code; }
+    else { if(months!==12){ toast2('Für 1–11 Monate oben zuerst den Server-Schlüssel eingeben'); return; } do{ code=makeCode(); }while(DEVC.some(c=>c.code===code)); }
+    const durDe=months===12?'1 Jahr':months===1?'1 Monat':months+' Monate', durEn=months===12?'1 year':months===1?'1 month':months+' months';
     const who=$('devWho').value.trim(), mail=$('devMail').value.trim(), ord=$('devOrd').value.trim().toUpperCase(), ml=(document.querySelector('[data-ml].on')||{}).dataset?.ml||'de';
-    DEVC.push({code,who,mail,ord,date:ymd(new Date()),used:false}); saveDevC();
-    const txt=`Danke für deinen Kauf! 💪\n\nDein persönlicher Freischalt-Code für Muskel-Coach:\n\n*${code}*\n\nSo geht's: App öffnen → „Vollversion“ antippen → Code eingeben → fertig. Der Code gilt nur einmal.\n\n${appUrl()}`;
+    DEVC.push({code,who,mail,ord,date:ymd(new Date()),used:false,m:months}); saveDevC();
+    const txt=`Danke für deinen Kauf! 💪\n\nDein persönlicher Freischalt-Code für Muskel-Coach:\n\n*${code}*\n\nSo geht's: App öffnen → „Vollversion“ antippen → Code eingeben → fertig. Die Vollversion gilt ${durDe} ab Freischaltung, der Code nur einmal.\n\n${appUrl()}`;
     const hi=ml==='en'?(who?'Hi '+who.split(' ')[0]+',':'Hi,'):(who?'Hallo '+who.split(' ')[0]+',':'Hallo,');
     const subj=ml==='en'?'Your Muskel-Coach unlock code'+(ord?' ('+ord+')':''):'Dein Freischalt-Code für Muskel-Coach'+(ord?' ('+ord+')':'');
     const body=ml==='en'
-      ? `${hi}\n\nthank you for your purchase! 💪\n\nYour personal unlock code:\n\n    ${code}\n\nHow it works:\n1. Open Muskel-Coach: ${appUrl()}\n2. Tap “Enter code” at the bottom\n3. Enter the code – done!\n\nThe full version is valid for 1 year from unlocking. The code works only once.\n\nQuestions? Just use the chat in the app.\n\nHave a great workout!\nDr. Muskel Coach`
-      : `${hi}\n\nvielen Dank für deinen Kauf! 💪\n\nDein persönlicher Freischalt-Code:\n\n    ${code}\n\nSo geht's:\n1. Muskel-Coach öffnen: ${appUrl()}\n2. Unten auf „Code eingeben“ tippen\n3. Code eingeben – fertig!\n\nDie Vollversion gilt 1 Jahr ab Freischaltung. Der Code funktioniert nur einmal.\n\nFragen? Schreib einfach im Chat in der App.\n\nViel Erfolg beim Training!\nDr. Muskel Coach`;
+      ? `${hi}\n\nthank you for your purchase! 💪\n\nYour personal unlock code:\n\n    ${code}\n\nHow it works:\n1. Open Muskel-Coach: ${appUrl()}\n2. Tap “Enter code” at the bottom\n3. Enter the code – done!\n\nThe full version is valid for ${durEn} from unlocking. The code works only once.\n\nQuestions? Just use the chat in the app.\n\nHave a great workout!\nDr. Muskel Coach`
+      : `${hi}\n\nvielen Dank für deinen Kauf! 💪\n\nDein persönlicher Freischalt-Code:\n\n    ${code}\n\nSo geht's:\n1. Muskel-Coach öffnen: ${appUrl()}\n2. Unten auf „Code eingeben“ tippen\n3. Code eingeben – fertig!\n\nDie Vollversion gilt ${durDe} ab Freischaltung. Der Code funktioniert nur einmal.\n\nFragen? Schreib einfach im Chat in der App.\n\nViel Erfolg beim Training!\nDr. Muskel Coach`;
     const mailto='mailto:'+encodeURIComponent(mail).replace(/%40/g,'@')+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
     devRender(); devStats();
-    $('devNew').innerHTML=`<div class="devcode">${code}</div><div class="devbtns"><a class="buy mail" href="${mailto}">✉️ Per E-Mail senden${mail?' an '+esc(mail):''}</a><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">💬 Per WhatsApp senden</a><button class="savebtn sec2" id="devCopy">📋 Kopieren</button></div>`;
+    $('devNew').innerHTML=`<div class="devcode">${code}</div><p class="muted" style="text-align:center;margin:6px 0 10px">⏳ Gültig <b>${durDe}</b> ab Freischaltung</p><div class="devbtns"><a class="buy mail" href="${mailto}">✉️ Per E-Mail senden${mail?' an '+esc(mail):''}</a><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">💬 Per WhatsApp senden</a><button class="savebtn sec2" id="devCopy">📋 Kopieren</button></div>`;
     $('devCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); toast2('Kopiert ✓'); }catch(e){ toast2(code); } }; };
   const chk=$('devCheck'); if(chk) chk.onclick=async()=>{ chk.textContent='⏳ Prüfe …'; for(const c of DEVC){ const v=await cntGet('c-'+c.code); if(v!==null) c.used=v>0; } saveDevC(); devRender(); devStats(); toast2('Status aktualisiert'); };
   document.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>{ if(!MC.real.unlocked){ toast2('Erst auf diesem Handy freischalten'); return; } const k=b.dataset.dv; try{ k?localStorage.setItem('mc_dev_view',k):localStorage.removeItem('mc_dev_view'); }catch(e){} location.reload(); });
@@ -4419,7 +4428,7 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
       <div style="font-size:54px;line-height:1">🔑</div>
       <h2>Freischalt-Code</h2>
       <p>Gib hier den <b>6-stelligen Code</b> ein, den du von ${BUY.name} bekommen hast. ${MC.unlocked?`Deine Vollversion läuft noch bis <b>${fmtD2(MC.until)}</b>. Mit einem neuen Code verlängerst du um <b>1 Jahr</b> – die Resttage bleiben erhalten.`:'Danach ist die Vollversion <b>1 Jahr</b> lang freigeschaltet.'}</p>
-      <input id="gatePw" type="text" inputmode="numeric" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" placeholder="z. B. 123456" aria-label="Freischalt-Code">
+      <input id="gatePw" type="text" inputmode="numeric" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" placeholder="z. B. 12345678" aria-label="Freischalt-Code">
       <button type="submit">Freischalten</button>
       <div class="err" id="gateErr"></div>
       <div class="codelbl" style="margin-top:14px">${LX('Noch keinen Code? Vollversion für','No code yet? Full version for')} ${BUY.price}${BUY.old?' '+LX('statt','instead of')+' <s>'+BUY.old+'</s>':''}:</div>
@@ -4447,7 +4456,16 @@ function openChat(){ if(!BUY.tawk){ window.open('https://wa.me/'+(BUY.whatsapp||
       if(F.u>Date.now()){ document.getElementById('gateErr').textContent='Zu viele falsche Versuche – bitte in '+Math.ceil((F.u-Date.now())/60000)+' Min. erneut versuchen.'; return; }
       const failAdd=()=>{ F.n++; if(F.n>=5) F.u=Date.now()+3*60000*(F.n-4); try{ localStorage.setItem('mc_code_fail',JSON.stringify(F)); }catch(e){} };
       const failReset=()=>{ try{ localStorage.removeItem('mc_code_fail'); }catch(e){} };
-      const okUnlock=(k)=>{ failReset(); const u=MC.grant(k==='master'?'master':'code'); cntHit('unlocks'); secHit(k==='master'?'um':'uc'); g.style.display='none'; celebrateUnlock(u,true); };
+      const okUnlock=(k,months)=>{ failReset(); const u=MC.grant(k==='master'?'master':'code',months); cntHit('unlocks'); secHit(k==='master'?'um':'uc'); g.style.display='none'; celebrateUnlock(u,true); };
+      const shake=()=>{ g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); };
+      if(/^\d{8}$/.test(v.replace(/\s/g,''))){ const err=document.getElementById('gateErr'); err.textContent='⏳ Code wird geprüft …';
+        (async()=>{ let j={}; try{ const r=await fetch(API_URL.replace(/\/$/,'')+'/code',{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({code:v.replace(/\s/g,'')})}); j=await r.json().catch(()=>({})); }catch(e){ j={error:'net'}; }
+          if(j.ok) return okUnlock('code',j.months);
+          if(j.error==='used'){ failAdd(); secHit('reuse'); err.textContent='Dieser Code wurde schon verwendet. Jeder Code gilt nur einmal – bitte neuen Code anfragen.'; }
+          else if(j.error==='rate') err.textContent='Zu viele Versuche – bitte in einer Stunde nochmal versuchen.';
+          else if(j.error==='net'||!API_URL) err.textContent='Keine Internetverbindung – bitte Internet einschalten und nochmal versuchen.';
+          else { failAdd(); secHit('bad'); err.textContent='Falscher Code – bitte nochmal prüfen.'; }
+          shake(); })(); return; }
       if(validCode(v)){ const err=document.getElementById('gateErr'); err.textContent='⏳ Code wird geprüft …';
         redeemCode(v).then(r=>{ if(r==='ok') okUnlock(); else { if(r==='used'){ failAdd(); secHit('reuse'); } err.textContent=r==='used'?'Dieser Code wurde schon verwendet. Jeder Code gilt nur einmal – bitte neuen Code anfragen.':'Keine Internetverbindung – bitte Internet einschalten und nochmal versuchen.'; g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake'); } }); return; }
       const err=document.getElementById('gateErr'); if(!v) return; err.textContent='⏳ Code wird geprüft …';
