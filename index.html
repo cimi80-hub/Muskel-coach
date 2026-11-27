@@ -4924,7 +4924,7 @@ statProfBtn();
 <script>
 /* ===== Kooperationen / Influencer: viele Codes auf einmal ===== */
 const COOP={n:10};
-function coGroups(){ const g={}; DEVC.filter(c=>c.co).forEach(c=>{ const k=c.co+'|'+c.batch; (g[k]=g[k]||{tag:c.co,batch:c.batch,m:c.m,exp:c.exp,date:c.date,codes:[]}).codes.push(c); }); return Object.values(g).sort((a,b)=>b.batch-a.batch); }
+function coGroups(){ const g={}; DEVC.filter(c=>c.co).forEach(c=>{ const k=c.co+'|'+c.batch; (g[k]=g[k]||{tag:c.co,batch:c.batch,m:c.m,exp:c.exp,date:c.date,mail:c.mail||'',codes:[]}).codes.push(c); }); return Object.values(g).sort((a,b)=>b.batch-a.batch); }
 const coDur=m=>m===12?'1 Jahr':m===1?'1 Monat':m+' Monate';
 const coExpTxt=e=>e?new Date(e).toLocaleDateString('de-DE'):'';
 function coText(G){ const url=appUrl(); return `Hallo! Hier sind deine ${G.codes.length} Freischalt-Codes für Dr. Muskel Coach 💪\nJeder Code schaltet die Vollversion für ${coDur(G.m)} frei und funktioniert genau einmal${G.exp?` – einlösbar bis ${coExpTxt(G.exp)}`:''}.\n\nSo geht's: App öffnen (${url}) → „Code eingeben“ → Code eintippen.\n\n${G.codes.map(c=>c.code).join('\n')}`; }
@@ -4934,29 +4934,31 @@ function coMount(){ if(!$('devSheet')||$('coBox')) return; const ref=[...documen
 function coRender(){ const box=$('coBox'); if(!box) return; const key=(typeof apiKey==='function')?apiKey():'';
   if(!apiOn()||!key){ box.innerHTML='<p class="muted" style="margin:0">🔑 Oben den Server-Schlüssel eingeben – dann kannst du hier 10, 20, 30 oder 50 Codes auf einmal für eine Kooperation erzeugen.</p>'; return; }
   box.innerHTML=`<label class="f2">Name der Kooperation<input id="coTag" maxlength="40" placeholder="z. B. @fitmax oder Studio Nord"></label>
+    <label class="f2">E-Mail des Partners (freiwillig)<input id="coMail" type="email" inputmode="email" autocapitalize="off" autocomplete="off" maxlength="80" placeholder="partner@beispiel.de"></label>
     <div class="muted" style="font-size:13px">Anzahl Codes</div><div class="cochips">${[10,20,30,50].map(n=>`<button type="button" data-con="${n}" class="${COOP.n===n?'on':''}">${n}</button>`).join('')}</div>
     <label class="f2">Laufzeit pro Code<select id="coM" style="padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px">${[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>`<option value="${m}"${m===(COOP.m||1)?' selected':''}>${coDur(m)}</option>`).join('')}</select></label>
     <label class="f2">Einlösbar bis (freiwillig)<input id="coExp" type="date" min="${new Date(Date.now()+864e5).toISOString().slice(0,10)}" style="padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px"></label>
     <p class="muted" style="font-size:12px;margin:2px 0 8px">Nach diesem Datum lassen sich nicht eingelöste Codes nicht mehr verwenden. Leer = unbegrenzt einlösbar.</p>
     <button class="savebtn" id="coGo">🎲 ${COOP.n} Codes erzeugen</button><div id="coOut"></div><div id="coList"></div>`; coList();
-  box.querySelectorAll('[data-con]').forEach(b=>b.onclick=()=>{ COOP.n=+b.dataset.con; COOP.m=+$('coM').value; const t=$('coTag').value, e=$('coExp').value; coRender(); $('coTag').value=t; $('coExp').value=e; });
+  box.querySelectorAll('[data-con]').forEach(b=>b.onclick=()=>{ COOP.n=+b.dataset.con; COOP.m=+$('coM').value; const t=$('coTag').value, e=$('coExp').value, ml=$('coMail').value; coRender(); $('coTag').value=t; $('coExp').value=e; $('coMail').value=ml; });
   $('coGo').onclick=async()=>{ const tag=$('coTag').value.trim(); if(tag.length<2){ toast2('Bitte einen Namen für die Kooperation eingeben'); $('coTag').focus(); return; }
+    const mail=$('coMail').value.trim(); if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){ toast2('Bitte eine gültige E-Mail-Adresse eingeben'); $('coMail').focus(); return; }
     const m=+$('coM').value; COOP.m=m; const ev=$('coExp').value; const exp=ev?new Date(ev+'T23:59:59').getTime():null;
     if(!confirm(`${COOP.n} Codes für „${tag}“ erzeugen?\nLaufzeit je ${coDur(m)}${exp?', einlösbar bis '+coExpTxt(exp):''}.`)) return;
     const b=$('coGo'); b.disabled=true; b.textContent='⏳ Erzeuge …'; let j={};
     try{ const r=await fetch(API_URL.replace(/\/$/,'')+'/admin/code',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({months:m,count:COOP.n,tag,expires:exp})}); j=await r.json().catch(()=>({})); }catch(e){}
     b.disabled=false; b.textContent=`🎲 ${COOP.n} Codes erzeugen`;
     if(!j.ok||!j.codes){ toast2('Codes konnten nicht erzeugt werden – Internet/Server-Schlüssel prüfen'); return; }
-    const batch=Date.now(), date=ymd(new Date()); j.codes.forEach(code=>DEVC.push({code,who:tag,mail:'',ord:'',date,used:false,m,co:tag,batch,exp:j.expires||null})); saveDevC();
+    const batch=Date.now(), date=ymd(new Date()); j.codes.forEach(code=>DEVC.push({code,who:tag,mail,ord:'',date,used:false,m,co:tag,batch,exp:j.expires||null})); saveDevC();
     coRender(); coShow(coGroups().find(G=>G.batch===batch)); toast2(`${j.codes.length} Codes erzeugt ✓`); }; }
 function coList(){ const el=$('coList'); if(!el) return; const gs=coGroups();
   el.innerHTML=gs.length?`<div style="margin-top:14px"><b>Deine Kooperationen</b>${gs.map((G,i)=>{ const u=G.codes.filter(c=>c.used).length, ex=G.exp&&Date.now()>G.exp;
-      return `<div class="coit"><div><b>${esc(G.tag)}</b><small>${G.codes.length} Codes · ${coDur(G.m)} · ${fmtD(parseD(G.date))}${G.exp?` · ${ex?'abgelaufen':'bis '+coExpTxt(G.exp)}`:''}</small><small><b style="color:var(--acc)">${u} von ${G.codes.length} eingelöst</b></small><div class="cobar"><i style="width:${Math.round(100*u/G.codes.length)}%"></i></div></div><button class="iconbtn" data-cos="${i}">Codes</button></div>`; }).join('')}</div>`:'';
+      return `<div class="coit"><div><b>${esc(G.tag)}</b>${G.mail?`<small>✉️ ${esc(G.mail)}</small>`:''}<small>${G.codes.length} Codes · ${coDur(G.m)} · ${fmtD(parseD(G.date))}${G.exp?` · ${ex?'abgelaufen':'bis '+coExpTxt(G.exp)}`:''}</small><small><b style="color:var(--acc)">${u} von ${G.codes.length} eingelöst</b></small><div class="cobar"><i style="width:${Math.round(100*u/G.codes.length)}%"></i></div></div><button class="iconbtn" data-cos="${i}">Codes</button></div>`; }).join('')}</div>`:'';
   el.querySelectorAll('[data-cos]').forEach(b=>b.onclick=()=>coShow(gs[+b.dataset.cos])); }
 function coShow(G){ const out=$('coOut'); if(!out||!G) return; const txt=coText(G);
   out.innerHTML=`<div class="pc frinv" style="margin-top:12px"><b>${esc(G.tag)} · ${G.codes.length} Codes · ${coDur(G.m)}${G.exp?' · bis '+coExpTxt(G.exp):''}</b>
     <div class="cogrid">${G.codes.map(c=>`<code class="${c.used?'u':''}">${c.code}</code>`).join('')}</div>
-    <div class="devbtns"><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">💬 Per WhatsApp senden</a><a class="buy mail" href="mailto:?subject=${encodeURIComponent('Deine Freischalt-Codes für Dr. Muskel Coach')}&body=${encodeURIComponent(txt)}">✉️ Per E-Mail senden</a>
+    <div class="devbtns"><a class="buy wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">💬 Per WhatsApp senden</a><a class="buy mail" href="mailto:${encodeURIComponent(G.mail||'').replace(/%40/g,'@')}?subject=${encodeURIComponent('Deine Freischalt-Codes für Dr. Muskel Coach')}&body=${encodeURIComponent(txt)}">✉️ Per E-Mail senden${G.mail?' an '+esc(G.mail):''}</a>
     <button class="savebtn sec2" id="coCopy">📋 Alle kopieren</button><button class="savebtn sec2" id="coFile">📄 Als Liste speichern</button></div>
     <p class="muted" style="font-size:12px;margin:8px 0 0">Durchgestrichen = schon eingelöst.</p></div>`;
   $('coCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); toast2('Kopiert ✓'); }catch(e){ toast2('Kopieren nicht möglich'); } };
