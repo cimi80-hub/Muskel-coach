@@ -3282,8 +3282,7 @@ function renderSummaryOld(){
 }
 function openProfile(){ setView('prof'); }
 function closeProfile(){ renderSummary(); setView('home'); }
-/* Google-Suche nach „<Studio> Stoßzeiten“: Google zeigt dabei das Stoßzeiten-Diagramm samt Live-Andrang meist direkt oben an */
-function gymUrl(){ const g=(prof.gym||'').trim(); return g?'https://www.google.com/search?q='+encodeURIComponent(g+(LANG==='en'?' popular times':' Stoßzeiten'))+'&hl='+(LANG==='en'?'en':'de'):''; }
+function gymUrl(){ const g=(prof.gym||'').trim(); return g?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(g):''; }
 function openGym(){ const u=gymUrl(); if(u) window.open(u,'_blank','noopener'); else { setView('prof'); setTimeout(()=>{ const f=$('f_gym'); if(f){ f.scrollIntoView({behavior:'smooth',block:'center'}); f.focus(); } },150); } }
 function renderGymRow(){ const r=$('gymRow'); if(!r) return; r.innerHTML=(prof.gym||'').trim()?`<button type="button" class="gymbtn" onclick="openGym()">📍 ${LX('Auslastung in Google Maps ansehen','View busy times in Google Maps')}</button><small>${LX('Google Maps zeigt dort „Stoßzeiten“ und oft live, wie voll es gerade ist.','Google Maps shows “Popular times” there and often live how busy it is right now.')}</small>`:`<small>${LX('Trag dein Fitnessstudio mit Ort ein – dann siehst du mit einem Tipp, wie voll es gerade ist.','Enter your gym with its location – then one tap shows how busy it is right now.')}</small>`; }
 function renderGymCard(){ const b=$('gymCard'); if(!b) return; const g=(prof.gym||'').trim();
