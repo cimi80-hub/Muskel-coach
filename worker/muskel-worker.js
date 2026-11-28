@@ -578,7 +578,7 @@ async function foodSearch(req, env, url, ctx) {
   const list = rankFood([...(off.status === 'fulfilled' ? off.value.list : []), ...(fdc.status === 'fulfilled' ? fdc.value : [])], q).slice(0, 40);
   const src = { off: off.status === 'fulfilled' ? off.value.via : 'error', dbg: off.status === 'fulfilled' ? off.value.dbg : String(off.reason && off.reason.message), usda: !useFdc ? 'skip' : fdc.status === 'fulfilled' ? 'ok' : 'error' };
   const d = { ok: true, q, n: list.length, ms: Date.now() - t0, src, items: list };
-  if (off.status === 'fulfilled' || list.length) ctx && ctx.waitUntil(cache.put(cacheKey, new Response(JSON.stringify(d), { headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${list.length ? 259200 : 3600}` } })));
+  if (off.status === 'fulfilled' || list.length) ctx && ctx.waitUntil(cache.put(cacheKey, new Response(JSON.stringify(d), { headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${list.length && !/50\d|err/.test(JSON.stringify(src.dbg || '')) ? 259200 : 3600}` } })));
   else return json(req, env, { ok: false, error: 'upstream', src }, 502);
   return foodJson(req, env, d);
 }
