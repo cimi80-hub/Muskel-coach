@@ -40,6 +40,15 @@
   .moregrid .sharecard>b{font-size:15px}.moregrid .sharecard>span{display:none}
   .moregrid .sharecard .shbtns a,.moregrid .sharecard .shbtns button{min-height:44px}
   .mtile{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--txt);font-weight:600;font-size:14.5px}
+.vpgrid{display:grid;gap:8px;margin:10px 0}
+.vpc{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--line);cursor:pointer}
+.vpc.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}.vpc input{position:absolute;opacity:0;pointer-events:none}
+.vpav{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#111}
+.vpav.w{background:linear-gradient(135deg,#ffb3d1,#ff7aa8)}.vpav.m{background:linear-gradient(135deg,#9fd3ff,#5aa9ff)}
+.vpt{flex:1;min-width:0}.vpt b{display:block;font-size:15px}.vpt small{display:block;color:var(--acc);font-size:12px;font-weight:700}.vpt i{display:block;font-style:normal;color:var(--mut);font-size:12px;line-height:1.3}
+.vpc .vvplay{flex:none;width:44px;height:44px;border-radius:50%}
+.vprate{display:flex;align-items:center;gap:8px;margin:6px 2px}.vprate input{flex:1}.vprate b{min-width:48px;text-align:right;font-size:13px}
+.vvmore{margin:8px 0}.vvmore summary{cursor:pointer;color:var(--mut);font-size:13px;padding:6px 0}
 </style>
 <style>
   :root{
@@ -2499,7 +2508,7 @@ function tickLive(){
   if(!LIVE){ const rb=$('restBar'); if(rb) rb.classList.remove('on'); return; } const el=$('lvClock'); if(el) el.textContent=mmss((Date.now()-LIVE.start)/1000);
   const bar=$('restBar'); if(!bar) return;
   if(restEnd){ const left=(restEnd-Date.now())/1000;
-    if(left<=0){ restEnd=0; beep(); bar.classList.remove('on'); $('lvMsg').textContent='⏰ Pause vorbei – nächster Satz!'; }
+    if(left<=0){ restEnd=0; beep(); bar.classList.remove('on'); $('lvMsg').textContent='⏰ Pause vorbei – nächster Satz!'; if(VC.used&&vcTTSon()) setTimeout(()=>vcTTS(LX(vcPick(['Deine Pause ist vorbei. Bereit für den nächsten Satz?','Pause vorbei – auf geht’s zum nächsten Satz.','Okay, durchatmen ist vorbei. Nächster Satz!']),vcPick(['Your rest is over. Ready for the next set?','Rest is over – on to the next set.','Okay, breather’s done. Next set!'])),undefined,'rest'),600); }
     else { bar.classList.add('on'); $('restTime').textContent=mmss(left); $('restFill').style.width=(100*left/restTotal)+'%'; } }
   else bar.classList.remove('on');
 }
@@ -2639,7 +2648,8 @@ const VC_CMDS=[
   ['record',/\b(rekord|bestleistung|record|personal best)\b/],
   ['done',/^(satz\s*)?(fertig|geschafft|erledigt|done|set done|check)$/]
 ];
-function vcSay(txt){ VC.last=txt; const m=$('vcBub'); if(m){ m.querySelector('.vca').textContent=txt; }
+function vcPick(a){ vcPick.l=vcPick.l||{}; const k=a[0]; let i=Math.floor(Math.random()*a.length); if(a.length>1&&i===vcPick.l[k]) i=(i+1)%a.length; vcPick.l[k]=i; return a[i]; }
+function vcSay(txt){ VC.used=true; VC.last=txt; const m=$('vcBub'); if(m){ m.querySelector('.vca').textContent=txt; }
   if(!vcTTSon()) return; vcTTS(txt.replace(/×/g,LX(' mal ',' times ')).replace(/kg\b/g,LX('Kilo','kilos'))); }
 const vcKg=k=>fmtKg(k)+' kg';
 function vcLastTxt(id){ const h=history(id)[0]; if(!h) return LX('Für diese Übung gibt es noch kein letztes Training.','No previous workout for this exercise yet.');
@@ -2662,14 +2672,14 @@ function vcCmd(raw){
     case 'prev': if(LIVE.idx>0){ LIVE.idx--; saveLive(); renderLive(); $('tsheet').scrollTop=0; vcSay(LX('Zurück zu ','Back to ')+vcExInfo(LIVE.items[LIVE.idx])); } else vcSay(LX('Du bist schon bei der ersten Übung.','You are already on the first exercise.')); return;
     case 'undo': { const i=it.sets.map(s=>s.done).lastIndexOf(true); if(i<0){ vcSay(LX('Bei dieser Übung ist noch kein Satz abgehakt.','No set checked for this exercise yet.')); return; }
       it.sets[i].done=false; restEnd=0; saveLive(); renderLive(); vcSay(LX(`Satz ${i+1} wieder offen.`,`Set ${i+1} reopened.`)); return; }
-    case 'restoff': restEnd=0; tickLive(); vcSay(LX('Pause beendet. Los geht’s!','Rest over. Let’s go!')); return;
+    case 'restoff': restEnd=0; tickLive(); vcSay(LX(vcPick(['Pause beendet. Los geht’s!','Okay, Pause vorbei – weiter geht’s.','Pause beendet. Bereit für den nächsten Satz?']),vcPick(['Rest over. Let’s go!','Okay, rest is over – let’s keep going.','Rest over. Ready for the next set?']))); return;
     case 'rest': restTotal=REST_CAT[CAT[it.id]||'iso']; restEnd=Date.now()+restTotal*1000; tickLive(); vcSay(LX(`Pause läuft, ${mmss(restTotal)} Minuten.`,`Rest started, ${mmss(restTotal)} minutes.`)); return;
     case 'plan': { const open=LIVE.items.filter(x=>!x.skip&&x.sets.some(s=>!s.done)); const nm=open.slice(0,4).map(x=>tr(exById(x.id).name)).join(', ');
       vcSay(open.length?LX(`Noch ${open.length} ${open.length===1?'Übung':'Übungen'}: ${nm}. Jetzt: `,`${open.length} ${open.length===1?'exercise':'exercises'} left: ${nm}. Now: `)+vcExInfo(it):LX('Alles erledigt! Sag „Training beenden“ zum Speichern.','All done! Say “finish workout” to save.')); return; }
     case 'lastt': vcSay(tr(exById(exId||it.id).name)+'. '+vcLastTxt(exId||it.id)); return;
     case 'record': { const id=exId||it.id, rc=maxKgRec(id), rr=maxRepRec(id); vcSay(rc?LX('Dein Rekord bei ','Your record for ')+tr(exById(id).name)+': '+vcKg(rc.kg)+' × '+rc.reps+'.':rr?LX('Dein Rekord: ','Your record: ')+unitR(id,rr.reps)+'.':LX('Noch kein Rekord gespeichert.','No record saved yet.')); return; }
-    case 'done': { const i=it.sets.findIndex(s=>!s.done); if(i<0){ vcSay(LX('Alle Sätze sind schon abgehakt.','All sets are already checked.')); return; } const s=it.sets[i]; vcCheck(i); vcSay(LX(`Satz ${i+1} abgehakt`,`Set ${i+1} checked`)+(s.kg||s.reps?': '+(kgNum(s.kg)?vcKg(kgNum(s.kg))+' × ':'')+s.reps:'')+'.'); return; }
-    case 'finish': vcSay(LX('Training wird gespeichert. Starke Leistung!','Saving your workout. Great job!')); setTimeout(()=>{ try{ finishLive(); }catch(e){} },400); return;
+    case 'done': { const i=it.sets.findIndex(s=>!s.done); if(i<0){ vcSay(LX('Alle Sätze sind schon abgehakt.','All sets are already checked.')); return; } const s=it.sets[i]; vcCheck(i); const det=(s.kg||s.reps?(kgNum(s.kg)?vcKg(kgNum(s.kg))+', ':'')+(s.reps?s.reps+LX(' Wiederholungen',' reps'):''):''); vcSay(det?LX(vcPick([`${det}. Satz ${i+1} ist gespeichert.`,`Satz ${i+1} abgehakt: ${det}.`,`${det} – Satz ${i+1} ist drin.`]),vcPick([`${det}. Set ${i+1} saved.`,`Set ${i+1} checked: ${det}.`,`${det} – set ${i+1} logged.`])):LX(`Satz ${i+1} abgehakt.`,`Set ${i+1} checked.`)); return; }
+    case 'finish': vcSay(LX(vcPick(['Training wird gespeichert. Starke Leistung!','Gespeichert. Richtig gutes Training heute!','Training wird gespeichert – das war stark, gut gemacht.']),vcPick(['Saving your workout. Great job!','Saved. Really solid session today!','Saving your workout – that was strong, well done.']))); setTimeout(()=>{ try{ finishLive(); }catch(e){} },400); return;
   }
   coAnswer(raw).then(a=>vcSay(a||LX('Das habe ich nicht verstanden. Sag zum Beispiel: Latzug, 20 Kilo, 8 Wiederholungen. Oder tippe auf das Fragezeichen.','Sorry, I didn’t get that. Say for example: lat pulldown, 20 kilos, 8 reps. Or tap the question mark.'))); }
 function vcGoEx(id,speak){ let i=LIVE.items.findIndex(x=>x.id===id);
@@ -2736,8 +2746,29 @@ const VC_AIV=[['Sulafat','warm & herzlich','warm & caring','w'],['Achird','freun
 const VCV={seq:0,cache:new Map(),fail:0};
 const vcVoicePref=()=>{ try{ return localStorage.getItem('mc_vc_voice')||''; }catch(e){ return ''; } };
 const vcVoiceSet=v=>{ try{ localStorage.setItem('mc_vc_voice',v); }catch(e){} };
-const vcUseAI=()=>!!CO_AI_URL&&!/^local:/.test(vcVoicePref())&&Date.now()>VCV.fail;
-const vcAIVoice=()=>{ const v=vcVoicePref(); return VC_AIV.some(x=>x[0]===v)?v:'Sulafat'; };
+/* ===== Deine Coach-Stimme: 4 Charaktere =====
+   Premium: Azure Neural Voices über deinen Cloudflare-Server (/tts). Ohne Server/Internet: beste passende Handy-Stimme. */
+const VC_PERS=[
+  {id:'mia', n:'Mia', g:'w', de:'Freundlich & warm', en:'Friendly & warm', dd:'Herzlich, natürlich, motivierend ohne Übertreibung', de2:'Warm, natural, encouraging without overdoing it', pitch:1.05, rate:1.0},
+  {id:'luna',n:'Luna',g:'w', de:'Sportlich & energiegeladen', en:'Sporty & energetic', dd:'Dynamisch und selbstbewusst – ideal für harte Sätze', de2:'Dynamic and confident – great for hard sets', pitch:1.12, rate:1.06},
+  {id:'leon',n:'Leon',g:'m', de:'Locker & motivierend', en:'Relaxed & motivating', dd:'Modern, sympathisch, angenehme mittlere Stimmlage', de2:'Modern, likeable, pleasant mid-range voice', pitch:0.98, rate:1.03},
+  {id:'alex',n:'Alex',g:'m', de:'Ruhig & souverän', en:'Calm & confident', dd:'Warm, professionell, entspannte Gesprächsführung', de2:'Warm, professional, relaxed delivery', pitch:0.9, rate:0.96}];
+const vcPersona=()=>{ let v=''; try{ v=localStorage.getItem('mc_vc_persona')||''; }catch(e){} return VC_PERS.find(x=>x.id===v)||VC_PERS[0]; };
+const vcRate=()=>{ let r=1; try{ r=parseFloat(localStorage.getItem('mc_vc_rate'))||1; }catch(e){} return Math.min(1.3,Math.max(0.8,r)); };
+const VCS={on:null,chk:0,fail:0};   // Status der Premium-Stimmen auf dem Server
+async function vcSrvOk(){ if(VCS.on!==null&&Date.now()-VCS.chk<30*60e3) return VCS.on&&Date.now()>VCS.fail;
+  VCS.chk=Date.now(); try{ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),3000); const r=await fetch(API_URL+'/tts',{signal:ac.signal}); clearTimeout(t); const j=await r.json(); VCS.on=!!(j&&j.enabled); }catch(e){ VCS.on=VCS.on||false; VCS.chk=Date.now()-25*60e3; } return VCS.on&&Date.now()>VCS.fail; }
+const vcUseAI=()=>VCS.on===true&&Date.now()>VCS.fail&&navigator.onLine!==false;
+/* Stimmung aus dem Satz ableiten – Tempo & Betonung passen sich der Situation an */
+function vcMood(t,h){ if(h) return h; t=String(t||'');
+  if(/rekord|record|bestleistung|\bPR\b/i.test(t)) return 'pr';
+  if(/nicht verstanden|schiefgelaufen|fehler|nicht erreichbar|didn.t (get|understand)|went wrong/i.test(t)) return 'error';
+  if(/pause (ist )?(vorbei|beendet)|rest (is )?over|pause läuft|rest started|durchatmen|breathe/i.test(t)) return 'rest';
+  if(/training wird gespeichert|starke leistung|training (beendet|geschafft)|workout (saved|done)|great work/i.test(t)) return 'finish';
+  if(/abgehakt|gespeichert|eingetragen|checked|saved|logged/i.test(t)) return 'confirm';
+  if(/kalorien|kilokalorien|eiweiß|protein|kohlenhydrate|calories|carbs|gramm/i.test(t)) return 'food';
+  if(/los geht|legen wir los|let.s go|bereit\?|ready\?|willkommen|schön, dass du/i.test(t)) return 'start';
+  return 'info'; }
 /* Text sprechbar machen: keine Emojis/Aufzählungszeichen, Abkürzungen ausschreiben */
 function vcSpeakable(t){ t=String(t||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/[•●▪︎]/g,'').replace(/\n+/g,'. ').replace(/\s[–—-]\s/g,', ').replace(/×/g,LX(' mal ',' times '));
   if(LANG!=='en') t=t.replace(/\bz\. ?B\./g,'zum Beispiel').replace(/\bca\./g,'circa').replace(/\bu\. ?a\./g,'unter anderem').replace(/\bbzw\./g,'beziehungsweise').replace(/\bMin\./g,'Minuten').replace(/\bSek\./g,'Sekunden').replace(/\bWdh\./g,'Wiederholungen').replace(/(\d)\s?g\b/g,'$1 Gramm').replace(/\bkg\b/g,'Kilo').replace(/\bkcal\b/g,'Kilokalorien').replace(/\bTL\b/g,'Teelöffel').replace(/\bEL\b/g,'Esslöffel').replace(/\bml\b/g,'Milliliter');
@@ -2754,41 +2785,81 @@ async function vcAIUrl(txt,voice){ const key=voice+'|'+LANG+'|'+txt; if(VCV.cach
     if(VCV.cache.size>40){ const k=VCV.cache.keys().next().value; try{ URL.revokeObjectURL(VCV.cache.get(k)); }catch(e){} VCV.cache.delete(k); } VCV.cache.set(key,url); return url; }
   finally{ clearTimeout(to); } }
 function vcPlayUrl(url){ return new Promise(res=>{ try{ if(!vcSil){ vcSil=new Audio(); vcSil.setAttribute('playsinline',''); } const a=vcSil; a.onended=a.onerror=()=>res(); a.src=url; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>res('blocked')); }catch(e){ res('blocked'); } }); }
+const VC_FEM=/\b(anna|helena|petra|katja|amala|seraphina|marlene|vicki|sandra|lisa|sara|samantha|ava|allison|karen|moira|serena|zoe|nicky|susan|victoria|tessa|fiona|emma|jenny|aria|michelle|female|frau|weiblich)\b|google deutsch\b|google us english/i;
+const VC_MAL=/\b(markus|yannick|viktor|martin|conrad|florian|killian|jonas|hans|stefan|daniel|tom|evan|alex|aaron|fred|arthur|oliver|rishi|gordon|andrew|brian|guy|davis|male|mann|männlich)\b|google uk english male/i;
 function vcLocalVoice(lang){ const ss=window.speechSynthesis; if(!ss) return null; const pref=vcVoicePref(), all=ss.getVoices()||[];
   if(/^local:/.test(pref)){ const v=all.find(x=>x.voiceURI===pref.slice(6)||x.name===pref.slice(6)); if(v) return v; }
+  const g=vcPersona().g;
   const L=(lang||'de').slice(0,2), vs=all.filter(v=>v.lang&&v.lang.toLowerCase().replace('_','-').startsWith(L)); let best=null, bs=-1e9;
   for(const v of vs){ const n=(v.name+' '+v.voiceURI); let sc=0;
     if(/premium/i.test(n)) sc+=60; if(/enhanced|erweitert|natural|neural|online|wavenet/i.test(n)) sc+=45; if(/google/i.test(n)) sc+=35; if(/siri/i.test(n)) sc+=40;
     if(/\b(anna|helena|petra|markus|yannick|viktor|martin|katja|conrad|amala|samantha|ava|allison|daniel|serena|karen|moira|tom|evan|zoe|nicky)\b/i.test(n)) sc+=20;
+    if(g==='w'&&VC_FEM.test(n)) sc+=30; if(g==='m'&&VC_MAL.test(n)) sc+=30; if(g==='w'&&VC_MAL.test(n)) sc-=30; if(g==='m'&&VC_FEM.test(n)) sc-=30;
     if(/eloquence|grandma|grandpa|oma|opa|rocko|shelley|sandy|reed|\bflo\b|eddy|albert|fred|junior|ralph|kathy|zarvox|whisper|wobble|trinoids|superstar|organ|jester|cellos|bubbles|boing|bells|bahh|bad news|good news/i.test(n)) sc-=200;
     if(v.lang.toLowerCase().replace('_','-')===(L==='de'?'de-de':'en-us')) sc+=6; if(v.localService) sc+=2; if(sc>bs){ bs=sc; best=v; } }
   return best; }
-function vcLocalSpeak(txt,lang){ try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
-  setTimeout(()=>{ try{ ss.resume(); const u=new SpeechSynthesisUtterance(txt); u.lang=lang||(LANG==='en'?'en-US':'de-DE'); u.rate=1.0; u.pitch=1.0; const v=vcLocalVoice(u.lang); if(v){ u.voice=v; u.lang=v.lang; } ss.speak(u); }catch(e){} },120); }catch(e){} }
-async function vcTTS(txt,lang){ VC.ttsAt=Date.now(); const say=vcSpeakable(txt); if(!say) return; const my=++VCV.seq;
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  if(vcUseAI()){ try{ const url=await vcAIUrl(say,vcAIVoice()); if(my!==VCV.seq) return; const r=await vcPlayUrl(url); if(r!=='blocked') return; }catch(e){ VCV.fail=Date.now()+10*60e3; } if(my!==VCV.seq) return; }
-  vcLocalSpeak(say,lang); }
+const VC_LMOOD={info:[1,1],start:[1.03,1.02],confirm:[1.08,1],pr:[1.05,1.06],rest:[0.92,0.98],finish:[1.02,1.03],error:[0.95,0.99],food:[0.98,1]};
+function vcLocalSpeak(txt,lang,mood){ try{ const ss=window.speechSynthesis; if(!ss) return; ss.cancel();
+  setTimeout(()=>{ try{ ss.resume(); const P=vcPersona(), M=VC_LMOOD[mood]||VC_LMOOD.info; const u=new SpeechSynthesisUtterance(txt); u.lang=lang||(LANG==='en'?'en-US':'de-DE');
+    u.rate=Math.min(1.5,P.rate*M[0]*vcRate()); const v=vcLocalVoice(u.lang); if(v){ u.voice=v; u.lang=v.lang; }
+    // Tonhöhe nur leicht anpassen, wenn die Handy-Stimme nicht zum Charakter passt (sonst klingt sie künstlich)
+    const n=v?(v.name+' '+v.voiceURI):''; const fits=(P.g==='w'&&VC_FEM.test(n))||(P.g==='m'&&VC_MAL.test(n)); u.pitch=Math.min(1.15,Math.max(0.85,(fits?1+(P.pitch-1)*0.5:P.pitch)*M[1])); ss.speak(u); }catch(e){} },120); }catch(e){} }
+/* Premium-Audio: Server → Gerätespeicher (Cache Storage) → abspielen */
+const VCA=new Map();
+async function vcAudioUrl(say,mood){ const P=vcPersona(), body={text:say.slice(0,600),voice:P.id,lang:LANG==='en'?'en':'de',mood,rate:vcRate()};
+  const key=JSON.stringify(body); if(VCA.has(key)) return VCA.get(key);
+  const ck=new Request(location.origin+'/__tts/'+encodeURIComponent(key).slice(0,900)); let blob=null;
+  try{ const c=await caches.open('mc-tts-v1'); const h=await c.match(ck); if(h) blob=await h.blob(); }catch(e){}
+  if(!blob){ const ac=new AbortController(), to=setTimeout(()=>ac.abort(),9000);
+    try{ const r=await fetch(API_URL+'/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ac.signal});
+      if(!r.ok){ if(r.status===503) VCS.on=false; throw new Error('tts '+r.status); } blob=await r.blob(); if(!blob.size) throw new Error('leer'); }
+    finally{ clearTimeout(to); }
+    try{ const c=await caches.open('mc-tts-v1'); await c.put(ck,new Response(blob,{headers:{'Content-Type':'audio/mpeg'}})); const ks=await c.keys(); if(ks.length>250) for(const k of ks.slice(0,ks.length-250)) await c.delete(k); }catch(e){} }
+  const url=URL.createObjectURL(blob); if(VCA.size>40){ const k=VCA.keys().next().value; try{ URL.revokeObjectURL(VCA.get(k)); }catch(e){} VCA.delete(k); } VCA.set(key,url); return url; }
+async function vcTTS(txt,lang,moodHint){ VC.ttsAt=Date.now(); const say=vcSpeakable(txt); if(!say) return; const my=++VCV.seq; const mood=vcMood(say,moodHint);
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} try{ if(vcSil&&!vcSil.paused) vcSil.pause(); }catch(e){}
+  if(VCS.on===null) await vcSrvOk();
+  if(my!==VCV.seq) return;
+  if(vcUseAI()&&!/^local:/.test(vcVoicePref())){ const t0=performance.now();
+    try{ const url=await vcAudioUrl(say,mood); if(my!==VCV.seq) return; VCS.last=Math.round(performance.now()-t0); const r=await vcPlayUrl(url); if(r!=='blocked') return; }
+    catch(e){ VCS.fail=Date.now()+5*60e3; } if(my!==VCV.seq) return; }
+  vcLocalSpeak(say,lang,mood); }
 try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices(); } }catch(e){}
 try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
 /* Stimmen-Menü im Personal Trainer */
 function coVoiceSheet(){ let o=$('coVoice'); if(!o){ o=document.createElement('div'); o.id='coVoice'; o.className='vchelp'; document.body.appendChild(o); }
-  const pref=vcVoicePref(), cur=/^local:/.test(pref)?pref:(CO_AI_URL?(pref||'Sulafat'):'auto');
-  const locals=(()=>{ try{ const L=LANG==='en'?'en':'de'; return (speechSynthesis.getVoices()||[]).filter(v=>v.lang&&v.lang.toLowerCase().startsWith(L)&&!/eloquence|grandma|grandpa|rocko|shelley|sandy|reed|\bflo\b|eddy|albert|fred|junior|ralph|kathy|zarvox|whisper|wobble|trinoids|superstar|organ|jester|cellos|bubbles|boing|bells|bahh|news/i.test(v.name+' '+v.voiceURI)).slice(0,8); }catch(e){ return []; } })();
-  const row=(val,title,sub)=>`<label class="vvrow"><input type="radio" name="vv" value="${esc(val)}" ${cur===val?'checked':''}><span><b>${esc(title)}</b><small>${esc(sub)}</small></span><button type="button" class="vvplay" data-v="${esc(val)}">▶</button></label>`;
-  o.innerHTML=`<div class="vcbox"><div class="vchd"><b>🔊 ${LX('Stimme des Coachs','Coach voice')}</b><button class="vcx" id="vvX">✕</button></div>
-    <label class="vctts"><input type="checkbox" id="vvOn" ${vcTTSon()?'checked':''}> ${LX('Coach antwortet laut','Coach answers out loud')}</label>
-    ${CO_AI_URL?`<div class="vvhd">✨ ${LX('KI-Stimmen – natürlich & locker (Internet)','AI voices – natural & relaxed (internet)')}</div>${VC_AIV.map(x=>row(x[0],x[0]+(x[3]==='w'?' ♀':' ♂'),LX(x[1],x[2]))).join('')}`:`<p class="vcnote">✨ ${LX('Natürliche KI-Stimmen werden freigeschaltet, sobald der Coach-Server eingerichtet ist.','Natural AI voices unlock once the coach server is set up.')}</p>`}
-    <div class="vvhd">📱 ${LX('Handy-Stimmen (offline)','Phone voices (offline)')}</div>
-    ${CO_AI_URL?'':row('auto',LX('Automatisch – beste Stimme','Automatic – best voice'),LX('wählt die natürlichste verfügbare Stimme','picks the most natural available voice'))}
-    ${locals.map(v=>row('local:'+v.voiceURI,v.name.replace(/com\.apple\.[\w.-]+\./,''),v.lang+(/premium|enhanced|natural|neural|google|online/i.test(v.name)?' · '+LX('hohe Qualität','high quality'):''))).join('')}
-    <p class="vcnote">${LX('Tipp Android: In Chrome klingen die Google-Stimmen am natürlichsten. Auf dem iPhone lässt Apple im Browser nur die Basis-Stimmen zu – deshalb die KI-Stimmen.','Tip Android: Google voices in Chrome sound most natural. On iPhone Apple only allows basic voices in the browser – that\'s why there are AI voices.')}</p>
+  vcSrvOk().then(()=>{ const n=$('vvSrv'); if(n) n.innerHTML=vcSrvTxt(); });
+  const P=vcPersona(), loc=/^local:/.test(vcVoicePref());
+  o.innerHTML=`<div class="vcbox"><div class="vchd"><b>🔊 ${LX('Deine Coach-Stimme','Your coach voice')}</b><button class="vcx" id="vvX" aria-label="${LX('Schließen','Close')}">✕</button></div>
+    <label class="vctts"><input type="checkbox" id="vvOn" ${vcTTSon()?'checked':''}> ${LX('Coach spricht (Antworten & Training)','Coach speaks (answers & workout)')}</label>
+    <div class="vpgrid">${VC_PERS.map(x=>`<label class="vpc ${x.id===P.id&&!loc?'on':''}" data-p="${x.id}"><input type="radio" name="vp" value="${x.id}" ${x.id===P.id&&!loc?'checked':''}>
+      <span class="vpav ${x.g}">${x.n[0]}</span><span class="vpt"><b>${x.n}</b><small>${LX(x.de,x.en)}</small><i>${LX(x.dd,x.de2)}</i></span>
+      <button type="button" class="vvplay" data-v="${x.id}" aria-label="${LX('Hörprobe','Preview')} ${x.n}">▶</button></label>`).join('')}</div>
+    <div class="vprate"><span>🐢</span><input type="range" id="vvRate" min="0.8" max="1.3" step="0.05" value="${vcRate()}" aria-label="${LX('Sprechtempo','Speaking rate')}"><span>🐇</span><b id="vvRateV">${Math.round(vcRate()*100)} %</b></div>
+    <p class="vcnote" id="vvSrv">${vcSrvTxt()}</p>
+    <details class="vvmore"><summary>${LX('Handy-Stimme fest wählen (offline)','Pick a fixed phone voice (offline)')}</summary><div id="vvLoc"></div></details>
     <button class="savebtn" id="vvOk">${LX('Fertig','Done')}</button></div>`;
-  o.classList.add('on'); const cl=()=>{ o.classList.remove('on'); coTtsBtn(); }; $('vvX').onclick=cl; $('vvOk').onclick=cl; o.onclick=e=>{ if(e.target===o) cl(); };
+  o.classList.add('on'); const cl=()=>{ o.classList.remove('on'); try{ coTtsBtn(); }catch(e){} }; $('vvX').onclick=cl; $('vvOk').onclick=cl; o.onclick=e=>{ if(e.target===o) cl(); };
   $('vvOn').onchange=e=>{ try{ localStorage.setItem('mc_vc_tts',e.target.checked?'1':'0'); }catch(x){} if(!e.target.checked) vcStopSpeak(); };
-  o.querySelectorAll('input[name=vv]').forEach(r=>r.onchange=()=>{ vcVoiceSet(r.value==='auto'?'':r.value); VCV.fail=0; });
-  o.querySelectorAll('.vvplay').forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); const v=b.dataset.v; vcVoiceSet(v==='auto'?'':v); VCV.fail=0; const r=o.querySelector(`input[value="${CSS.escape(v)}"]`); if(r) r.checked=true; vcAudioKick();
-    const nm=(prof.name||'').trim(); vcTTS(LX(`Hey${nm?' '+nm:''}! Ich bin dein Coach. Lass uns heute zusammen richtig stark trainieren – ich bin bei jedem Satz an deiner Seite.`,`Hey${nm?' '+nm:''}! I'm your coach. Let's train really strong together today – I've got your back on every set.`)); }); }
+  const pick=id=>{ try{ localStorage.setItem('mc_vc_persona',id); }catch(e){} vcVoiceSet(''); VCS.fail=0; o.querySelectorAll('.vpc').forEach(c=>{ const on=c.dataset.p===id; c.classList.toggle('on',on); c.querySelector('input').checked=on; }); };
+  o.querySelectorAll('.vpc input').forEach(r=>r.onchange=()=>pick(r.value));
+  o.querySelectorAll('.vvplay').forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); pick(b.dataset.v); vcAudioKick(); vcTTS(vcSample(b.dataset.v),undefined,'start'); });
+  $('vvRate').oninput=e=>{ $('vvRateV').textContent=Math.round(e.target.value*100)+' %'; try{ localStorage.setItem('mc_vc_rate',e.target.value); }catch(x){} };
+  $('vvRate').onchange=()=>{ vcAudioKick(); vcTTS(LX('So schnell spreche ich jetzt.','This is how fast I talk now.'),undefined,'info'); };
+  o.querySelector('.vvmore').ontoggle=()=>{ const box=$('vvLoc'); if(box.dataset.done) return; box.dataset.done=1;
+    const L=LANG==='en'?'en':'de'; const vs=(()=>{ try{ return (speechSynthesis.getVoices()||[]).filter(v=>v.lang&&v.lang.toLowerCase().startsWith(L)&&!/eloquence|grandma|grandpa|rocko|shelley|sandy|reed|\bflo\b|eddy|albert|fred|junior|ralph|kathy|zarvox|whisper|wobble|trinoids|superstar|organ|jester|cellos|bubbles|boing|bells|bahh|news/i.test(v.name+' '+v.voiceURI)).slice(0,10); }catch(e){ return []; } })();
+    box.innerHTML=vs.length?vs.map(v=>`<label class="vvrow"><input type="radio" name="vv" value="local:${esc(v.voiceURI)}" ${vcVoicePref()==='local:'+v.voiceURI?'checked':''}><span><b>${esc(v.name.replace(/com\.apple\.[\w.-]+\./,''))}</b><small>${esc(v.lang)}</small></span></label>`).join('')+`<p class="vcnote">${LX('Eine feste Handy-Stimme ersetzt Mia, Luna, Leon und Alex. Wieder umstellen: oben einen Coach antippen.','A fixed phone voice replaces Mia, Luna, Leon and Alex. To switch back: tap a coach above.')}</p>`:`<p class="vcnote">${LX('Keine Handy-Stimmen gefunden.','No phone voices found.')}</p>`;
+    box.querySelectorAll('input').forEach(r=>r.onchange=()=>{ vcVoiceSet(r.value); o.querySelectorAll('.vpc').forEach(c=>{ c.classList.remove('on'); c.querySelector('input').checked=false; }); vcAudioKick(); vcTTS(LX('Diese Handy-Stimme ist jetzt aktiv.','This phone voice is active now.')); }); };
+}
+function vcSrvTxt(){ return VCS.on===true?`✨ ${LX('Premium-KI-Stimmen aktiv (Internet). Ohne Internet spricht automatisch die beste Handy-Stimme.','Premium AI voices active (internet). Offline the best phone voice speaks automatically.')}${VCS.last?` · ${VCS.last} ms`:''}`
+  :VCS.on===false?`📱 ${LX('Gerade sprechen Handy-Stimmen, passend zu Mia, Luna, Leon oder Alex. Die Premium-KI-Stimmen sind noch nicht freigeschaltet oder nicht erreichbar.','Phone voices matching Mia, Luna, Leon or Alex are speaking right now. Premium AI voices are not enabled yet or unreachable.')}`
+  :LX('Prüfe Premium-Stimmen …','Checking premium voices …'); }
+function vcSample(id){ const nm=(prof.name||'').trim(), N=nm?' '+nm:'';
+  const S={mia:[`Hey${N}, schön, dass du wieder da bist! Ich bin Mia. Heute machen wir zusammen ein richtig gutes Training – Schritt für Schritt.`,`Hey${N}, great to have you back! I'm Mia. Let's have a really good session today – step by step.`],
+    luna:[`Hi${N}, ich bin Luna! Heute geben wir Gas: Bankdrücken, achtzig Kilo, zehn Wiederholungen. Du schaffst das!`,`Hi${N}, I'm Luna! Today we push hard: bench press, eighty kilos, ten reps. You've got this!`],
+    leon:[`Servus${N}, ich bin Leon. Locker bleiben, sauber trainieren – und dann holen wir uns den nächsten Rekord.`,`Hey${N}, I'm Leon. Stay relaxed, train clean – and then we go for the next record.`],
+    alex:[`Hallo${N}, ich bin Alex. Ich begleite dich ruhig und präzise durch dein Training. Konzentrier dich auf die Technik, den Rest übernehme ich.`,`Hello${N}, I'm Alex. I'll guide you calmly and precisely through your workout. Focus on technique, I'll handle the rest.`]};
+  const x=S[id]||S.mia; return LX(x[0],x[1]); }
 const vcErrTxt=er=>er==='not-allowed'||er==='service-not-allowed'?LX('Mikrofon nicht erlaubt. Bitte in den Einstellungen erlauben (iPhone: Einstellungen › Safari › Mikrofon). Auf dem iPhone klappt die Spracherkennung manchmal nur, wenn die App in Safari geöffnet ist.','Microphone not allowed. Please allow it in settings (iPhone: Settings › Safari › Microphone). On iPhone speech recognition sometimes only works when the app is opened in Safari.')
   :er==='no-speech'||er==='start-timeout'?LX('Nichts gehört – tippe nochmal und sprich direkt los.','Didn’t hear anything – tap again and speak right away.')
   :er==='audio-capture'?LX('Das Mikrofon ist gerade belegt (z. B. durch einen Anruf oder eine andere App).','The microphone is busy right now (e.g. a call or another app).')
@@ -4063,6 +4134,8 @@ function renderSettings(){
   box.innerHTML=`
   <h3 class="vh">🌐 Sprache · Language</h3>
   <div class="pcard"><div class="langsw"><button data-lang="de" class="${LANG==='de'?'on':''}">🇩🇪 Deutsch</button><button data-lang="en" class="${LANG==='en'?'on':''}">🇬🇧 English</button></div></div>
+  <h3 class="vh">🔊 ${LX('Deine Coach-Stimme','Your coach voice')}</h3>
+  <div class="pcard"><button class="savebtn sec2" id="setVoice" onclick="coVoiceSheet()">🔊 ${vcPersona().n} · ${LX(vcPersona().de,vcPersona().en)} – ${LX('ändern & anhören','change & listen')}</button></div>
   <h3 class="vh">⭐ Vollversion</h3>
   <div class="pcard"><p style="font-size:14px;margin-bottom:${MC.unlocked&&MC.kind!=='master'?'10px':'0'}">${MC.unlocked?(MC.kind==='master'?LX('Freigeschaltet – <b>unbegrenzt</b> (Master-Code).','Unlocked – <b>unlimited</b> (master code).'):LX(`Gültig bis <b>${new Date(MC.until).toLocaleDateString('de-DE')}</b> · noch <b>${MC.daysLeft} Tage</b>. Die Vollversion gilt jeweils 1 Jahr.`,`Valid until <b>${new Date(MC.until).toLocaleDateString('en-GB')}</b> · <b>${MC.daysLeft} days</b> left. The full version is valid for 1 year at a time.`)):(MC.expired?LX('<b style="color:#ff9a6e">Abgelaufen.</b> Mit einem neuen Code hast du wieder 1 Jahr die Vollversion.','<b style="color:#ff9a6e">Expired.</b> With a new code you get the full version for another year.'):(MC.trial?LX(`Demo – noch <b>${MC.left} Tage</b>. Die Vollversion gilt danach jeweils 1 Jahr.`,`Demo – <b>${MC.left} days</b> left. After that the full version is valid for 1 year at a time.`):LX('Basis-Version. Die Vollversion gilt jeweils 1 Jahr.','Basic version. The full version is valid for 1 year at a time.')))}</p>
   ${MC.kind==='master'&&MC.unlocked?'':`<button class="savebtn" onclick="MC_GATE.${MC.unlocked?'show(\'renew\')':'code()'}">🔑 ${MC.unlocked?'Mit neuem Code verlängern':'Code eingeben'}</button>`}</div>

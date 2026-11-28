@@ -597,6 +597,67 @@ async function foodEan(req, env, code) {
 }
 const foodJson = (req, env, d) => new Response(JSON.stringify(d), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=3600', ...cors(req, env) } });
 
+/* ===================== Coach-Stimmen (Azure Neural TTS, kostenloses Kontingent F0) =====================
+ * Secrets: AZURE_SPEECH_KEY, AZURE_SPEECH_REGION (z. B. westeurope). Ohne Schlüssel: /tts meldet „aus“, die App nutzt Handy-Stimmen.
+ * Kostenkontrolle: Monatsbudget in Zeichen (TTS_MONTH_CHARS, Standard 450.000 < 500.000 frei), Cache 30 Tage, Drossel je Netz.
+ * An Microsoft geht nur der vorzulesende Text – keine Nutzer-ID, keine IP des Nutzers.
+ */
+const TTS_VOICES = {
+  de: { mia: 'de-DE-SeraphinaMultilingualNeural', luna: 'de-DE-AmalaNeural', leon: 'de-DE-FlorianMultilingualNeural', alex: 'de-DE-ConradNeural' },
+  en: { mia: 'en-US-AvaMultilingualNeural', luna: 'en-US-EmmaMultilingualNeural', leon: 'en-US-AndrewMultilingualNeural', alex: 'en-US-BrianMultilingualNeural' },
+};
+// Grundcharakter je Stimme + Stimmung je Situation (Tempo/Tonhöhe in %)
+const TTS_BASE = { mia: [0, 1], luna: [6, 3], leon: [3, 0], alex: [-4, -2] };
+const TTS_MOOD = { info: [0, 0], start: [3, 2], confirm: [8, 0], pr: [6, 5], rest: [-7, -2], finish: [2, 3], error: [-5, -1], food: [-2, 0] };
+const ttsIp = new Map();
+function ttsVoices(env) { try { return env.TTS_VOICES ? { ...TTS_VOICES, ...JSON.parse(env.TTS_VOICES) } : TTS_VOICES; } catch (e) { return TTS_VOICES; } }
+const xmlEsc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+function ttsSsml(text, voiceName, lang, persona, mood, rate) {
+  const b = TTS_BASE[persona] || [0, 0], m = TTS_MOOD[mood] || TTS_MOOD.info;
+  const r = Math.round(b[0] + m[0] + (rate - 1) * 100), p = Math.round(b[1] + m[1]);
+  // natürliche Pausen: nach Satzzeichen kurze Atempause
+  const body = xmlEsc(text).replace(/([.!?])\s+/g, '$1 <break time="180ms"/>').replace(/:\s+/g, ': <break time="120ms"/>');
+  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="${lang === 'en' ? 'en-US' : 'de-DE'}"><voice name="${voiceName}"><lang xml:lang="${lang === 'en' ? 'en-US' : 'de-DE'}"><prosody rate="${r >= 0 ? '+' : ''}${r}%" pitch="${p >= 0 ? '+' : ''}${p}%">${body}</prosody></lang></voice></speak>`;
+}
+async function ttsHandler(req, env, ctx) {
+  const enabled = !!(env.AZURE_SPEECH_KEY && env.AZURE_SPEECH_REGION);
+  if (req.method === 'GET') return json(req, env, { ok: true, enabled, voices: Object.keys(TTS_VOICES.de) });
+  if (!enabled) return json(req, env, { ok: false, error: 'off' }, 503);
+  let b; try { b = await req.json(); } catch (e) { return json(req, env, { ok: false, error: 'json' }, 400); }
+  const text = String(b.text || '').replace(/\s+/g, ' ').trim().slice(0, 600);
+  if (!text) return json(req, env, { ok: false, error: 'empty' }, 400);
+  const lang = b.lang === 'en' ? 'en' : 'de';
+  const persona = ['mia', 'luna', 'leon', 'alex'].includes(b.voice) ? b.voice : 'mia';
+  const mood = TTS_MOOD[b.mood] ? b.mood : 'info';
+  const rate = Math.min(1.3, Math.max(0.8, Math.round((Number(b.rate) || 1) * 20) / 20));
+  const voiceName = (ttsVoices(env)[lang] || TTS_VOICES[lang])[persona];
+  const key = await sha256(['v1', voiceName, lang, mood, rate, text].join('|'));
+  const ck = new Request('https://tts-cache.local/a/' + key);
+  const hit = await caches.default.match(ck);
+  if (hit) return new Response(hit.body, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=2592000', 'X-Cache': 'hit', ...cors(req, env) } });
+  // Drossel: 150 neue Sätze je Netz und Stunde (pro Worker-Instanz)
+  const ip = await clientKey(req, env); const now = Date.now(); const arr = (ttsIp.get(ip) || []).filter((t) => now - t < 3600e3);
+  if (arr.length >= 150) return json(req, env, { ok: false, error: 'limit' }, 429); arr.push(now); ttsIp.set(ip, arr); if (ttsIp.size > 5000) ttsIp.clear();
+  // Monatsbudget (Zeichen) – bleibt im kostenlosen Kontingent
+  const mk = 'ttsc-' + new Date().toISOString().slice(0, 7);
+  const used = await env.DB.prepare('SELECT v FROM counters WHERE k = ?').bind(mk).first();
+  const budget = Number(env.TTS_MONTH_CHARS || 450000);
+  if (used && used.v + text.length > budget) return json(req, env, { ok: false, error: 'budget' }, 429);
+  const ssml = ttsSsml(text, voiceName, lang, persona, mood, rate);
+  const ac = new AbortController(); const to = setTimeout(() => ac.abort(), 8000);
+  let r; try {
+    r = await fetch(`https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, { method: 'POST', signal: ac.signal,
+      headers: { 'Ocp-Apim-Subscription-Key': env.AZURE_SPEECH_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3', 'User-Agent': 'DrMuskelCoach' }, body: ssml });
+  } catch (e) { return json(req, env, { ok: false, error: 'upstream' }, 502); } finally { clearTimeout(to); }
+  if (!r.ok) return json(req, env, { ok: false, error: 'azure_' + r.status }, r.status === 429 ? 429 : 502);
+  const audio = await r.arrayBuffer();
+  ctx && ctx.waitUntil(Promise.all([
+    caches.default.put(ck, new Response(audio, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=2592000' } })),
+    env.DB.prepare('INSERT INTO counters (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = v + ?').bind(mk, ssml.length, ssml.length).run(),
+  ]));
+  return new Response(audio, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=2592000', 'X-Cache': 'miss', ...cors(req, env) } });
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -623,6 +684,11 @@ export default {
       if (url.pathname.startsWith('/food/')) {
         const o = req.headers.get('Origin');
         if (o && !origins(env).includes(o) && !/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
+      }
+      if (url.pathname === '/tts') {
+        const o = req.headers.get('Origin');
+        if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
+        return await ttsHandler(req, env, ctx);
       }
       if (url.pathname === '/food/search' && req.method === 'GET') return await foodSearch(req, env, url, ctx);
       const fe = url.pathname.match(/^\/food\/ean\/(\d{6,14})$/);
