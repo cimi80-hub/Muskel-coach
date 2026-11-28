@@ -36,7 +36,7 @@ jobs:
       - name: Bibliothek & Modell bereitstellen
         run: |
           mkdir -p foodscan/vendor
-          cp /tmp/fs/node_modules/@huggingface/transformers/dist/transformers.web.min.js foodscan/vendor/ 2>/dev/null || cp /tmp/fs/node_modules/@huggingface/transformers/dist/transformers.min.js foodscan/vendor/transformers.web.min.js
+          rm -f foodscan/vendor/transformers.web.min.js; cp /tmp/fs/node_modules/@huggingface/transformers/dist/transformers.min.js foodscan/vendor/transformers.min.js; grep -o 'from"[a-z-]*"' foodscan/vendor/transformers.min.js | sort -u | head
           for f in ort-wasm-simd-threaded.jsep.wasm ort-wasm-simd-threaded.jsep.mjs ort-wasm-simd-threaded.wasm ort-wasm-simd-threaded.mjs; do [ -f /tmp/fs/node_modules/onnxruntime-web/dist/$f ] && cp /tmp/fs/node_modules/onnxruntime-web/dist/$f foodscan/vendor/; done
           cp /tmp/fs/node_modules/@huggingface/transformers/LICENSE foodscan/vendor/LICENSE-transformers.txt 2>/dev/null || true
           cp /tmp/fs/node_modules/onnxruntime-web/LICENSE foodscan/vendor/LICENSE-onnxruntime.txt 2>/dev/null || true

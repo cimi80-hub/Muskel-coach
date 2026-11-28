@@ -15,7 +15,7 @@
     S.loading = (async () => {
       const [T, C] = await Promise.all([fetch(BASE + 'text-emb.json').then((r) => r.json()), fetch(BASE + 'calib.json').then((r) => r.json())]);
       S.T = T; S.C = C;
-      const tf = await import(BASE + 'vendor/transformers.web.min.js');
+      const tf = await import(BASE + 'vendor/transformers.min.js');
       tf.env.allowRemoteModels = false; tf.env.allowLocalModels = true; tf.env.localModelPath = BASE + 'models/'; tf.env.useBrowserCache = true;
       tf.env.backends.onnx.wasm.wasmPaths = BASE + 'vendor/';
       if (!self.crossOriginIsolated) tf.env.backends.onnx.wasm.numThreads = 1;
