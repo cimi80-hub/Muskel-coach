@@ -507,13 +507,19 @@ async function fetchT(u, opt = {}, ms = 4500) {
 }
 async function offSearch(q) {
   // 1. Search-a-licious (schnelle neue OFF-Suche), 2. Ersatz: klassische OFF-Suche
+  let sal = null;
   try {
-    const r = await fetchT(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=de,en&page_size=40&fields=${OFF_FIELDS}`);
-    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) return { list: hits.map(mapOFF).filter(Boolean), via: 'sal' }; }
+    const r = await fetchT(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=de,en&page_size=50&fields=${OFF_FIELDS}`);
+    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) sal = hits.map(mapOFF).filter(Boolean); }
   } catch (e) {}
-  const r = await fetchT(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=40&sort_by=unique_scans_n&fields=${OFF_FIELDS}`, {}, 7000);
-  if (!r.ok) throw new Error('off ' + r.status);
-  const j = await r.json(); return { list: (j.products || []).map(mapOFF).filter(Boolean), via: 'cgi' };
+  if (sal && sal.length >= 6) return { list: sal, via: 'sal' };
+  // wenige/keine Treffer: zusätzlich die klassische Suche (deutscher Katalog zuerst)
+  try {
+    const r = await fetchT(`https://de.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=40&sort_by=unique_scans_n&fields=${OFF_FIELDS}`, {}, 7000);
+    if (!r.ok) throw new Error('off ' + r.status);
+    const j = await r.json(); const cgi = (j.products || []).map(mapOFF).filter(Boolean);
+    return { list: (sal || []).concat(cgi), via: sal ? 'sal+cgi' : 'cgi' };
+  } catch (e) { if (sal) return { list: sal, via: 'sal' }; throw e; }
 }
 async function fdcSearch(q, env) {
   let key = env.FDC_API_KEY;
@@ -531,12 +537,16 @@ async function fdcSearch(q, env) {
 const ENGLISHISH = /\b(chicken|beef|pork|rice|oats?|egg|eggs|milk|cheese|bread|apple|banana|potato|salmon|tuna|breast|raw|cooked|boiled|fried|butter|yogurt|beans?|peanut|almonds?|nuts?|turkey|fish|oil|sugar|flour|pasta|steak|bacon|ham|spinach|broccoli|avocado|whey|protein)\b/i;
 function rankFood(list, q) {
   const words = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter((w) => w.length > 1);
-  const sc = (f) => { const n = (f.n + ' ' + (f.brand || '')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    let s = 0; for (const w of words) { if (new RegExp('\\b' + w).test(n)) s += 2; else if (n.includes(w)) s += 1; else s -= 2; }
+  const hitN = new Map();
+  const sc = (f) => { const n = (f.n + ' ' + (f.brand || '') + ' ' + (f.store || '')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let s = 0, h = 0; for (const w of words) { if (new RegExp('\\b' + w).test(n)) { s += 2; h++; } else if (n.includes(w)) { s += 1; h++; } else s -= 2; }
+    hitN.set(f, h);
     if (f.de) s += 1.5; if (f.src === 'usda') s += 0.5; if (f.p != null && f.c != null && f.f != null) s += 0.5; if (f.sat != null && f.sug != null && f.salt != null) s += 0.3;
     s -= Math.min(1.5, f.n.length / 60); return s; };
   const seen = new Set(); const out = [];
+  const need = words.length <= 1 ? 0 : words.length - 1; // bei mehreren Wörtern höchstens eins fehlen
   for (const f of list.map((f) => [sc(f), f]).sort((a, b) => b[0] - a[0]).map((x) => x[1])) {
+    if (hitN.get(f) < need || (f.src === 'usda' && words.length && hitN.get(f) < Math.ceil(words.length / 2))) continue;
     const k = f.ean ? 'e' + f.ean : 'n' + f.n.toLowerCase() + '|' + (f.brand || '').toLowerCase() + '|' + f.kcal;
     const k2 = 'n' + f.n.toLowerCase().replace(/\s+/g, ' ') + '|' + (f.brand || '').toLowerCase() + '|' + f.kcal + '|' + Math.round(f.p || 0);
     if (seen.has(k) || seen.has(k2)) continue; seen.add(k); seen.add(k2); out.push(f);
@@ -546,7 +556,7 @@ function rankFood(list, q) {
 async function foodSearch(req, env, url, ctx) {
   const q = String(url.searchParams.get('q') || '').trim().replace(/\s+/g, ' ').slice(0, 80);
   if (q.length < 2) return json(req, env, { ok: false, error: 'short' }, 400);
-  const cacheKey = new Request('https://food-cache.local/s/v1/' + encodeURIComponent(q.toLowerCase()));
+  const cacheKey = new Request('https://food-cache.local/s/v2/' + encodeURIComponent(q.toLowerCase()));
   const cache = caches.default; const hit = await cache.match(cacheKey);
   if (hit) { const d = await hit.json(); return foodJson(req, env, { ...d, cached: true }); }
   if (!upOk(40)) return json(req, env, { ok: false, error: 'busy' }, 429);
