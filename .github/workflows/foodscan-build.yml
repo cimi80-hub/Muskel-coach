@@ -25,7 +25,7 @@ jobs:
           ls /tmp/fs/node_modules/@huggingface/transformers/dist/ | head -30
           ls -la /tmp/fs/node_modules/onnxruntime-web/dist/ | grep -E "wasm|mjs" | head -30
       - name: Bauen & messen
-        env: { N_DISH: "${{ github.event.inputs.n_dish || '30' }}", NODE_PATH: /tmp/fs/node_modules }
+        env: { N_DISH: "${{ github.event.inputs.n_dish || '600' }}", NODE_PATH: /tmp/fs/node_modules }
         run: |
           ln -s /tmp/fs/node_modules node_modules
           node tools/foodscan/build.mjs 2>&1 | tee /tmp/build.log | grep -v "^\s*$" | tail -60
