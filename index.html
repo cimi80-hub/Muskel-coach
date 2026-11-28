@@ -540,9 +540,9 @@
   .comsgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}
   .cofood{margin:4px 0 10px;display:flex;flex-direction:column;gap:6px;max-width:92%}.cofrow{display:flex;align-items:center;gap:10px;text-align:left;background:var(--card,#1a1d22);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:9px 12px;color:inherit;font:inherit}.cofrow i{font-style:normal;font-size:20px}.cofrow span{flex:1;display:flex;flex-direction:column;line-height:1.25}.cofrow small{opacity:.6;font-size:12px}.cofrow b{font-size:14px;font-weight:600}.cofrow em{font-style:normal;font-weight:700;color:#a3e635;font-size:13px;white-space:nowrap}.cofhint{font-size:12px;opacity:.55;padding-left:4px}
   .comsg{max-width:86%;padding:10px 13px;border-radius:18px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;animation:up .18s ease}
-  .comsg.a{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+  .comsg.a{align-self:flex-start;background:#0d1a2b;color:#7cc4ff;border:1px solid #1f4c7a;border-bottom-left-radius:6px}
   .coai{align-self:flex-start;font-size:12px;color:var(--mut,#888);margin:-4px 0 4px 6px;opacity:.8}
-  .comsg.u{align-self:flex-end;background:linear-gradient(135deg,#c6ff3d,#9be61f);color:#111;font-weight:600;border-bottom-right-radius:6px}
+  .comsg.u{align-self:flex-end;background:#221d05;color:#ffd84a;border:1px solid #6b5a10;font-weight:600;border-bottom-right-radius:6px}
   .comsg.typing{display:flex;gap:4px} .comsg.typing i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:coDot 1s infinite} .comsg.typing i:nth-child(2){animation-delay:.15s} .comsg.typing i:nth-child(3){animation-delay:.3s}
   @keyframes coDot{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
   .comu{align-self:flex-start;width:94%;background:linear-gradient(160deg,#1b2410,var(--card) 60%);border:1px solid #4d6b1a;border-radius:18px;padding:10px;animation:up .2s ease}
@@ -4710,7 +4710,7 @@ async function devApiLoad(){ if(!$('devStats')) return; try{ clearTimeout(devLiv
     if(r.status===401||r.status===429){ DEVA.busy=false; try{ sessionStorage.removeItem('mc_api_key'); }catch(e){} apiBoxRender(); fbAdminRender(); const e=$('apiKeyErr'); if(e) e.textContent=r.status===429?'Zu viele Fehlversuche – bitte in 1 Stunde erneut.':'Schlüssel falsch.'; devFallback(); return; }
     if(!r.ok||!j.ok) throw new Error('HTTP '+r.status);
     const v=j.v||{}, g=k=>v[k]||0, today=bDay();
-    DEVC.forEach(c=>{ if(g('c-'+c.code)>0) c.used=true; }); saveDevC(); try{ if(!$('coGo')) coRender(); else coList(); }catch(e){}
+    DEVC.forEach(c=>{ if(g('c-'+c.code)>0) c.used=true; }); saveDevC(); try{ if(!$('coGo')) coopRender(); else coList(); }catch(e){}
     const cc={}; Object.keys(v).forEach(k=>{ if(k.startsWith('cc-')) cc[k.slice(3)]=v[k]; });
     const EV=['um','uc','bad','reuse'], tot={}; EV.forEach(e=>tot[e]=g(e+'-all'));
     const byDay={}; Object.keys(v).forEach(k=>{ const m=k.match(/^(um|uc|bad|reuse)-(\d{8})$/); if(m&&v[k]>0){ const o=byDay[m[2]]=byDay[m[2]]||{d:m[2],um:0,uc:0,bad:0,reuse:0}; o[m[1]]=v[k]; } });
@@ -4971,8 +4971,8 @@ const coExpTxt=e=>e?new Date(e).toLocaleDateString('de-DE'):'';
 function coText(G){ const url=appUrl(); return `Hallo! Hier sind deine ${G.codes.length} Freischalt-Codes für Dr. Muskel Coach 💪\nJeder Code schaltet die Vollversion für ${coDur(G.m)} frei und funktioniert genau einmal${G.exp?` – einlösbar bis ${coExpTxt(G.exp)}`:''}.\n\nSo geht's: App öffnen (${url}) → „Code eingeben“ → Code eintippen.\n\n${G.codes.map(c=>c.code).join('\n')}`; }
 function coMount(){ if(!$('devSheet')||$('coBox')) return; const ref=[...document.querySelectorAll('#devSheet .devwrap h3')].find(h=>/Freischaltungen/.test(h.textContent)); if(!ref) return;
   const h=document.createElement('h3'); h.className='vh'; h.textContent='🤝 Kooperation / Influencer'; const box=document.createElement('div'); box.className='pc'; box.id='coBox';
-  ref.parentNode.insertBefore(h,ref); ref.parentNode.insertBefore(box,ref); coRender(); }
-function coRender(){ const box=$('coBox'); if(!box) return; const key=(typeof apiKey==='function')?apiKey():'';
+  ref.parentNode.insertBefore(h,ref); ref.parentNode.insertBefore(box,ref); coopRender(); }
+function coopRender(){ const box=$('coBox'); if(!box) return; const key=(typeof apiKey==='function')?apiKey():'';
   if(!apiOn()||!key){ box.innerHTML='<p class="muted" style="margin:0">🔑 Oben den Server-Schlüssel eingeben – dann kannst du hier 10, 20, 30 oder 50 Codes auf einmal für eine Kooperation erzeugen.</p>'; return; }
   box.innerHTML=`<label class="f2">Name der Kooperation<input id="coTag" maxlength="40" placeholder="z. B. @fitmax oder Studio Nord"></label>
     <label class="f2">E-Mail des Partners (freiwillig)<input id="coMail" type="email" inputmode="email" autocapitalize="off" autocomplete="off" maxlength="80" placeholder="partner@beispiel.de"></label>
@@ -4981,7 +4981,7 @@ function coRender(){ const box=$('coBox'); if(!box) return; const key=(typeof ap
     <label class="f2">Einlösbar bis (freiwillig)<input id="coExp" type="date" min="${new Date(Date.now()+864e5).toISOString().slice(0,10)}" style="padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px"></label>
     <p class="muted" style="font-size:12px;margin:2px 0 8px">Nach diesem Datum lassen sich nicht eingelöste Codes nicht mehr verwenden. Leer = unbegrenzt einlösbar.</p>
     <button class="savebtn" id="coGo">🎲 ${COOP.n} Codes erzeugen</button><div id="coOut"></div><div id="coList"></div>`; coList();
-  box.querySelectorAll('[data-con]').forEach(b=>b.onclick=()=>{ COOP.n=+b.dataset.con; COOP.m=+$('coM').value; const t=$('coTag').value, e=$('coExp').value, ml=$('coMail').value; coRender(); $('coTag').value=t; $('coExp').value=e; $('coMail').value=ml; });
+  box.querySelectorAll('[data-con]').forEach(b=>b.onclick=()=>{ COOP.n=+b.dataset.con; COOP.m=+$('coM').value; const t=$('coTag').value, e=$('coExp').value, ml=$('coMail').value; coopRender(); $('coTag').value=t; $('coExp').value=e; $('coMail').value=ml; });
   $('coGo').onclick=async()=>{ const tag=$('coTag').value.trim(); if(tag.length<2){ toast2('Bitte einen Namen für die Kooperation eingeben'); $('coTag').focus(); return; }
     const mail=$('coMail').value.trim(); if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){ toast2('Bitte eine gültige E-Mail-Adresse eingeben'); $('coMail').focus(); return; }
     const m=+$('coM').value; COOP.m=m; const ev=$('coExp').value; const exp=ev?new Date(ev+'T23:59:59').getTime():null;
@@ -4991,7 +4991,7 @@ function coRender(){ const box=$('coBox'); if(!box) return; const key=(typeof ap
     b.disabled=false; b.textContent=`🎲 ${COOP.n} Codes erzeugen`;
     if(!j.ok||!j.codes){ toast2('Codes konnten nicht erzeugt werden – Internet/Server-Schlüssel prüfen'); return; }
     const batch=Date.now(), date=ymd(new Date()); j.codes.forEach(code=>DEVC.push({code,who:tag,mail,ord:'',date,used:false,m,co:tag,batch,exp:j.expires||null})); saveDevC();
-    coRender(); coShow(coGroups().find(G=>G.batch===batch)); toast2(`${j.codes.length} Codes erzeugt ✓`); }; }
+    coopRender(); coShow(coGroups().find(G=>G.batch===batch)); toast2(`${j.codes.length} Codes erzeugt ✓`); }; }
 function coList(){ const el=$('coList'); if(!el) return; const gs=coGroups();
   el.innerHTML=gs.length?`<div style="margin-top:14px"><b>Deine Kooperationen</b>${gs.map((G,i)=>{ const u=G.codes.filter(c=>c.used).length, ex=G.exp&&Date.now()>G.exp;
       return `<div class="coit"><div><b>${esc(G.tag)}</b>${G.mail?`<small>✉️ ${esc(G.mail)}</small>`:''}<small>${G.codes.length} Codes · ${coDur(G.m)} · ${fmtD(parseD(G.date))}${G.exp?` · ${ex?'abgelaufen':'bis '+coExpTxt(G.exp)}`:''}</small><small><b style="color:var(--acc)">${u} von ${G.codes.length} eingelöst</b></small><div class="coopbar"><i style="width:${Math.round(100*u/G.codes.length)}%"></i></div></div><button class="iconbtn" data-cos="${i}">Codes</button></div>`; }).join('')}</div>`:'';
