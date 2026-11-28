@@ -94,6 +94,7 @@ table.nt tr.sub td:first-child{padding-left:14px;color:var(--mut)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(227,25,43,.7)}70%{box-shadow:0 0 0 22px rgba(227,25,43,0)}100%{box-shadow:0 0 0 0 rgba(227,25,43,0)}}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;color:#111;padding:10px 16px;border-radius:12px;z-index:60;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
+.onl-h{margin:12px 2px 6px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.15)}
 svg text{fill:var(--mut);font-size:10px}
 #scanVideo{width:100%;border-radius:14px;background:#000;aspect-ratio:4/3;object-fit:cover}
 .scanframe{position:relative}.scanframe:after{content:"";position:absolute;left:12%;right:12%;top:40%;height:20%;border:2px solid var(--red2);border-radius:10px}
@@ -268,7 +269,7 @@ const fname = (f) => (F.lang==='en' && f.en) ? f.en : f.n;
 function applyLang(){ $$('[data-t]').forEach(e=>e.textContent=t(e.dataset.t)); document.documentElement.lang=F.lang; }
 
 function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('on'),2200); }
-function qBadge(f){ const m={ref:['ref','BLS-Referenzwert'],mfr:['mfr','Herstellerangabe'],est:['est','Schätzwert'],user:['user','Eigenes'],recipe:['user','Rezept']}; const b=m[f.q]||m.ref; return `<span class="badge ${b[0]}">${b[1]}</span>`; }
+function qBadge(f){ if(f.src==='usda') return '<span class="badge ref">USDA-Referenz</span>'; const m={ref:['ref','BLS-Referenzwert'],mfr:['mfr','Herstellerangabe'],est:['est','Schätzwert'],user:['user','Eigenes'],recipe:['user','Rezept']}; const b=m[f.q]||m.ref; return `<span class="badge ${b[0]}">${b[1]}</span>`; }
 
 // ---------- Navigation ----------
 function show(v){ $$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v)); $$('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); window.scrollTo(0,0);
@@ -335,25 +336,41 @@ let lastList=[];
 async function renderResults(){
   const q=$('#q').value.trim(); let list;
   if(q){ const base=filter==='favs'?F.listFavs():filter==='mine'?F.listCustom():filter==='recent'?await F.listRecent():filter==='frequent'?F.listFrequent():null;
-    list=F.search(q,{limit:60,pool:base||undefined}); }
+    list=F.search(q,{limit:base?60:25,pool:base||undefined}); }
   else list=filter==='favs'?F.listFavs():filter==='mine'?F.listCustom():filter==='frequent'?F.listFrequent():await F.listRecent();
   lastList=list;
   const r=$('#results');
   if(!list.length){ r.innerHTML=`<div class="loader small">${q?`Nichts in der Offline-Datenbank gefunden.<br><br><button class="pri" id="goOnline">🌐 „${esc(q)}“ online suchen</button><br><br><button id="goOwn">＋ Eigenes Lebensmittel anlegen</button>`:(filter==='alle'?'Tippe einen Suchbegriff ein – z. B. „Döner“, „Skyr“, „Hähnchenbrust“ oder scanne einen Barcode.':'Noch keine Einträge in dieser Liste.')}</div>`;
-    const go=$('#goOnline'); if(go) go.onclick=onlineSearch; const go2=$('#goOwn'); if(go2) go2.onclick=()=>ownFood({n:q}); return; }
-  r.innerHTML=list.map(resRow).join('')+(q?`<div style="text-align:center;margin:14px 0"><button class="sm" id="moreOnline">🌐 Mehr Markenprodukte online suchen</button></div>`:'');
+    const go=$('#goOnline'); if(go) go.onclick=onlineSearch; const go2=$('#goOwn'); if(go2) go2.onclick=()=>ownFood({n:q}); if(q&&q.length>=3&&filter==='alle'&&navigator.onLine) onlineSearch(); return; }
+  r.innerHTML=list.map(resRow).join('')+(q?`<div id="onlineAuto"></div>`:'');
   $$('.res',r).forEach(el=>el.onclick=()=>foodSheet(list.find(f=>f.id===el.dataset.id)));
-  const mo=$('#moreOnline'); if(mo) mo.onclick=onlineSearch;
+  if(q) autoOnline(q);
+}
+// Online-Treffer (Open Food Facts + USDA über den Server) automatisch unter die Offline-Treffer hängen
+let onTok=0, onTimer;
+function onlineBlock(q,list,info){ if(!list.length) return `<div class="onl-h small mut">🌐 Online: keine weiteren Treffer für „${esc(q)}“</div>`;
+  return `<div class="onl-h small mut">🌐 Online · ${list.length} weitere Produkte${info&&info.ms!=null?` · ${info.ms} ms`:''} · Open Food Facts (ODbL)${list.some(f=>f.src==='usda')?' · USDA (gemeinfrei)':''}</div>`+list.map(resRow).join(''); }
+function autoOnline(q){
+  const box=$('#onlineAuto'); if(!box) return; const my=++onTok; clearTimeout(onTimer);
+  if(filter!=='alle'||q.length<3){ box.innerHTML=filter==='alle'?'':''; return; }
+  if(!navigator.onLine){ box.innerHTML='<div class="onl-h small mut">📴 Offline – es werden nur gespeicherte Lebensmittel durchsucht.</div>'; return; }
+  box.innerHTML='<div class="onl-h small mut">🌐 Suche online weitere Produkte …</div>';
+  onTimer=setTimeout(async()=>{ try{ const list=await F.searchOnline(q,{timeout:6000}); if(my!==onTok||!$('#onlineAuto')) return;
+      const have=new Set(lastList.map(f=>f.id)); const add=list.filter(f=>!have.has(f.id)).slice(0,30); lastList=lastList.concat(add);
+      const b=$('#onlineAuto'); b.innerHTML=onlineBlock(q,add,F.lastOnline);
+      $$('.res',b).forEach(el=>el.onclick=()=>foodSheet(add.find(f=>f.id===el.dataset.id)));
+    }catch(e){ if(my!==onTok) return; const b=$('#onlineAuto'); if(b) b.innerHTML=`<div class="onl-h small mut">${e.message==='offline'?'📴 Offline':e.message==='rate'?'⏳ Zu viele Online-Suchen – gleich nochmal':'🌐 Online-Suche gerade nicht erreichbar'} · <button class="sm" id="onlRetry">Erneut</button></div>`; const rb=$('#onlRetry'); if(rb) rb.onclick=()=>autoOnline(q); } },550);
 }
 $('#aOnline').onclick=onlineSearch;
 async function onlineSearch(){
   const q=$('#q').value.trim(); if(!q){toast('Erst Suchbegriff eingeben');$('#q').focus();return;}
-  $('#results').innerHTML='<div class="loader">Suche bei Open Food Facts …</div>';
-  try{ const list=await F.searchOnline(q); lastList=list;
-    $('#results').innerHTML=`<div class="small mut" style="margin:6px 0">Open Food Facts · ${list.length} Treffer · Daten: ODbL</div>`+(list.map(resRow).join('')||'<div class="loader">Keine Online-Treffer.</div>')+`<div style="text-align:center;margin:14px 0"><button class="sm" id="backLocal">‹ zurück zur Offline-Suche</button></div>`;
+  const my=++onTok; $('#results').innerHTML='<div class="loader">Suche online (Open Food Facts · USDA) …</div>';
+  try{ const list=await F.searchOnline(q); if(my!==onTok) return; lastList=list;
+    $('#results').innerHTML=`<div class="small mut" style="margin:6px 0">🌐 Online · ${list.length} Treffer · Open Food Facts (ODbL)${list.some(f=>f.src==='usda')?' · USDA (gemeinfrei)':''}</div>`+(list.map(resRow).join('')||`<div class="loader">Keine Online-Treffer.<br><br><button id="goOwn2">＋ „${esc(q)}“ selbst anlegen</button></div>`)+`<div style="text-align:center;margin:14px 0"><button class="sm" id="backLocal">‹ zurück zur Offline-Suche</button></div>`;
+    const g2=$('#goOwn2'); if(g2) g2.onclick=()=>ownFood({n:q});
     $$('#results .res').forEach(el=>el.onclick=()=>foodSheet(list.find(f=>f.id===el.dataset.id)));
     $('#backLocal').onclick=renderResults;
-  }catch(e){ $('#results').innerHTML=`<div class="loader">${e.message==='offline'?'Du bist offline.':e.message==='rate'?'Bitte kurz warten – Open Food Facts erlaubt nur wenige Suchen pro Minute.':'Online-Suche gerade nicht erreichbar ('+esc(e.message)+').'}</div>`; }
+  }catch(e){ if(my!==onTok) return; $('#results').innerHTML=`<div class="loader">${e.message==='offline'?'Du bist offline.':e.message==='rate'?'Bitte kurz warten – Open Food Facts erlaubt nur wenige Suchen pro Minute.':'Online-Suche gerade nicht erreichbar ('+esc(e.message)+').'}</div>`; }
 }
 
 function nutRows(f,g){
@@ -365,6 +382,7 @@ function sourceText(f){
   if(f.src==='bls') return `Quelle: Bundeslebensmittelschlüssel 4.0 (Max Rubner-Institut, 2025) · BLS-Code ${esc(f.id.slice(4))} · Referenzwert, kein Markenprodukt.`;
   if(f.src==='est') return `<b>Schätzwert</b> – rechnerisch aus BLS-4.0-Zutaten:<br>${(f.ings||[]).map(i=>`${fmt(i[1])} g ${esc(i[2])}`).join('<br>')}<br>Echte Portionen variieren je nach Imbiss/Restaurant.`;
   if(f.src==='off') return `Quelle: Open Food Facts${f.ean?' · Barcode '+esc(f.ean):''}${f.updated?' · Stand '+esc(f.updated):''} · Herstellerangabe laut Community-Daten · Lizenz ODbL (© Open Food Facts contributors).${f.allergens?'<br>Allergene: '+esc(f.allergens):''}${f.ingredients?'<br>Zutaten: '+esc(f.ingredients.slice(0,400)):''}`;
+  if(f.src==='usda') return `Quelle: USDA FoodData Central${f.dataType?' ('+esc(f.dataType)+')':''} · FDC-ID ${esc(String(f.id).slice(4))}${f.updated?' · Stand '+esc(f.updated):''} · US-Referenzwert, gemeinfrei (CC0). Name auf Englisch; Salz aus Natrium berechnet (× 2,5).`;
   if(f.src==='chain') return `<b>Herstellerangabe</b> ${esc(f.brand)} · Stand ${esc(f.updated||'')}<br>Quelle: ${esc(f.source||'')}${isP(f)?'<br>Der Hersteller nennt kein Portionsgewicht – Werte gelten je Portion.':''}`;
   if(f.src==='tr') return `<b>Schätzwert (rezeptbasiert)</b>${f.region?' · Region: '+esc(f.region):''}${f.prep?' · '+(f.prep==='restoran'?'Restaurant-Variante':'hausgemacht'):''}<br>${esc(f.source||'')}${f.recipe?'<br>Standardrezept: '+esc(f.recipe):''}`;
   if(f.src==='recipe') return `Eigenes Rezept: ${(f.ings||[]).map(i=>`${fmt(i[1])} g ${esc(i[2])}`).join(', ')}`;
@@ -568,7 +586,7 @@ async function renderGoals(){
   const ws=await F.getWeights(); if(ws.length&&!$('#pKg').value) $('#pKg').value=ws.at(-1).kg;
   const pr=await F.kvGet('profile',null); if(pr){ $('#pKg').value=$('#pKg').value||pr.kg; $('#pCm').value=pr.cm; $('#pAge').value=pr.age; $('#pSex').value=pr.sex; $('#pAct').value=pr.activity; $('#pAim').value=pr.aim; $('#pPk').value=pr.proteinPerKg; }
   const c=F.countBy(); $('#dbInfo').innerHTML=`Offline verfügbar: <b>${fmt(F.count())}</b> Lebensmittel<br>· BLS 4.0 (Referenzwerte): ${fmt(c.bls||0)}<br>· Restaurant- & Fastfood-Ketten (Herstellerangaben): ${fmt(c.chain||0)}<br>· Türkische Gerichte (Rezept-Schätzungen): ${fmt(c.tr||0)}<br>· Imbiss-Schätzwerte: ${fmt(c.est||0)}<br>· Markenprodukte (Open Food Facts): ${fmt(c.off||0)}<br>· Eigene Lebensmittel/Rezepte: ${fmt((c.user||0)+(c.recipe||0))}`;
-  $('#lic').innerHTML=`<b>Quellen & Lizenzen</b><br>Bundeslebensmittelschlüssel (BLS) 4.0 © Max Rubner-Institut 2025 – frei nutzbar, auch für Apps.<br>Markenprodukte: Open Food Facts, Open Database License (ODbL) – © Open Food Facts contributors, openfoodfacts.org.<br>Türkische Küche: rezeptbasierte Schätzungen aus BLS-Zutaten (kein TürKomp).<br>Restaurantketten: offizielle Nährwertangaben von KFC Deutschland (10/2026), Subway Deutschland (03/2026) und McDonald's Deutschland (10/2026). Marken gehören den jeweiligen Inhabern.<br>Schätzwerte (≈) wurden aus BLS-Zutaten berechnet und sind als solche markiert.<br>Deine Einträge bleiben nur auf diesem Gerät.<br>Engine v${F.VERSION}`;
+  $('#lic').innerHTML=`<b>Quellen & Lizenzen</b><br>Bundeslebensmittelschlüssel (BLS) 4.0 © Max Rubner-Institut 2025 – frei nutzbar, auch für Apps.<br>Markenprodukte: Open Food Facts, Open Database License (ODbL) – © Open Food Facts contributors, openfoodfacts.org.<br>Online-Suche: Open Food Facts (ODbL, © Open Food Facts contributors, live über unseren Server) und USDA FoodData Central (gemeinfrei, CC0) – nur bei englischen Suchbegriffen.<br>Türkische Küche: rezeptbasierte Schätzungen aus BLS-Zutaten (kein TürKomp).<br>Restaurantketten: offizielle Nährwertangaben von KFC Deutschland (10/2026), Subway Deutschland (03/2026) und McDonald's Deutschland (10/2026). Marken gehören den jeweiligen Inhabern.<br>Schätzwerte (≈) wurden aus BLS-Zutaten berechnet und sind als solche markiert.<br>Deine Einträge bleiben nur auf diesem Gerät.<br>Engine v${F.VERSION}`;
   $('#lang').value=F.lang;
 }
 $('#gSave').onclick=async()=>{const n=(id)=>Math.round(parseFloat($('#'+id).value)||0); await F.setGoals({kcal:n('gK'),p:n('gP'),c:n('gC'),f:n('gF'),water:n('gW')}); toast('Ziele gespeichert');};

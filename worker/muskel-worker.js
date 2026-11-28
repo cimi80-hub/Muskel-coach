@@ -507,19 +507,20 @@ async function fetchT(u, opt = {}, ms = 4500) {
 }
 async function offSearch(q) {
   // 1. Search-a-licious (schnelle neue OFF-Suche), 2. Ersatz: klassische OFF-Suche
-  let sal = null;
+  let sal = null; const dbg = {};
   try {
     const r = await fetchT(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=de,en&page_size=50&fields=${OFF_FIELDS}`);
-    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) sal = hits.map(mapOFF).filter(Boolean); }
-  } catch (e) {}
-  if (sal && sal.length >= 6) return { list: sal, via: 'sal' };
+    dbg.sal = r.status;
+    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) { sal = hits.map(mapOFF).filter(Boolean); dbg.salRaw = hits.length; dbg.salOk = sal.length; } }
+  } catch (e) { dbg.sal = 'err'; }
+  if (sal && sal.length >= 6) return { list: sal, via: 'sal', dbg };
   // wenige/keine Treffer: zusätzlich die klassische Suche (deutscher Katalog zuerst)
   try {
     const r = await fetchT(`https://de.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=40&sort_by=unique_scans_n&fields=${OFF_FIELDS}`, {}, 7000);
-    if (!r.ok) throw new Error('off ' + r.status);
-    const j = await r.json(); const cgi = (j.products || []).map(mapOFF).filter(Boolean);
-    return { list: (sal || []).concat(cgi), via: sal ? 'sal+cgi' : 'cgi' };
-  } catch (e) { if (sal) return { list: sal, via: 'sal' }; throw e; }
+    dbg.cgi = r.status; if (!r.ok) throw new Error('off ' + r.status);
+    const j = await r.json(); const cgi = (j.products || []).map(mapOFF).filter(Boolean); dbg.cgiRaw = (j.products || []).length; dbg.cgiOk = cgi.length;
+    return { list: (sal || []).concat(cgi), via: sal ? 'sal+cgi' : 'cgi', dbg };
+  } catch (e) { if (dbg.cgi === undefined) dbg.cgi = 'err'; if (sal) return { list: sal, via: 'sal', dbg }; throw e; }
 }
 async function fdcSearch(q, env) {
   let key = env.FDC_API_KEY;
@@ -556,7 +557,7 @@ function rankFood(list, q) {
 async function foodSearch(req, env, url, ctx) {
   const q = String(url.searchParams.get('q') || '').trim().replace(/\s+/g, ' ').slice(0, 80);
   if (q.length < 2) return json(req, env, { ok: false, error: 'short' }, 400);
-  const cacheKey = new Request('https://food-cache.local/s/v2/' + encodeURIComponent(q.toLowerCase()));
+  const cacheKey = new Request('https://food-cache.local/s/v3/' + encodeURIComponent(q.toLowerCase()));
   const cache = caches.default; const hit = await cache.match(cacheKey);
   if (hit) { const d = await hit.json(); return foodJson(req, env, { ...d, cached: true }); }
   if (!upOk(40)) return json(req, env, { ok: false, error: 'busy' }, 429);
@@ -564,7 +565,7 @@ async function foodSearch(req, env, url, ctx) {
   const useFdc = ENGLISHISH.test(q) || !!env.FDC_API_KEY;
   const [off, fdc] = await Promise.allSettled([offSearch(q), useFdc ? fdcSearch(q, env) : Promise.resolve([])]);
   const list = rankFood([...(off.status === 'fulfilled' ? off.value.list : []), ...(fdc.status === 'fulfilled' ? fdc.value : [])], q).slice(0, 40);
-  const src = { off: off.status === 'fulfilled' ? off.value.via : 'error', usda: !useFdc ? 'skip' : fdc.status === 'fulfilled' ? 'ok' : 'error' };
+  const src = { off: off.status === 'fulfilled' ? off.value.via : 'error', dbg: off.status === 'fulfilled' ? off.value.dbg : String(off.reason && off.reason.message), usda: !useFdc ? 'skip' : fdc.status === 'fulfilled' ? 'ok' : 'error' };
   const d = { ok: true, q, n: list.length, ms: Date.now() - t0, src, items: list };
   if (off.status === 'fulfilled' || list.length) ctx && ctx.waitUntil(cache.put(cacheKey, new Response(JSON.stringify(d), { headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${list.length ? 259200 : 3600}` } })));
   else return json(req, env, { ok: false, error: 'upstream', src }, 502);
