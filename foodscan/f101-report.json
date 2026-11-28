@@ -1,0 +1,313 @@
+{
+ "overallTop1": 67.6,
+ "overallTop3": 85.2,
+ "n": 1020,
+ "perClass": {
+  "pizza": {
+   "top1": 85,
+   "top3": 95,
+   "n": 20,
+   "oft": "pizza:17 lahmacun:2"
+  },
+  "hamburger": {
+   "top1": 80,
+   "top3": 95,
+   "n": 20,
+   "oft": "burger:16 schnitzel:1"
+  },
+  "french_fries": {
+   "top1": 90,
+   "top3": 95,
+   "n": 20,
+   "oft": "fries:18 fish_chips:1"
+  },
+  "sushi": {
+   "top1": 85,
+   "top3": 90,
+   "n": 20,
+   "oft": "sushi:17 mixed_salad:1"
+  },
+  "fried_rice": {
+   "top1": 80,
+   "top3": 90,
+   "n": 20,
+   "oft": "fried_rice:16 rice:2"
+  },
+  "dumplings": {
+   "top1": 95,
+   "top3": 95,
+   "n": 20,
+   "oft": "dumplings:19 gravy:1"
+  },
+  "gyoza": {
+   "top1": 70,
+   "top3": 90,
+   "n": 20,
+   "oft": "dumplings:14 spring_rolls:2"
+  },
+  "falafel": {
+   "top1": 80,
+   "top3": 100,
+   "n": 20,
+   "oft": "falafel:16 durum:2"
+  },
+  "hummus": {
+   "top1": 60,
+   "top3": 80,
+   "n": 20,
+   "oft": "hummus:12 pita:2"
+  },
+  "lasagna": {
+   "top1": 70,
+   "top3": 80,
+   "n": 20,
+   "oft": "lasagna:14 iskender:1"
+  },
+  "spaghetti_bolognese": {
+   "top1": 85,
+   "top3": 100,
+   "n": 20,
+   "oft": "spaghetti_tomato:17 cream_sauce:2"
+  },
+  "spaghetti_carbonara": {
+   "top1": 20,
+   "top3": 80,
+   "n": 20,
+   "oft": "spaetzle:7 cream_sauce:7"
+  },
+  "chicken_wings": {
+   "top1": 95,
+   "top3": 95,
+   "n": 20,
+   "oft": "chicken_wings:17 fried_chicken:2"
+  },
+  "steak": {
+   "top1": 60,
+   "top3": 85,
+   "n": 20,
+   "oft": "beef_steak:12 roulade:3"
+  },
+  "omelette": {
+   "top1": 95,
+   "top3": 95,
+   "n": 20,
+   "oft": "omelette:17 egg_scrambled:2"
+  },
+  "pancakes": {
+   "top1": 90,
+   "top3": 90,
+   "n": 20,
+   "oft": "pancakes:18 ice_cream:1"
+  },
+  "ice_cream": {
+   "top1": 95,
+   "top3": 100,
+   "n": 20,
+   "oft": "ice_cream:19 cake:1"
+  },
+  "chicken_curry": {
+   "top1": 90,
+   "top3": 100,
+   "n": 20,
+   "oft": "curry:18 rice:1"
+  },
+  "ramen": {
+   "top1": 100,
+   "top3": 100,
+   "n": 20,
+   "oft": "noodle_soup:20"
+  },
+  "pho": {
+   "top1": 75,
+   "top3": 95,
+   "n": 20,
+   "oft": "noodle_soup:15 soup:3"
+  },
+  "pad_thai": {
+   "top1": 70,
+   "top3": 95,
+   "n": 20,
+   "oft": "noodles_asian:14 spaetzle:2"
+  },
+  "greek_salad": {
+   "top1": 80,
+   "top3": 100,
+   "n": 20,
+   "oft": "mixed_salad:15 tuna:1"
+  },
+  "caesar_salad": {
+   "top1": 90,
+   "top3": 100,
+   "n": 20,
+   "oft": "mixed_salad:16 salad:2"
+  },
+  "club_sandwich": {
+   "top1": 85,
+   "top3": 90,
+   "n": 20,
+   "oft": "sandwich:17 tortilla:1"
+  },
+  "grilled_salmon": {
+   "top1": 60,
+   "top3": 95,
+   "n": 20,
+   "oft": "salmon:12 chicken_breast:4"
+  },
+  "chocolate_cake": {
+   "top1": 90,
+   "top3": 100,
+   "n": 20,
+   "oft": "cake:18 leberkaese:1"
+  },
+  "waffles": {
+   "top1": 75,
+   "top3": 80,
+   "n": 20,
+   "oft": "waffles:15 pancakes:2"
+  },
+  "fish_and_chips": {
+   "top1": 95,
+   "top3": 100,
+   "n": 20,
+   "oft": "fish_chips:19 schnitzel:1"
+  },
+  "hot_dog": {
+   "top1": 80,
+   "top3": 100,
+   "n": 20,
+   "oft": "hot_dog:16 currywurst:3"
+  },
+  "breakfast_burrito": {
+   "top1": 25,
+   "top3": 80,
+   "n": 20,
+   "oft": "tortilla:11 burrito:5"
+  },
+  "nachos": {
+   "top1": 75,
+   "top3": 90,
+   "n": 20,
+   "oft": "nachos:15 roast_potato:1"
+  },
+  "guacamole": {
+   "top1": 90,
+   "top3": 100,
+   "n": 20,
+   "oft": "guacamole:18 nachos:2"
+  },
+  "spring_rolls": {
+   "top1": 85,
+   "top3": 95,
+   "n": 20,
+   "oft": "spring_rolls:17 roast_potato:1"
+  },
+  "baklava": {
+   "top1": 50,
+   "top3": 85,
+   "n": 20,
+   "oft": "baklava:10 leberkaese:3"
+  },
+  "donuts": {
+   "top1": 80,
+   "top3": 95,
+   "n": 20,
+   "oft": "donut:16 cookies:3"
+  },
+  "french_toast": {
+   "top1": 45,
+   "top3": 75,
+   "n": 20,
+   "oft": "toast:7 kaiserschmarrn:3"
+  },
+  "fried_calamari": {
+   "top1": 0,
+   "top3": 25,
+   "n": 20,
+   "oft": "chicken_pieces:4 chicken_wings:3"
+  },
+  "hot_and_sour_soup": {
+   "top1": 80,
+   "top3": 90,
+   "n": 20,
+   "oft": "soup:11 noodle_soup:5"
+  },
+  "miso_soup": {
+   "top1": 50,
+   "top3": 100,
+   "n": 20,
+   "oft": "soup:10 noodle_soup:6"
+  },
+  "french_onion_soup": {
+   "top1": 20,
+   "top3": 40,
+   "n": 20,
+   "oft": "soup:4 gravy:4"
+  },
+  "caprese_salad": {
+   "top1": 50,
+   "top3": 70,
+   "n": 20,
+   "oft": "mozzarella:8 mixed_salad:2"
+  },
+  "eggs_benedict": {
+   "top1": 60,
+   "top3": 65,
+   "n": 20,
+   "oft": "egg_fried:11 omelette:2"
+  },
+  "cup_cakes": {
+   "top1": 75,
+   "top3": 95,
+   "n": 20,
+   "oft": "cake:13 chocolate:2"
+  },
+  "apple_pie": {
+   "top1": 55,
+   "top3": 80,
+   "n": 20,
+   "oft": "strudel:9 baklava:2"
+  },
+  "churros": {
+   "top1": 10,
+   "top3": 25,
+   "n": 20,
+   "oft": "fries:6 pretzel:4"
+  },
+  "edamame": {
+   "top1": 100,
+   "top3": 100,
+   "n": 20,
+   "oft": "green_beans:20"
+  },
+  "poutine": {
+   "top1": 60,
+   "top3": 90,
+   "n": 20,
+   "oft": "fries:12 gravy:3"
+  },
+  "tacos": {
+   "top1": 30,
+   "top3": 75,
+   "n": 20,
+   "oft": "tortilla:9 burrito:5"
+  },
+  "bibimbap": {
+   "top1": 10,
+   "top3": 25,
+   "n": 20,
+   "oft": "noodle_soup:6 noodles_asian:4"
+  },
+  "beef_tartare": {
+   "top1": 25,
+   "top3": 50,
+   "n": 20,
+   "oft": "ground_beef:5 burger:2"
+  },
+  "pulled_pork_sandwich": {
+   "top1": 50,
+   "top3": 85,
+   "n": 20,
+   "oft": "burger:6 sandwich:4"
+  }
+ }
+}
