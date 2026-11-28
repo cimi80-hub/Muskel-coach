@@ -62,6 +62,8 @@
       res.est = FoodScanCore.estimate(embs, S.T, S.M2, dep, opt.plateCm || 26);
       // Persönliches Gedächtnis: sehr ähnliches, früher bestätigtes Gericht → dessen bestätigte Werte bevorzugen
       const mem = memMatch(embs[0]); if (mem) { res.memory = mem; }
+      // unsichere Kleinst-Posten entfernen (kleine Fläche UND im Gesamtbild kaum sichtbar)
+      if (res.items.length > 1) res.items = res.items.filter((it) => !((it.frac < 0.07 && it.conf < 0.05) || (it.frac < 0.15 && it.conf < 0.005)));
       // Einzel-Lebensmittel so skalieren, dass ihre Kalorien zur Gesamtschätzung passen
       const ps = personalStats(); if (ps && !mem && ps.n >= 5) { const f = Math.exp(Math.log(ps.factor) * ps.n / (ps.n + 10)); res.est.kcal = Math.round(res.est.kcal * f); res.est.personal = Math.round(f * 100) / 100; }
       const target = mem ? mem.kcal : res.est.kcal, cur = res.items.reduce((s, it) => s + (it.kcal || 0), 0);
