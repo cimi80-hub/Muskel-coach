@@ -114,4 +114,5 @@ jobs:
           s=$(date +%s%3N); r=$(curl -s -G "$URL/food/search" --data-urlencode "q=skyr"); e=$(( $(date +%s%3N) - s )); echo "skyr (2. Mal, Cache) → $(echo "$r" | jq -r '.cached') ${e} ms"
           echo "| skyr (Cache) | $(echo "$r" | jq -r '.n') | ${e} ms | cached=$(echo "$r" | jq -r '.cached') |" >> $GITHUB_STEP_SUMMARY
           for c in 3017620422003 4056489190381 5449000000996; do r=$(curl -s "$URL/food/ean/$c"); echo "EAN $c → $(echo "$r" | jq -c '{ok,cached,n:.item.n,kcal:.item.kcal}')"; echo "| EAN $c | $(echo "$r" | jq -r '.item.n // "–"') | | $(echo "$r" | jq -r '.item.kcal // "–"') kcal |" >> $GITHUB_STEP_SUMMARY; done
+          curl -s -G "$URL/food/search" --data-urlencode "q=haferflocken" --data-urlencode "raw=1" | jq -c '.' | cut -c1-3000
           [ "$fail" = "0" ]

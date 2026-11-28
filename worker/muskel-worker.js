@@ -557,6 +557,11 @@ function rankFood(list, q) {
 async function foodSearch(req, env, url, ctx) {
   const q = String(url.searchParams.get('q') || '').trim().replace(/\s+/g, ' ').slice(0, 80);
   if (q.length < 2) return json(req, env, { ok: false, error: 'short' }, 400);
+  if (url.searchParams.get('raw') === '1') { // Diagnose: Rohdaten der neuen OFF-Suche (öffentliche Daten)
+    const r = await fetchT(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=de,en&page_size=3&fields=${OFF_FIELDS}`);
+    const j = await r.json(); const h = (j.hits || []).slice(0, 2).map((x) => ({ ...x, ingredients_text: undefined, ingredients_text_de: undefined }));
+    return json(req, env, { ok: true, keys: Object.keys(j), hits: h, mapped: h.map(mapOFF) });
+  }
   const cacheKey = new Request('https://food-cache.local/s/v3/' + encodeURIComponent(q.toLowerCase()));
   const cache = caches.default; const hit = await cache.match(cacheKey);
   if (hit) { const d = await hit.json(); return foodJson(req, env, { ...d, cached: true }); }
