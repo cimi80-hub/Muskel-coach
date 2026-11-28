@@ -506,17 +506,35 @@ function reviewCard(p){
 }
 // Sprache rein (Mikrofon)
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition; let rec=null, recOn=false;
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function micKb(msg){ const i=$('#cIn'); try{ i.focus({preventScroll:true}); }catch(e){ i.focus(); } toast(msg||'Tippe auf der Tastatur unten auf 🎙️ (Diktieren), sprich und dann ➤'); }
 $('#micBtn').onclick=()=>{
-  if(!SR){ toast('Spracheingabe wird hier nicht unterstützt – nutze das Mikrofon der Tastatur.'); $('#cIn').focus(); return; }
-  if(recOn){ rec.stop(); return; }
-  speechSynthesis && speechSynthesis.cancel();
-  rec=new SR(); rec.lang=F.lang==='en'?'en-US':'de-DE'; rec.interimResults=true; rec.continuous=false;
-  let final='';
-  rec.onresult=(e)=>{ let tmp=''; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) final+=e.results[i][0].transcript; else tmp+=e.results[i][0].transcript; } $('#cIn').value=(final+' '+tmp).trim(); };
-  rec.onend=()=>{ recOn=false; $('#micBtn').classList.remove('rec'); if($('#cIn').value.trim()) sendCoach(); };
-  rec.onerror=(e)=>{ recOn=false; $('#micBtn').classList.remove('rec'); if(e.error==='not-allowed') toast('Mikrofon-Zugriff wurde nicht erlaubt'); };
-  rec.start(); recOn=true; $('#micBtn').classList.add('rec');
+  if(!SR){ micKb('Spracheingabe hier nicht verfügbar – nutze 🎙️ auf der Tastatur.'); return; }
+  if(recOn){ try{ rec.stop(); }catch(e){} return; }
+  // Nach 2 Fehlversuchen auf dem iPhone: direkt Tastatur-Diktat (lange drücken = nochmal direkt probieren)
+  if(isIOS&&+(localStorage.getItem('dmc_food_micfail')||0)>=2&&!$('#micBtn')._force){ micKb(); return; }
+  $('#micBtn')._force=false;
+  try{ speechSynthesis && speechSynthesis.cancel(); }catch(e){}
+  let final='', got=false, err='', tm=0;
+  try{ rec=new SR(); }catch(e){ micKb(); return; }
+  rec.lang=F.lang==='en'?'en-US':'de-DE'; rec.interimResults=true; rec.continuous=false;
+  const stopUi=()=>{ recOn=false; clearTimeout(tm); $('#micBtn').classList.remove('rec'); $('#cIn').placeholder=$('#cIn').dataset.ph||$('#cIn').placeholder; };
+  rec.onresult=(e)=>{ got=true; let tmp=''; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) final+=e.results[i][0].transcript; else tmp+=e.results[i][0].transcript; } $('#cIn').value=(final+' '+tmp).trim(); };
+  rec.onerror=(e)=>{ err=(e&&e.error)||'error'; };
+  rec.onend=()=>{ stopUi();
+    if($('#cIn').value.trim()){ localStorage.removeItem('dmc_food_micfail'); sendCoach(); return; }
+    if(err==='aborted') return;
+    if(err==='not-allowed'||err==='service-not-allowed'){ localStorage.setItem('dmc_food_micfail','2'); micKb('Mikrofon/Spracherkennung nicht erlaubt (iPhone: Einstellungen › Datenschutz › Mikrofon & Spracherkennung). Du kannst 🎙️ auf der Tastatur nutzen.'); return; }
+    const n=+(localStorage.getItem('dmc_food_micfail')||0)+1; localStorage.setItem('dmc_food_micfail',String(n));
+    if(n>=2&&isIOS) micKb('Die iPhone-Spracherkennung liefert hier nichts. Ab jetzt öffnet 🎙️ die Tastatur – dort auf das Diktier-Mikro tippen. (🎙️ lange drücken = direkt nochmal probieren)');
+    else toast('Nichts gehört – tippe auf 🎙️ und sprich direkt los.');
+  };
+  try{ rec.start(); }catch(e){ stopUi(); micKb(); return; }
+  recOn=true; $('#micBtn').classList.add('rec');
+  if(!$('#cIn').dataset.ph) $('#cIn').dataset.ph=$('#cIn').placeholder; $('#cIn').placeholder='Ich höre zu … (nochmal tippen = fertig)';
+  tm=setTimeout(()=>{ if(recOn&&!got){ try{ rec.stop(); }catch(e){} } },8000);
 };
+(()=>{ const m=$('#micBtn'); let t=0; m.addEventListener('touchstart',()=>{ t=setTimeout(()=>{ m._force=true; localStorage.removeItem('dmc_food_micfail'); toast('Direkte Spracherkennung – tippe jetzt auf 🎙️'); },1500); },{passive:true}); ['touchend','touchcancel','touchmove'].forEach(ev=>m.addEventListener(ev,()=>clearTimeout(t),{passive:true})); })();
 $('#ttsBtn').onclick=()=>{tts=!tts;localStorage.setItem('dmc_food_tts',tts?'1':'0');$('#ttsBtn').textContent=tts?'🔊':'🔇';toast(tts?'Sprachausgabe an':'Sprachausgabe aus');};
 $('#ttsBtn').textContent=tts?'🔊':'🔇';
 function bestVoice(){ const vs=speechSynthesis.getVoices(), L=F.lang==='en'?'en':'de'; const c=vs.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(L));
