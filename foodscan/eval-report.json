@@ -1,58 +1,58 @@
 {
- "date": "2026-11-28T13:03:56.050Z",
+ "date": "2026-11-28T13:14:42.061Z",
  "model": "Xenova/clip-vit-base-patch32 (vision q8)",
  "dataset": "Nutrition5k cafe1, realsense_overhead rgb (CC BY 4.0)",
- "dishes": 30,
- "train": 18,
- "test": 12,
- "msPerScanNodeCPU": 1054,
+ "dishes": 600,
+ "train": 360,
+ "test": 240,
+ "msPerScanNodeCPU": 504,
  "best": {
-  "foodMin": 0.5,
-  "topK": 5,
-  "ownMin": 0.6
+  "foodMin": 0.6,
+  "topK": 12,
+  "ownMin": 0.4
  },
  "M": {
-  "grain": 300,
-  "dish": 765.576,
-  "bread": 300,
-  "potato": 629.1600000000001,
-  "meat": 449.40000000000003,
-  "fish": 30,
-  "egg": 1233.1535999999999,
-  "veg": 345,
-  "leafy": 210,
-  "fruit": 588,
-  "dairy": 300,
-  "sauce": 87.46499999999999,
-  "soup": 300,
-  "dessert": 629.1600000000001,
-  "nuts": 224.70000000000002
+  "grain": 552.9866999999999,
+  "dish": 390.6,
+  "bread": 205.79999999999998,
+  "potato": 361.47803580000004,
+  "meat": 673.2012000000001,
+  "fish": 516.81,
+  "egg": 355.25070000000005,
+  "veg": 272.7225,
+  "leafy": 320.85,
+  "fruit": 555.4499999999999,
+  "dairy": 381.99,
+  "sauce": 147,
+  "soup": 30,
+  "dessert": 224.595,
+  "nuts": 210
  },
  "testResult": {
-  "n": 12,
-  "massMAE_g": 113,
-  "massMAPE": 50.1,
-  "massMedAPE": 39.7,
-  "kcalMAE": 189,
-  "kcalMAPE": 97.2,
-  "kcalMedAPE": 56.5,
-  "within20pct_kcal": 16.7
+  "n": 240,
+  "massMAE_g": 90,
+  "massMAPE": 61.1,
+  "massMedAPE": 33.6,
+  "kcalMAE": 136,
+  "kcalMAPE": 98.8,
+  "kcalMedAPE": 47.7,
+  "within20pct_kcal": 22.5
  },
  "baselineMeanGuess": {
-  "n": 12,
-  "massMAPE": 58.6,
-  "kcalMAPE": 237.7
+  "n": 240,
+  "massMAPE": 106.9,
+  "kcalMAPE": 244.2
  },
  "trainResult": {
-  "n": 18,
-  "massMAE_g": 39,
-  "massMAPE": 18.4,
-  "massMedAPE": 11.6,
-  "kcalMAE": 87,
-  "kcalMAPE": 48.4,
-  "kcalMedAPE": 45,
-  "within20pct_kcal": 44.4
+  "n": 360,
+  "massMAE_g": 79,
+  "massMAPE": 48.4,
+  "massMedAPE": 30.9,
+  "kcalMAE": 117,
+  "kcalMAPE": 90.1,
+  "kcalMedAPE": 38.1,
+  "within20pct_kcal": 23.3
  },
  "variantsTried": 18,
- "totalSeconds": 38
+ "totalSeconds": 410
 }

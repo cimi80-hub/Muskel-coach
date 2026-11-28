@@ -1,0 +1,21 @@
+{
+ "kcal": 386.134003,
+ "mass": 251,
+ "ings": [
+  {
+   "name": "mixed greens",
+   "g": 20,
+   "kcal": 5.6
+  },
+  {
+   "name": "sausage",
+   "g": 89,
+   "kcal": 306.694
+  },
+  {
+   "name": "deprecated",
+   "g": 142,
+   "kcal": 73.84
+  }
+ ]
+}
