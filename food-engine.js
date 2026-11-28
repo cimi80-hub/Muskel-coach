@@ -32,15 +32,16 @@
 
   function lev(a, b, max) {
     if (Math.abs(a.length - b.length) > max) return max + 1;
-    let prev = new Array(b.length + 1); for (let j = 0; j <= b.length; j++) prev[j] = j;
+    let pp = null; let prev = new Array(b.length + 1); for (let j = 0; j <= b.length; j++) prev[j] = j;
     for (let i = 1; i <= a.length; i++) {
       const cur = [i]; let best = i;
       for (let j = 1; j <= b.length; j++) {
         cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (pp && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) cur[j] = Math.min(cur[j], pp[j - 2] + 1); // vertauschte Buchstaben
         if (cur[j] < best) best = cur[j];
       }
       if (best > max) return max + 1;
-      prev = cur;
+      pp = prev; prev = cur;
     }
     return prev[b.length];
   }
@@ -217,6 +218,35 @@
 
   // ---------------- Suche ----------------
   const SYN = [
+    // häufige Tippfehler & Umgangssprache
+    [/\b(haenchen|haenschen|haehnschen|hanchen|hähnchen)/g, 'haehnchen'],
+    [/\b(haehnchen|huehnchen|huehner)(filet|fillet)s?\b/g, 'haehnchen brustfilet'],
+    [/\bhaehnchenbrust(filet)?s?\b/g, 'haehnchen brustfilet'],
+    // Englisch → Deutsch
+    [/\bchicken (breast|fillet|filet)s?\b/g, 'haehnchen brustfilet'],
+    [/\bturkey breast\b/g, 'pute brust'],
+    [/\b(ground|minced) beef\b/g, 'rind hackfleisch'],
+    [/\b(rolled )?oats?\b|\boatmeal\b|\bporridge oats\b/g, 'haferflocken'],
+    [/\bpeanut butter\b/g, 'erdnussbutter'],
+    [/\bsweet potato(es)?\b/g, 'suesskartoffel'],
+    [/\bpotato(es)?\b/g, 'kartoffel'],
+    [/\bgreek yog(h)?urt\b/g, 'griechischer joghurt'],
+    [/\bcottage cheese\b/g, 'huettenkaese'],
+    [/\b(boiled|cooked) rice\b|\brice (boiled|cooked)\b/g, 'reis gekocht'],
+    [/^rice$/g, 'reis'],
+    [/\beggs?\b/g, 'ei'],
+    [/\bsalmon\b/g, 'lachs'], [/\btuna\b/g, 'thunfisch'], [/\bbananas?\b/g, 'banane'], [/\bapples?\b/g, 'apfel'],
+    [/\balmonds?\b/g, 'mandeln'], [/\bwalnuts?\b/g, 'walnuss'], [/\bspinach\b/g, 'spinat'], [/\bavocados?\b/g, 'avocado'],
+    [/\bbread\b/g, 'brot'], [/\bcheese\b/g, 'kaese'], [/\bbutter\b/g, 'butter'], [/\bwhole milk\b/g, 'vollmilch'],
+    // Türkisch → Deutsch (nur eindeutige Begriffe)
+    [/\btavuk gogsu (izgara|haslama)\b|\bizgara tavuk gogsu\b/g, 'haehnchen brustfilet gegrillt'],
+    [/\b(kiyma|dana kiyma)\b/g, 'rind hackfleisch'],
+    [/\b(yumurta)\b/g, 'ei'],
+    [/\b(pirinc)\b(?! pilavi)/g, 'reis'],
+    [/\b(yulaf ezmesi|yulaf)\b/g, 'haferflocken'],
+    [/\b(muz)\b/g, 'banane'],
+    [/\b(elma)\b/g, 'apfel'],
+    [/\b(somon)\b/g, 'lachs'],
     [/\b(haehnchen|huehner|chicken|gefluegel) ?doener\b|\bdoener (mit )?(haehnchen|chicken|gefluegel|pute)\b/g, 'doener kebab gefluegel'],
     [/\b(kalbs?|rinder?) ?doener\b|\bdoener (mit )?(kalb|rind)(fleisch)?\b/g, 'doener kebab kalb'],
     [/\b(vegetarischer|veggie|vegi) doener\b/g, 'doener vegetarisch'],
@@ -275,7 +305,7 @@
       else if (qs.length >= 5 && t.includes(qs)) s = 1.5;
       if (s) { m.set(t, s); if (s >= 2) strong++; }
     }
-    if (!strong && q.length >= 4) { // 2. nur ohne Treffer: Tippfehler-Toleranz
+    if ((!strong && q.length >= 4) || (strong < 4 && q.length >= 6)) { // 2. wenige Treffer: Tippfehler-Toleranz
       const maxD = q.length >= 7 ? 2 : 1;
       for (const t of vocab.keys()) {
         if (m.has(t)) continue;
@@ -331,7 +361,11 @@
       res.push({ f, s: score });
     }
     res.sort((a, b) => b.s - a.s);
-    return res.slice(0, opt.limit || 30).map((r) => r.f);
+    // doppelte Produkte (gleicher Name, Marke, Kalorien) nur einmal zeigen
+    const seen = new Set(); const out = [];
+    for (const r of res) { const f = r.f; const k = f._nn + '|' + norm(f.brand || '') + '|' + Math.round(f.kcal || 0) + '|' + Math.round((f.p || 0) * 2);
+      if (f.src !== 'user' && f.src !== 'recipe' && seen.has(k)) continue; seen.add(k); out.push(f); if (out.length >= (opt.limit || 30)) break; }
+    return out;
   }
 
   // ---------------- Portionen (Schätzwerte, klar gekennzeichnet) ----------------
@@ -601,7 +635,7 @@
     await tx(perDB, 'entries', 'readwrite', (s) => s.put(e));
     usage[food.id] = (usage[food.id] || 0) + 1; await kvSet('usage', usage);
     const rec = (await kvGet('recent', [])).filter((id) => id !== food.id); rec.unshift(food.id); await kvSet('recent', rec.slice(0, 40));
-    if (!byId.has(food.id) && (food.src === 'off')) await cacheOFF(food);
+    if (!byId.has(food.id) && (food.src === 'off' || food.src === 'usda')) await cacheOFF(food);
     return e;
   }
   const updateEntry = (e) => tx(perDB, 'entries', 'readwrite', (s) => s.put(e));
@@ -706,23 +740,44 @@
     };
   }
   async function cacheOFF(f) { const c = JSON.parse(JSON.stringify(f, (k, v) => (k.startsWith('_') ? undefined : v))); await tx(pubDB, 'offcache', 'readwrite', (s) => s.put(c)); indexFood(f); }
+  // Server (Cloudflare-Worker): bündelt Open Food Facts + USDA, zwischengespeichert & geprüft. Ersatz: direkt Open Food Facts.
+  const SERVER = 'https://muskel-coach-server.cimi80.workers.dev';
+  const srvBase = () => api.server || SERVER;
+  async function srvGet(path, ms) {
+    const ac = new AbortController(); const t = setTimeout(() => ac.abort(), ms || 6000);
+    try { const r = await fetch(srvBase() + path, { signal: ac.signal }); if (!r.ok) throw new Error('srv ' + r.status); const j = await r.json(); if (!j.ok) throw new Error('srv ' + (j.error || '')); return j; }
+    finally { clearTimeout(t); }
+  }
+  const cleanItem = (f) => (f && f.n && f.id && (f.kcal == null || isFinite(f.kcal)) ? f : null);
   async function lookupBarcode(code) {
     code = String(code).replace(/\D/g, '');
     if (byEan.has(code)) return byEan.get(code);
     if (!navigator.onLine) throw new Error('offline');
+    try { const j = await srvGet('/food/ean/' + code, 6000); const f = cleanItem(j.item); if (f) { await cacheOFF(f); return byId.get(f.id) || f; } if (j.item === null) return null; } catch (e) { /* Ersatzweg */ }
     if (!rateOk('prod', 60)) throw new Error('rate');
     const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=${OFF_FIELDS}&lc=de`);
     if (!r.ok && r.status !== 404) throw new Error('http ' + r.status);
     const j = await r.json(); if (j.status !== 1) return null;
     const f = mapOFF(j.product); if (f) await cacheOFF(f); return f;
   }
-  async function searchOnline(q) {
+  const onlineMem = new Map();
+  async function searchOnline(q, opt = {}) {
+    q = String(q || '').trim(); const key = norm(q);
+    if (onlineMem.has(key)) return onlineMem.get(key);
     if (!navigator.onLine) throw new Error('offline');
-    if (!rateOk('search', 8)) throw new Error('rate');
-    const u = `https://de.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=24&sort_by=unique_scans_n&fields=${OFF_FIELDS}`;
-    const r = await fetch(u); if (!r.ok) throw new Error('http ' + r.status);
-    const j = await r.json();
-    return (j.products || []).map(mapOFF).filter((f) => f && f.kcal != null);
+    let list = null; api.lastOnline = null;
+    try { const t0 = performance.now(); const j = await srvGet('/food/search?q=' + encodeURIComponent(q), opt.timeout || 7000);
+      list = (j.items || []).map(cleanItem).filter(Boolean); api.lastOnline = { ms: Math.round(performance.now() - t0), src: j.src, cached: !!j.cached, via: 'server' }; } catch (e) { list = null; }
+    if (!list) {
+      if (!rateOk('search', 8)) throw new Error('rate');
+      const u = `https://de.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=24&sort_by=unique_scans_n&fields=${OFF_FIELDS}`;
+      const r = await fetch(u); if (!r.ok) throw new Error('http ' + r.status);
+      const j = await r.json(); list = (j.products || []).map(mapOFF).filter((f) => f && f.kcal != null); api.lastOnline = { via: 'direct' };
+    }
+    // schon lokal vorhandene Produkte (gleicher Barcode) nicht doppelt zeigen
+    list = list.filter((f) => !(f.ean && byEan.has(f.ean)) && !byId.has(f.id));
+    if (onlineMem.size > 50) onlineMem.clear(); onlineMem.set(key, list);
+    return list;
   }
 
   // ---------------- Coach-Wissen (für Voice-Coach) ----------------
