@@ -69,6 +69,7 @@ for (const d of pool) {
   const r = await fetch(`${BASE}/imagery/realsense_overhead/${d.id}/rgb.png`); if (!r.ok) continue;
   const buf = Buffer.from(await r.arrayBuffer()); const img = await RawImage.fromBlob(new Blob([buf]));
   const s0 = Date.now(); d.embs = await embedImage(img); tScan += Date.now() - s0; used.push(d);
+  if (used.length <= 4) { fs.mkdirSync('tools/foodscan/testimg', { recursive: true }); fs.writeFileSync(`tools/foodscan/testimg/${d.id}.png`, buf); fs.writeFileSync(`tools/foodscan/testimg/${d.id}.json`, JSON.stringify({ kcal: d.kcal, mass: d.mass, ings: d.ings }, null, 1)); }
   if (used.length % 50 === 0) log('Fotos verarbeitet:', used.length);
 }
 log('Fotos:', used.length, '· Ø Rechenzeit je Scan (CPU, Node):', Math.round(tScan / used.length), 'ms');
