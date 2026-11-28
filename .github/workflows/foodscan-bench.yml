@@ -27,6 +27,7 @@ jobs:
           key: n5k-feat-v3-${{ github.run_id }}
           restore-keys: |
             n5k-feat-v3-
+            n5k-feat-v2-
       - name: Text-Embeddings (2 Vorlagen-Sätze)
         env: { N_DISH: '0' }
         run: ln -sf /tmp/fs/node_modules node_modules && node tools/foodscan/build.mjs 2>&1 | tail -3
