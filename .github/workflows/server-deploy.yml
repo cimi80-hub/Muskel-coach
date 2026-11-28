@@ -127,6 +127,6 @@ jobs:
           if [ "$en" = "true" ]; then
             for v in mia luna leon alex; do
               for i in 1 2; do s=$(date +%s%3N); code=$(curl -s -o /tmp/$v.mp3 -w '%{http_code} %{size_download}' -X POST "$URL/tts" -H 'Content-Type: application/json' -d "{\"text\":\"Hey, schön, dass du wieder da bist. Heute steht Brusttraining auf deinem Plan.\",\"voice\":\"$v\",\"lang\":\"de\",\"mood\":\"start\"}"); e=$(( $(date +%s%3N) - s ))
-                echo "$v Versuch $i: HTTP/Bytes $code, ${e} ms"; echo "| $v | Versuch $i | $code | ${e} ms |" >> $GITHUB_STEP_SUMMARY; done
+                echo "$v Versuch $i: HTTP/Bytes $code, ${e} ms"; case "$code" in 200*) ;; *) echo "Antwort: $(head -c 200 /tmp/$v.mp3)";; esac; echo "| $v | Versuch $i | $code | ${e} ms |" >> $GITHUB_STEP_SUMMARY; done
             done
           fi
