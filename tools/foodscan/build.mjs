@@ -22,9 +22,12 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 log('Lade Text-Modell …');
 const tok = await AutoTokenizer.from_pretrained(MODEL);
 const tmodel = await CLIPTextModelWithProjection.from_pretrained(MODEL, { dtype: 'fp32', cache_dir: '/tmp/hfcache' });
-const T_FOOD = ['a photo of {}, a type of food.', 'a close-up photo of {} on a plate.', 'a top-down photo of {}.'];
 const T_NON = ['a photo of {}.', 'a top-down photo of {}.'];
-const dim = 512; const all = [];
+const SETS = { A: ['a photo of {}, a type of food.', 'a close-up photo of {} on a plate.', 'a top-down photo of {}.'],
+  B: ['a photo of {}, a type of food.', 'a close-up photo of {} on a plate.', 'a top-down photo of {}.', 'a plate of {}.', '{} served in a restaurant.', 'homemade {}.', 'a photo of a dish of {}.'] };
+const dim = 512;
+for (const [setName, T_FOOD] of Object.entries(SETS)) {
+const all = [];
 for (const l of labels) {
   const tpl = l.cat === 'nonfood' ? T_NON : T_FOOD;
   const inp = tok(tpl.map((t) => t.replace('{}', l.en)), { padding: true, truncation: true });
@@ -36,8 +39,10 @@ for (const l of labels) {
 }
 let mx = 0; for (const v of all) for (const x of v) mx = Math.max(mx, Math.abs(x));
 const q = Buffer.alloc(labels.length * dim); all.forEach((v, i) => v.forEach((x, j) => { q.writeInt8(Math.max(-127, Math.min(127, Math.round(x / mx * 127))), i * dim + j); }));
-const T = { model: MODEL, dim, labels: labels.map((l) => ({ k: l.k, de: l.de, en: l.en, cat: l.cat, db: l.db })), q: q.toString('base64') };
-fs.writeFileSync('foodscan/text-emb.json', JSON.stringify(T));
+const T = { model: MODEL, dim, templates: setName, labels: labels.map((l) => ({ k: l.k, de: l.de, en: l.en, cat: l.cat, db: l.db })), q: q.toString('base64') };
+fs.writeFileSync(setName === 'A' ? 'foodscan/text-emb.json' : `foodscan/text-emb-${setName}.json`, JSON.stringify(T));
+}
+const T = JSON.parse(fs.readFileSync('foodscan/text-emb.json', 'utf8'));
 log('Text-Embeddings:', labels.length, 'Klassen,', Math.round(fs.statSync('foodscan/text-emb.json').size / 1024), 'KB');
 
 if (N_DISH === 0) { log('Nur Text-Embeddings (N_DISH=0).'); process.exit(0); }

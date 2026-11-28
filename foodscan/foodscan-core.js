@@ -110,5 +110,24 @@
     return { mass: Math.round(mass), kcal: Math.round(kcal), similarity: Math.round(kM.sim * 100) / 100 };
   }
 
-  return { GRID, crops, analyze, probs, decodeEmb, featVec, estimate };
+
+  // ===== Phase 3: Ensemble (Ridge / ähnliche Gerichte / Kernel-Ridge) + 80-%-Bereich =====
+  function trainF(M) { const D = M.train; if (!D._f) { const bin = typeof atob === 'function' ? atob(D.q) : Buffer.from(D.q, 'base64').toString('binary'); const f = new Float32Array(D.n * D.dim); for (let i = 0; i < f.length; i++) { let v = bin.charCodeAt(i); if (v > 127) v -= 256; f[i] = v * D.scale; } D._f = f; } return D._f; }
+  function estimate3(embs, T, M, opt = {}) {
+    const ex = (v) => Math.max(0, Math.exp(v) - 10);
+    const x = featVec(embs, T, M.kind, null), xn = nrmA(x), F = trainF(M), D = M.train, d = D.dim;
+    const sims = new Float32Array(D.n); for (let i = 0; i < D.n; i++) { let s = 0; for (let j = 0; j < d; j++) s += F[i * d + j] * xn[j]; sims[i] = s; }
+    const order = Array.from(sims.keys()).sort((a, b) => sims[b] - sims[a]);
+    const comp = (key, nm) => { const c = M.comps[`${key}:${nm}`];
+      if (c.type === 'ridge') return ridgeP(c, x);
+      if (c.type === 'knn') { let ws = 0, ys = 0; for (const i of order.slice(0, c.k)) { const w = Math.max(1e-6, sims[i]) ** c.p; ws += w; ys += w * D[key][i]; } return ys / ws; }
+      if (c.type === 'krr') { let s = c.ym; for (let i = 0; i < D.n; i++) s += c.alpha[i] * Math.exp(-c.gam * (1 - sims[i])); return s; } };
+    const pr = (key) => M[key].combo.reduce((s, nm) => s + comp(key, nm), 0) / M[key].combo.length + M[key].off;
+    const f = Math.pow((opt.plateCm || 26) / 26, 2) * (opt.portion || 1); // Tellergröße / Portionsangabe des Nutzers
+    let kcal = ex(pr('kcal')) * f, mass = ex(pr('mass')) * f;
+    const b = M.bands.find((x) => kcal >= x.lo && kcal < x.hi) || M.bands[M.bands.length - 1];
+    return { kcal: Math.round(kcal), mass: Math.round(mass), lo: Math.round(kcal * b.q10), hi: Math.round(kcal * b.q90), similarity: Math.round(sims[order[0]] * 100) / 100 };
+  }
+
+  return { GRID, crops, analyze, probs, decodeEmb, featVec, estimate, estimate3 };
 });
