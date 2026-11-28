@@ -20,7 +20,7 @@ jobs:
         with: { node-version: '22' }
       - name: Abhängigkeiten
         run: |
-          mkdir -p /tmp/fs && cd /tmp/fs && npm init -y >/dev/null && npm i @huggingface/transformers@3.7.5 >/dev/null 2>&1 || npm i @huggingface/transformers@3 >/dev/null
+          mkdir -p /tmp/fs && cd /tmp/fs && npm init -y >/dev/null && npm i --onnxruntime-node-install-cuda=skip @huggingface/transformers@3 2>&1 | tail -3
           node -e "console.log('transformers', require('/tmp/fs/node_modules/@huggingface/transformers/package.json').version)"
           ls /tmp/fs/node_modules/@huggingface/transformers/dist/ | head -30
           ls -la /tmp/fs/node_modules/onnxruntime-web/dist/ | grep -E "wasm|mjs" | head -30

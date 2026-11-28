@@ -70,7 +70,16 @@ nav.tabs button.mic .i{background:var(--red);color:#fff;width:44px;height:44px;b
 .res .nm{flex:1;min-width:0}.res .nm b{font-weight:500;display:block}
 .res .kc{text-align:right;white-space:nowrap;font-size:14px}
 .searchbox{position:sticky;top:calc(58px + env(safe-area-inset-top));z-index:10;background:var(--bg);padding:2px 0 8px}
-.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.actions{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.fsimg{position:relative;border-radius:14px;overflow:hidden;margin:8px 0}.fsimg canvas{width:100%;display:block}
+.fsgrid{position:absolute;display:grid;grid-template-columns:repeat(4,1fr);pointer-events:none}.fsgrid i{border:1px solid rgba(255,255,255,.25)}
+.fsit{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08)}.fsit .dot{width:12px;height:12px;border-radius:3px;flex:none}
+.fsit .nm{flex:1;min-width:0}.fsit .nm b{display:block;font-size:15px}.fsit .nm small{color:var(--mut,#999);font-size:12px}
+.fsit input{width:64px;text-align:center;padding:8px 4px;font-size:16px}.fsit .kc{width:64px;text-align:right;font-weight:700;font-size:13px}
+.fsit button.sm{min-width:36px;min-height:36px;padding:4px}
+.fsplate{display:flex;gap:6px;margin:6px 0}.fsplate button{flex:1;padding:8px 4px;font-size:13px}.fsplate button.on{outline:2px solid var(--acc,#e11d2e)}
+.fsbar{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;margin:10px 0}.fsbar i{display:block;height:100%;width:0;background:var(--acc,#e11d2e);transition:width .2s}
+.fsest{display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;background:#5a4300;color:#ffd84a;margin-left:6px}
 .actions button{padding:9px 4px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
 .actions button .i{font-size:20px}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:none}
@@ -153,6 +162,7 @@ svg text{fill:var(--mut);font-size:10px}
       <div class="row small" style="margin-top:6px"><span class="mut" data-t="addTo">Hinzufügen zu:</span><select id="addMeal" style="width:auto;padding:5px 10px"></select></div>
     </div>
     <div class="actions">
+      <button id="aPhoto"><span class="i">📸</span><span>Foto-Scan</span></button>
       <button id="aScan"><span class="i">📷</span><span data-t="scan">Barcode</span></button>
       <button id="aOnline"><span class="i">🌐</span><span data-t="online">Online</span></button>
       <button id="aOwn"><span class="i">＋</span><span data-t="own">Eigenes</span></button>
@@ -243,6 +253,8 @@ svg text{fill:var(--mut);font-size:10px}
 <div class="toast" id="toast"></div>
 
 <script src="food-engine.js"></script>
+<script src="foodscan/foodscan-core.js" defer></script>
+<script src="foodscan/foodscan.js" defer></script>
 <script>
 (function(){
 'use strict';
@@ -444,6 +456,63 @@ function recipeSheet(){
     $$('#rRes .res').forEach(el=>el.onclick=()=>{const f=l.find(x=>x.id===el.dataset.id); ings.push({food:f,grams:F.defaultPortion(f).g}); $('#rQ').value=''; $('#rRes').innerHTML=''; draw();});};
   $('#rSave').onclick=async()=>{const n=$('#rN').value.trim(); if(!n||!ings.length){toast('Name und mind. 1 Zutat');return;}
     const r=F.buildRecipe(n,ings,parseFloat($('#rS').value)||1); const saved=await F.saveCustom(r); toast('Rezept gespeichert'); foodSheet(saved); };
+}
+
+// ---------- FOTO-SCAN (KI auf dem Gerät) ----------
+const FS_COL=['#e11d2e','#ffb020','#22c55e','#3b82f6','#a855f7','#14b8a6'];
+let fsPlate=+(localStorage.getItem('dmc_fs_plate')||26);
+$('#aPhoto').onclick=fsStart;
+async function fsStart(){
+  if(!window.FoodScan){ toast('Foto-Scan lädt noch – bitte gleich nochmal'); return; }
+  const cached=await FoodScan.isCached(); let mb='';
+  if(!cached){ const sz=await FoodScan.modelSize(); mb=sz?` (${Math.round(sz/1048576)} MB, einmalig – WLAN empfohlen)`:''; }
+  openSheet(`<h2 style="margin:0 0 6px">📸 Foto-Scan <span class="fsest">Schätzung</span></h2>
+    <p class="small mut" style="margin:0 0 8px">Fotografiere deinen Teller <b>von oben</b>, ganz im Bild. Die KI läuft nur auf deinem Handy – das Foto wird nirgendwohin gesendet.</p>
+    <label>Tellergröße</label><div class="fsplate">${[[20,'Klein 20 cm'],[26,'Normal 26 cm'],[30,'Groß 30 cm']].map(([v,l])=>`<button data-pl="${v}" class="${fsPlate===v?'on':''}">${l}</button>`).join('')}</div>
+    <input type="file" id="fsFile" accept="image/*" capture="environment" hidden><input type="file" id="fsGal" accept="image/*" hidden>
+    <button class="pri" id="fsCam" style="width:100%;margin-top:8px">📸 Foto aufnehmen${cached?'':mb}</button>
+    <button id="fsPick" style="width:100%;margin-top:6px">🖼️ Aus Galerie wählen</button>
+    <p class="small mut" style="margin-top:10px">Ergebnis ist eine <b>Schätzung</b> der Portionen – bitte vor dem Eintragen prüfen und anpassen. Genauigkeit: siehe „Messwerte“ unten.</p>
+    <details class="small mut"><summary>Messwerte & Technik</summary><div id="fsInfo">…</div></details>`);
+  $$('#sheetBody [data-pl]').forEach(b=>b.onclick=()=>{ fsPlate=+b.dataset.pl; localStorage.setItem('dmc_fs_plate',fsPlate); $$('#sheetBody [data-pl]').forEach(x=>x.classList.toggle('on',x===b)); });
+  $('#fsCam').onclick=()=>$('#fsFile').click(); $('#fsPick').onclick=()=>$('#fsGal').click();
+  $('#fsFile').onchange=$('#fsGal').onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f) fsRun(f); };
+  fetch(FoodScan.base+'calib.json').then(r=>r.json()).then(c=>{ const m=c.measured||{}, t=m.test||{}; const el=$('#fsInfo'); if(el) el.innerHTML=t.n?`Gemessen an ${t.n} gewogenen Gerichten (Nutrition5k, Testteil, ${String(m.date||'').slice(0,10)}): Kalorien im Mittel ±${t.kcalMAPE} % (Median ±${t.kcalMedAPE} %), ${t.within20pct_kcal} % der Gerichte innerhalb ±20 %. Gewicht im Mittel ±${t.massMAPE} %. Zum Vergleich „einfach Durchschnitt raten“: ±${m.baseline&&m.baseline.kcalMAPE} %.<br>Modell: CLIP ViT-B/32 (MIT-Lizenz), 8-Bit, läuft per ${navigator.gpu?'WebGPU/':''}WebAssembly auf dem Gerät. Nährwerte: BLS 4.0 und App-Datenbank.`:'Noch keine Messwerte.'; }).catch(()=>{});
+}
+async function fsRun(file){
+  openSheet(`<h2 style="margin:0">📸 Analysiere …</h2><div class="fsbar"><i id="fsBar"></i></div><p class="small mut" id="fsSt">Starte KI …</p>`);
+  const st=t=>{ const e=$('#fsSt'); if(e) e.textContent=t; }, bar=p=>{ const e=$('#fsBar'); if(e) e.style.width=p+'%'; };
+  try{
+    const res=await FoodScan.scan(file,{plateCm:fsPlate,onProgress:p=>{ st(`Lade KI-Modell … ${p} %`); bar(p*0.5); },onStep:(i,n)=>{ st(`Erkenne Lebensmittel … ${i}/${n}`); bar(50+50*i/n); }});
+    fsResult(res);
+  }catch(e){ openSheet(`<h2>Foto-Scan</h2><p class="mut">Das hat nicht geklappt (${esc(String(e&&e.message||e).slice(0,120))}).${navigator.onLine?'':' Beim ersten Mal braucht der Scan Internet, um das KI-Modell zu laden.'}</p><button class="pri" id="fsAgain" style="width:100%">Nochmal</button>`); $('#fsAgain').onclick=fsStart; }
+}
+function fsResult(res){
+  const items=res.items.map((x,i)=>({...x,col:FS_COL[i%FS_COL.length],food:x.db&&F.getFood(x.db.fid)})).filter(x=>x.food);
+  const draw=()=>{ const cv=$('#fsCv'); if(!cv) return; const g=cv.getContext('2d'); g.drawImage(res.canvas,0,0); const c0=res.crops[0], t=c0.w/4;
+    res.tiles.forEach((tl,j)=>{ const it=items.find(x=>x.i===tl.label); if(!it) return; const r=Math.floor(j/4), c=j%4; g.fillStyle=it.col+'55'; g.fillRect(c0.x+c*t,c0.y+r*t,t,t); g.strokeStyle=it.col; g.lineWidth=3; g.strokeRect(c0.x+c*t+1.5,c0.y+r*t+1.5,t-3,t-3); }); };
+  const row=(x,i)=>{ const n=F.nutrients(x.food,x.grams); return `<div class="fsit" data-i="${i}"><span class="dot" style="background:${x.col}"></span><div class="nm"><b>${esc(x.de)}</b><small>${esc(fname(x.food).slice(0,48))}${x.fallback?' · Standardportion':''}</small></div>
+    <button class="sm" data-m="-">−</button><input inputmode="numeric" value="${x.grams}" aria-label="Gramm"><button class="sm" data-m="+">+</button><div class="kc">${fmt(n.kcal)} kcal</div><button class="sm ghost" data-x aria-label="Entfernen">✕</button></div>`; };
+  const tot=()=>items.reduce((a,x)=>{ const n=F.nutrients(x.food,x.grams); a.k+=n.kcal||0; a.p+=n.p||0; return a; },{k:0,p:0});
+  const render=()=>{ const T=tot(); $('#fsList').innerHTML=items.length?items.map(row).join(''):'<p class="mut">Kein Lebensmittel sicher erkannt. Wähle unten aus den Vorschlägen oder suche manuell.</p>';
+    $('#fsTot').textContent=`${fmt(T.k)} kcal · ${fmt(T.p)} g Eiweiß`;
+    $$('#fsList .fsit').forEach(el=>{ const x=items[+el.dataset.i], inp=el.querySelector('input');
+      const upd=()=>{ x.grams=Math.max(0,Math.round(+inp.value||0)); el.querySelector('.kc').textContent=fmt(F.nutrients(x.food,x.grams).kcal)+' kcal'; const T=tot(); $('#fsTot').textContent=`${fmt(T.k)} kcal · ${fmt(T.p)} g Eiweiß`; };
+      inp.oninput=upd; el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ inp.value=Math.max(0,(+inp.value||0)+(b.dataset.m==='+'?10:-10)); upd(); });
+      el.querySelector('[data-x]').onclick=()=>{ items.splice(+el.dataset.i,1); render(); draw(); }; }); };
+  openSheet(`<h2 style="margin:0">Erkannt <span class="fsest">Schätzung</span></h2>
+    <div class="fsimg"><canvas id="fsCv" width="${res.canvas.width}" height="${res.canvas.height}"></canvas></div>
+    <div id="fsList"></div>
+    <div class="small mut" style="margin:8px 0">Andere Vorschläge: ${res.alts.filter(a=>!items.some(x=>x.k===a.k)).slice(0,6).map(a=>`<button class="sm" data-alt="${a.k}" style="margin:3px 2px">＋ ${esc(a.de)}</button>`).join('')}</div>
+    <div class="row" style="justify-content:space-between;margin:6px 0"><b id="fsTot"></b><span class="small mut">${(res.ms/1000).toFixed(1)} s · ${res.device==='webgpu'?'WebGPU':'WASM'}</span></div>
+    <label>Hinzufügen zu</label><select id="fsMeal">${F.MEALS.map(m=>`<option value="${m}" ${m===$('#addMeal').value?'selected':''}>${mealName(m)}</option>`).join('')}</select>
+    <button class="pri" id="fsAdd" style="width:100%;margin-top:10px">✓ Alle eintragen</button>
+    <button id="fsRe" style="width:100%;margin-top:6px">📸 Neues Foto</button>`);
+  draw(); render();
+  $$('#sheetBody [data-alt]').forEach(b=>b.onclick=()=>{ const l=FoodScan.state.T.labels.find(y=>y.k===b.dataset.alt); const f=l&&l.db&&F.getFood(l.db.fid); if(!f) return; items.push({k:l.k,de:l.de,db:l.db,food:f,grams:(l.db.portion||100),col:FS_COL[items.length%FS_COL.length],i:-1}); b.remove(); render(); });
+  $('#fsRe').onclick=fsStart;
+  $('#fsAdd').onclick=async()=>{ const meal=$('#fsMeal').value; let n=0, k=0; for(const x of items){ if(x.grams>0){ await F.addEntry({food:x.food,grams:x.grams,meal,date:day,label:'Foto-Scan (Schätzung)'}); n++; k+=F.nutrients(x.food,x.grams).kcal||0; } }
+    closeSheet(); toast(n?`✓ ${n} Lebensmittel · ${fmt(k)} kcal eingetragen`:'Nichts eingetragen'); if($('#v-heute').classList.contains('on')) renderDay(); };
 }
 
 // ---------- Barcode-Scanner ----------
