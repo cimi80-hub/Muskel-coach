@@ -52,7 +52,8 @@ async function features(id) {
   const o = { embs, dep }; fs.writeFileSync(fp, zlib.gzipSync(JSON.stringify(o))); return o;
 }
 async function load(list, n, tag) { const out = []; for (const id of list) { if (out.length >= n) break; const f = await features(id); if (!f) continue; out.push({ ...D.get(id), ...f }); if (out.length % 100 === 0) log(tag, out.length); } return out; }
-const train = await load(pick(trainIds, N_TRAIN), N_TRAIN, 'train'), test = await load(pick(testIds, N_TEST), N_TEST, 'test');
+const test = await load(testIds.filter((id) => { const d = D.get(id); return d.mass >= 10 && d.kcal > 0; }), 1e9, 'test');
+const train = await load(pick(trainIds, N_TRAIN), N_TRAIN, 'train');
 log('Merkmale fertig. train', train.length, 'test', test.length, tStat.n ? `· Ø CLIP ${Math.round(tStat.clip / tStat.n)} ms, Ø Depth ${Math.round(tStat.depth / tStat.n)} ms (neu berechnet: ${tStat.n})` : '(aus Cache)');
 const nVal = Math.round(train.length * 0.2), val = train.slice(0, nVal), fit = train.slice(nVal);
 
@@ -106,14 +107,14 @@ const R = { split: { train: fit.length, val: val.length, test: test.length, offi
 const C0 = JSON.parse(fs.readFileSync('foodscan/calib.json', 'utf8'));
 const m0 = (d) => { const r = Core.analyze(d.embs, T, C0); return { mass: r.items.reduce((s, it) => s + it.grams, 0), kcal: r.items.reduce((s, it) => s + (it.kcal || 0), 0), r }; };
 const cand = {};
-const kinds = ['whole', 'clip', ...(depth ? ['clip+depth'] : [])];
+const kinds = ['whole', 'clip', ...(depth ? ['clip+depth'] : [])].filter((k) => k !== 'clip+depth' || process.env.ALLOW_DEPTH === '1');
 const V = {}; for (const k of kinds) V[k] = { fit: fit.map((d) => vec(d, k)), val: val.map((d) => vec(d, k)), test: test.map((d) => vec(d, k)), all: train.map((d) => vec(d, k)) };
-for (const k of kinds) for (const lam of [1, 10, 100, 1000]) {
+for (const k of kinds) for (const lam of [100, 300, 1000, 3000, 10000]) {
   const mM = ridgeFit(V[k].fit, fit.map((d) => lg(d.mass)), lam), mK = ridgeFit(V[k].fit, fit.map((d) => lg(d.kcal)), lam);
   const pv = V[k].val.map((x) => ({ mass: ex(ridgePred(mM, x)), kcal: ex(ridgePred(mK, x)) }));
   cand[`ridge:${k}:λ${lam}`] = { val: metrics(pv.map((p) => p.kcal), val.map((d) => d.kcal)), valMass: metrics(pv.map((p) => p.mass), val.map((d) => d.mass)), kind: k, lam, type: 'ridge' };
 }
-for (const k of ['whole', 'clip']) for (const kk of [5, 10, 20, 40]) for (const p of [1, 8]) {
+for (const k of ['whole', 'clip']) for (const kk of [3, 5, 10, 20]) for (const p of [1, 8, 16]) {
   const tv = V[k].fit.map(nrm), pv = V[k].val.map(nrm).map((x) => ({ mass: ex(knnPred(tv, fit.map((d) => lg(d.mass)), x, kk, p)), kcal: ex(knnPred(tv, fit.map((d) => lg(d.kcal)), x, kk, p)) }));
   cand[`knn:${k}:k${kk}:p${p}`] = { val: metrics(pv.map((q) => q.kcal), val.map((d) => d.kcal)), valMass: metrics(pv.map((q) => q.mass), val.map((d) => d.mass)), kind: k, k: kk, p, type: 'knn' };
 }
@@ -125,19 +126,22 @@ const predWith = (c, trainSet, trainV, xs, key) => c.type === 'ridge' ? (() => {
   : (() => { const tv = trainV.map(nrm); return xs.map((x) => knnPred(tv, trainSet.map((d) => lg(d[key])), nrm(x), c.k, c.p)); })();
 let bestA = 0.5, bestW = 1e9; const rv = predWith(bestR, fit, V[bestR.kind].fit, V[bestR.kind].val, 'kcal'), kv = predWith(bestK, fit, V[bestK.kind].fit, V[bestK.kind].val, 'kcal');
 for (const a of [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]) { const w = metrics(rv.map((x, i) => ex(a * x + (1 - a) * kv[i])), val.map((d) => d.kcal)).WAPE; if (w < bestW) { bestW = w; bestA = a; } }
-R.chosen = { ridge: bestR.kind + ' λ' + bestR.lam, knn: `${bestK.kind} k${bestK.k} p${bestK.p}`, ensembleRidgeWeight: bestA, valWAPE: bestW };
+const offs = {}; for (const key of ['kcal', 'mass']) { const rv2 = predWith(bestR, fit, V[bestR.kind].fit, V[bestR.kind].val, key), kv3 = predWith(bestK, fit, V[bestK.kind].fit, V[bestK.kind].val, key); let bo = 0, bw = 1e9;
+  for (let o = -0.1; o <= 0.3001; o += 0.02) { const w = metrics(rv2.map((x, i) => ex(bestA * x + (1 - bestA) * kv3[i] + o)), val.map((d) => d[key])).WAPE; if (w < bw) { bw = w; bo = o; } } offs[key] = +bo.toFixed(2); }
+R.chosen = { offsets: offs, ridge: bestR.kind + ' λ' + bestR.lam, knn: `${bestK.kind} k${bestK.k} p${bestK.p}`, ensembleRidgeWeight: bestA, valWAPE: bestW };
 
 // ---------- Einmalige Messung auf Test (vorher vs. nachher) ----------
 const before = test.map(m0);
 const fullTrain = train;
 const tr = (key) => predWith(bestR, fullTrain, V[bestR.kind].all, V[bestR.kind].test, key), tk = (key) => predWith(bestK, fullTrain, V[bestK.kind].all, V[bestK.kind].test, key);
 const rK = tr('kcal'), kK = tk('kcal'), rM = tr('mass'), kM = tk('mass');
-const afterK = rK.map((x, i) => ex(bestA * x + (1 - bestA) * kK[i])), afterM = rM.map((x, i) => ex(bestA * x + (1 - bestA) * kM[i]));
+const afterK = rK.map((x, i) => ex(bestA * x + (1 - bestA) * kK[i] + offs.kcal)), afterM = rM.map((x, i) => ex(bestA * x + (1 - bestA) * kM[i] + offs.mass));
+const wholeOnly = (() => { const m = ridgeFit(V.whole.all, train.map((d) => lg(d.kcal)), 1000); return V.whole.test.map((x) => ex(ridgePred(m, x))); })();
 const tK = test.map((d) => d.kcal), tM = test.map((d) => d.mass);
 R.test = {
   before: { kcal: metrics(before.map((b) => b.kcal), tK), mass: metrics(before.map((b) => b.mass), tM) },
   after: { kcal: metrics(afterK, tK), mass: metrics(afterM, tM) },
-  ridgeOnly: { kcal: metrics(rK.map(ex), tK) }, knnOnly: { kcal: metrics(kK.map(ex), tK) },
+  ridgeOnly: { kcal: metrics(rK.map(ex), tK) }, wholeImageOnlyRidge: { kcal: metrics(wholeOnly, tK) }, knnOnly: { kcal: metrics(kK.map(ex), tK) },
   baselineTrainMean: { kcal: metrics(tK.map(() => train.reduce((s, d) => s + d.kcal, 0) / train.length), tK) },
   afterByMass: by(test, afterK, 'kcal', massB), afterByIngredients: by(test, afterK, 'kcal', ingB), afterByKcal: by(test, afterK, 'kcal', kcalB),
   beforeByKcal: by(test, before.map((b) => b.kcal), 'kcal', kcalB), beforeByIngredients: by(test, before.map((b) => b.kcal), 'kcal', ingB),
@@ -162,9 +166,9 @@ R.speed = { msClipPerScanNode: tStat.n ? Math.round(tStat.clip / tStat.n) : null
 
 // ---------- Export fürs Handy (bestes Verfahren, trainiert auf allen Train-Daten) ----------
 const kindX = bestR.kind; const needDepth = kindX === 'clip+depth' || bestK.kind === 'clip+depth';
-const exp = { version: 2, ridgeKind: kindX, ridgeLam: bestR.lam, a: bestA, knn: { kind: bestK.kind, k: bestK.k, p: bestK.p }, needDepth };
+const exp = { version: 3, offsets: offs, ridgeKind: kindX, ridgeLam: bestR.lam, a: bestA, knn: { kind: bestK.kind, k: bestK.k, p: bestK.p }, needDepth };
 const fM = ridgeFit(V[kindX].all, train.map((d) => lg(d.mass)), bestR.lam), fK = ridgeFit(V[kindX].all, train.map((d) => lg(d.kcal)), bestR.lam);
-const pack = (m) => ({ w: m.w.map((x) => +x.toFixed(5)), mu: m.mu.map((x) => +x.toFixed(5)), sd: m.sd.map((x) => +x.toFixed(5)), ym: m.ym });
+const pack = (m) => ({ w: m.w.map((x) => +x.toPrecision(6)), mu: m.mu.map((x) => +x.toPrecision(7)), sd: m.sd.map((x) => +x.toPrecision(6)), ym: m.ym });
 exp.ridgeMass = pack(fM); exp.ridgeKcal = pack(fK);
 const kv2 = V[bestK.kind].all.map(nrm); const q8 = Buffer.alloc(kv2.length * kv2[0].length); kv2.forEach((v, i) => v.forEach((x, j) => q8.writeInt8(Math.max(-127, Math.min(127, Math.round(x * 127 / 0.5))), i * v.length + j)));
 exp.knnData = { dim: kv2[0].length, n: kv2.length, q: q8.toString('base64'), scale: 0.5 / 127, mass: train.map((d) => +lg(d.mass).toFixed(4)), kcal: train.map((d) => +lg(d.kcal).toFixed(4)) };

@@ -75,5 +75,40 @@
     const alts = cand.slice(0, 10).map(([i, p]) => ({ k: L[i].k, de: L[i].de, p: Math.round(p * 100) / 100 }));
     return { items, alts, tiles, foodFrac: Math.round(foodTiles / nT * 100) / 100 };
   }
-  return { GRID, crops, analyze, probs, decodeEmb };
+
+  // ===== Phase 2: gelernte Gesamtschätzung (Ridge + ähnliche Gerichte), identisch zur Benchmark-Berechnung =====
+  const nrmA = (v) => { let s = 0; for (const x of v) s += x * x; s = Math.sqrt(s) || 1; return v.map((x) => x / s); };
+  const CATS = ['grain', 'dish', 'bread', 'potato', 'meat', 'fish', 'egg', 'veg', 'leafy', 'fruit', 'dairy', 'sauce', 'soup', 'dessert', 'nuts'];
+  function featVec(embs, T, kind, dep) {
+    const E = embs.map(nrmA); const whole = E[0];
+    if (kind === 'whole') return whole;
+    const mean = new Array(512).fill(0); for (let t = 1; t < E.length; t++) for (let j = 0; j < 512; j++) mean[j] += E[t][j] / (E.length - 1);
+    const r = analyze(embs, T, { topK: 12, ownMin: 0.4, foodMin: 0.6, minFrac: 0, M: {}, k: 1 });
+    const cats = {}; r.items.forEach((it) => { cats[it.cat] = (cats[it.cat] || 0) + it.frac; });
+    let v = [...whole, ...nrmA(mean), r.foodFrac, ...CATS.map((c) => cats[c] || 0)];
+    if (kind === 'clip+depth' && dep) { const g = dep.grid, mn = Math.min(...g), mx = Math.max(...g) || 1; const gn = g.map((x) => (x - mn) / (mx - mn + 1e-6));
+      const p = dep.p, rng = (p[6] - p[0]) || 1; v = [...v, ...gn, ...p.map((x) => (x - p[0]) / rng), gn.reduce((a, b) => a + b, 0) / gn.length]; }
+    return v;
+  }
+  const ridgeP = (m, x) => { let s = m.ym; for (let j = 0; j < x.length; j++) s += m.w[j] * (x[j] - m.mu[j]) / (m.sd[j] || 1); return s; };
+  function knnP(K, key, x, k, p) {
+    if (!K._f) { const bin = typeof atob === 'function' ? atob(K.q) : Buffer.from(K.q, 'base64').toString('binary'); const f = new Float32Array(K.n * K.dim); for (let i = 0; i < f.length; i++) { let v = bin.charCodeAt(i); if (v > 127) v -= 256; f[i] = v * K.scale; } K._f = f; }
+    const xs = nrmA(x), f = K._f, d = K.dim, sims = new Float32Array(K.n);
+    for (let i = 0; i < K.n; i++) { let s = 0; for (let j = 0; j < d; j++) s += f[i * d + j] * xs[j]; sims[i] = s; }
+    const idx = Array.from(sims.keys()).sort((a, b) => sims[b] - sims[a]).slice(0, k); let ws = 0, ys = 0;
+    for (const i of idx) { const w = Math.max(1e-6, sims[i]) ** p; ws += w; ys += w * K[key][i]; } return { y: ys / ws, sim: sims[idx[0]] };
+  }
+  /* Gesamtschätzung: liefert kcal & Masse; die Einzel-Lebensmittel werden so skaliert, dass ihre Summe dazu passt */
+  function estimate(embs, T, M2, dep, plateCm) {
+    const ex = (v) => Math.max(0, Math.exp(v) - 10);
+    const xr = featVec(embs, T, M2.ridgeKind, dep), xk = M2.knn.kind === M2.ridgeKind ? xr : featVec(embs, T, M2.knn.kind, dep);
+    const kM = knnP(M2.knnData, 'mass', xk, M2.knn.k, M2.knn.p), kK = knnP(M2.knnData, 'kcal', xk, M2.knn.k, M2.knn.p);
+    const sc = Math.log(Math.pow((plateCm || 26) / 26, 2)); // Tellergröße (nur Fläche; kalibriert auf Standardteller)
+    const o = M2.offsets || { kcal: 0, mass: 0 };
+    const mass = ex(M2.a * ridgeP(M2.ridgeMass, xr) + (1 - M2.a) * kM.y + o.mass + (plateCm && plateCm !== 26 ? sc : 0));
+    const kcal = ex(M2.a * ridgeP(M2.ridgeKcal, xr) + (1 - M2.a) * kK.y + o.kcal + (plateCm && plateCm !== 26 ? sc : 0));
+    return { mass: Math.round(mass), kcal: Math.round(kcal), similarity: Math.round(kM.sim * 100) / 100 };
+  }
+
+  return { GRID, crops, analyze, probs, decodeEmb, featVec, estimate };
 });

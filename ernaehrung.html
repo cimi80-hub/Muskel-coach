@@ -477,7 +477,7 @@ async function fsStart(){
   $$('#sheetBody [data-pl]').forEach(b=>b.onclick=()=>{ fsPlate=+b.dataset.pl; localStorage.setItem('dmc_fs_plate',fsPlate); $$('#sheetBody [data-pl]').forEach(x=>x.classList.toggle('on',x===b)); });
   $('#fsCam').onclick=()=>$('#fsFile').click(); $('#fsPick').onclick=()=>$('#fsGal').click();
   $('#fsFile').onchange=$('#fsGal').onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f) fsRun(f); };
-  fetch(FoodScan.base+'calib.json').then(r=>r.json()).then(c=>{ const m=c.measured||{}, t=m.test||{}; const el=$('#fsInfo'); if(el) el.innerHTML=t.n?`Gemessen an ${t.n} gewogenen Gerichten (Nutrition5k, Testteil, ${String(m.date||'').slice(0,10)}): Kalorien im Mittel ±${t.kcalMAPE} % (Median ±${t.kcalMedAPE} %), ${t.within20pct_kcal} % der Gerichte innerhalb ±20 %. Gewicht im Mittel ±${t.massMAPE} %. Zum Vergleich „einfach Durchschnitt raten“: ±${m.baseline&&m.baseline.kcalMAPE} %.<br>Modell: CLIP ViT-B/32 (MIT-Lizenz), 8-Bit, läuft per ${navigator.gpu?'WebGPU/':''}WebAssembly auf dem Gerät. Nährwerte: BLS 4.0 und App-Datenbank.`:'Noch keine Messwerte.'; }).catch(()=>{});
+  fetch(FoodScan.base+'model2.json').then(r=>r.ok?r.json():fetch(FoodScan.base+'calib.json').then(x=>x.json())).then(c=>{ const m=c.measured||{}, t=(m.test&&m.test.kcal)?Object.assign({},m.test.kcal,{n:m.test.kcal.n,kcalMAPE:m.test.kcal.MAPE,kcalMedAPE:m.test.kcal.MedAPE,within20pct_kcal:m.test.kcal.lt20,massMAPE:m.test.mass.MAPE}):(m.test||{}); if(m.baseline&&m.baseline.kcal) m.baseline={kcalMAPE:m.baseline.kcal.MAPE}; const el=$('#fsInfo'); if(el) el.innerHTML=t.n?`Gemessen an ${t.n} gewogenen Gerichten (Nutrition5k, Testteil, ${String(m.date||'').slice(0,10)}): Kalorien im Mittel ±${t.kcalMAPE} % (Median ±${t.kcalMedAPE} %), ${t.within20pct_kcal} % der Gerichte innerhalb ±20 %. Gewicht im Mittel ±${t.massMAPE} %. Zum Vergleich „einfach Durchschnitt raten“: ±${m.baseline&&m.baseline.kcalMAPE} %.<br>Modell: CLIP ViT-B/32 (MIT-Lizenz), 8-Bit, läuft per ${navigator.gpu?'WebGPU/':''}WebAssembly auf dem Gerät. Nährwerte: BLS 4.0 und App-Datenbank.`:'Noch keine Messwerte.'; }).catch(()=>{});
 }
 async function fsRun(file){
   openSheet(`<h2 style="margin:0">📸 Analysiere …</h2><div class="fsbar"><i id="fsBar"></i></div><p class="small mut" id="fsSt">Starte KI …</p>`);
@@ -504,6 +504,7 @@ function fsResult(res){
     <div class="fsimg"><canvas id="fsCv" width="${res.canvas.width}" height="${res.canvas.height}"></canvas></div>
     <div id="fsList"></div>
     <div class="small mut" style="margin:8px 0">Andere Vorschläge: ${res.alts.filter(a=>!items.some(x=>x.k===a.k)).slice(0,6).map(a=>`<button class="sm" data-alt="${a.k}" style="margin:3px 2px">＋ ${esc(a.de)}</button>`).join('')}</div>
+    ${res.est?`<p class="small" style="margin:6px 0">🧠 KI-Gesamtschätzung: <b>${fmt(res.est.kcal)} kcal</b> · ca. ${fmt(res.est.mass)} g${res.memory?` · <span style="color:var(--acc)">wie dein bestätigtes Gericht vom ${esc(res.memory.date)}</span>`:''}${res.est.personal?` · persönliche Korrektur ×${res.est.personal}`:''}</p>`:''}
     <div class="row" style="justify-content:space-between;margin:6px 0"><b id="fsTot"></b><span class="small mut">${(res.ms/1000).toFixed(1)} s · ${res.device==='webgpu'?'WebGPU':'WASM'}</span></div>
     <label>Hinzufügen zu</label><select id="fsMeal">${F.MEALS.map(m=>`<option value="${m}" ${m===$('#addMeal').value?'selected':''}>${mealName(m)}</option>`).join('')}</select>
     <button class="pri" id="fsAdd" style="width:100%;margin-top:10px">✓ Alle eintragen</button>
@@ -511,7 +512,8 @@ function fsResult(res){
   draw(); render();
   $$('#sheetBody [data-alt]').forEach(b=>b.onclick=()=>{ const l=FoodScan.state.T.labels.find(y=>y.k===b.dataset.alt); const f=l&&l.db&&F.getFood(l.db.fid); if(!f) return; items.push({k:l.k,de:l.de,db:l.db,food:f,grams:(l.db.portion||100),col:FS_COL[items.length%FS_COL.length],i:-1}); b.remove(); render(); });
   $('#fsRe').onclick=fsStart;
-  $('#fsAdd').onclick=async()=>{ const meal=$('#fsMeal').value; let n=0, k=0; for(const x of items){ if(x.grams>0){ await F.addEntry({food:x.food,grams:x.grams,meal,date:day,label:'Foto-Scan (Schätzung)'}); n++; k+=F.nutrients(x.food,x.grams).kcal||0; } }
+  $('#fsAdd').onclick=async()=>{ const meal=$('#fsMeal').value; let n=0, k=0;
+    try{ if(res.embWhole) FoodScan.remember(res.embWhole, items.filter(x=>x.grams>0).map(x=>({k:x.k,grams:x.grams,kcal:F.nutrients(x.food,x.grams).kcal})), res.est&&res.est.kcal); }catch(e){} for(const x of items){ if(x.grams>0){ await F.addEntry({food:x.food,grams:x.grams,meal,date:day,label:'Foto-Scan (Schätzung)'}); n++; k+=F.nutrients(x.food,x.grams).kcal||0; } }
     closeSheet(); toast(n?`✓ ${n} Lebensmittel · ${fmt(k)} kcal eingetragen`:'Nichts eingetragen'); if($('#v-heute').classList.contains('on')) renderDay(); };
 }
 

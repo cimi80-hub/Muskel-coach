@@ -30,7 +30,7 @@ jobs:
         env: { N_DISH: '0' }
         run: ln -sf /tmp/fs/node_modules node_modules && node tools/foodscan/build.mjs 2>&1 | tail -3
       - name: Benchmark Nutrition5k (offizielle Splits)
-        env: { N_TRAIN: '1200', N_TEST: '600', DEPTH: '1' }
+        env: { N_TRAIN: '3000', N_TEST: '9999', DEPTH: '0' }
         run: node tools/foodscan/bench.mjs 2>&1 | tee /tmp/bench.log | grep -vE '^\s+"?-?[0-9]' | tail -400
       - name: Merkmal-Cache speichern
         if: always()
