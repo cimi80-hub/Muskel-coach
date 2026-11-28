@@ -1,0 +1,31 @@
+{
+ "kcal": 60.200001,
+ "mass": 155,
+ "ings": [
+  {
+   "name": "celery",
+   "g": 31,
+   "kcal": 4.96
+  },
+  {
+   "name": "chicken",
+   "g": 21,
+   "kcal": 34.65
+  },
+  {
+   "name": "cucumbers",
+   "g": 29,
+   "kcal": 2.9
+  },
+  {
+   "name": "cherry tomatoes",
+   "g": 55,
+   "kcal": 9.9
+  },
+  {
+   "name": "baby carrots",
+   "g": 19,
+   "kcal": 7.79
+  }
+ ]
+}

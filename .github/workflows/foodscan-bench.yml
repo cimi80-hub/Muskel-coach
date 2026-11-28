@@ -1,0 +1,51 @@
+name: FoodScan Phase 3 – Benchmark
+on:
+  push:
+    branches: [foodscan]
+    paths: ['tools/foodscan/**', '.github/workflows/foodscan-bench.yml']
+permissions:
+  contents: write
+concurrency:
+  group: foodscan-bench
+  cancel-in-progress: true
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Abhängigkeiten
+        run: |
+          mkdir -p /tmp/fs && cd /tmp/fs && npm init -y >/dev/null && npm i --onnxruntime-node-install-cuda=skip @huggingface/transformers@3 2>&1 | tail -1
+          pip install pyarrow >/dev/null 2>&1 && echo pyarrow ok
+      - name: Merkmal-Cache laden
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/fscache
+          key: n5k-feat-v3-${{ github.run_id }}
+          restore-keys: |
+            n5k-feat-v3-
+            n5k-feat-v2-
+      - name: Text-Embeddings (2 Vorlagen-Sätze)
+        env: { N_DISH: '0' }
+        run: ln -sf /tmp/fs/node_modules node_modules && node tools/foodscan/build.mjs 2>&1 | tail -3
+      - name: Erkennung Food-101 (Auswahl auf 1–10, Test auf 11–20)
+        run: python3 tools/foodscan/f101.py 20 && node tools/foodscan/f101.mjs 2>&1 | grep -E "chosen|overall|validation" | head
+      - name: Benchmark Phase 3 (Cafe 1 Optimierung, Cafe 2 Abschlusstest)
+        run: node --max-old-space-size=6000 tools/foodscan/bench3.mjs 2>&1 | tee /tmp/bench.log | grep -vE '^\s+"?-?[0-9]' | tail -300
+      - name: Merkmal-Cache speichern
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/fscache
+          key: n5k-feat-v3-${{ github.run_id }}
+      - name: Ergebnisse speichern
+        if: always()
+        run: |
+          rm -f node_modules
+          find foodscan/models -name "*.onnx" ! -name "vision_model_quantized.onnx" -delete; rm -rf foodscan/models/onnx-community
+          git config user.name "foodscan-bot"; git config user.email "actions@github.com"
+          git add foodscan; git commit -m "FoodScan Phase 3: Benchmark-Ergebnisse" || true
+          git pull --rebase -X theirs || true; git push

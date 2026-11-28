@@ -1,0 +1,55 @@
+name: FoodScan bauen & messen
+# Lädt CLIP ViT-B/32 (MIT) und transformers.js, berechnet Text-Embeddings, misst die Genauigkeit
+# auf Nutrition5k (CC BY 4.0) und legt Modell + Bibliothek im Repo ab (selbst gehostet, offline-fähig).
+on:
+  push:
+    branches: [foodscan]
+    paths: ['.github/workflows/foodscan-build.yml']
+  workflow_dispatch:
+    inputs:
+      n_dish: { description: 'Anzahl Nutrition5k-Gerichte', default: '400' }
+permissions:
+  contents: write
+concurrency:
+  group: foodscan-build
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Abhängigkeiten
+        run: |
+          mkdir -p /tmp/fs && cd /tmp/fs && npm init -y >/dev/null && npm i --onnxruntime-node-install-cuda=skip @huggingface/transformers@3 2>&1 | tail -3
+          node -e "console.log('transformers', require('/tmp/fs/node_modules/@huggingface/transformers/package.json').version)"
+          ls /tmp/fs/node_modules/@huggingface/transformers/dist/ | head -30
+          ls -la /tmp/fs/node_modules/onnxruntime-web/dist/ | grep -E "wasm|mjs" | head -30
+      - name: Bauen & messen
+        env: { N_DISH: "${{ github.event.inputs.n_dish || '600' }}", NODE_PATH: /tmp/fs/node_modules }
+        run: |
+          ln -s /tmp/fs/node_modules node_modules
+          node tools/foodscan/build.mjs 2>&1 | tee /tmp/build.log | grep -v "^\s*$" | tail -60
+          rm node_modules
+      - name: Bibliothek & Modell bereitstellen
+        run: |
+          mkdir -p foodscan/vendor
+          rm -f foodscan/vendor/transformers.web.min.js; cp /tmp/fs/node_modules/@huggingface/transformers/dist/transformers.min.js foodscan/vendor/transformers.min.js; grep -o 'from"[a-z-]*"' foodscan/vendor/transformers.min.js | sort -u | head
+          for f in ort-wasm-simd-threaded.jsep.wasm ort-wasm-simd-threaded.jsep.mjs ort-wasm-simd-threaded.wasm ort-wasm-simd-threaded.mjs; do [ -f /tmp/fs/node_modules/onnxruntime-web/dist/$f ] && cp /tmp/fs/node_modules/onnxruntime-web/dist/$f foodscan/vendor/; done
+          cp /tmp/fs/node_modules/@huggingface/transformers/LICENSE foodscan/vendor/LICENSE-transformers.txt 2>/dev/null || true
+          cp /tmp/fs/node_modules/onnxruntime-web/LICENSE foodscan/vendor/LICENSE-onnxruntime.txt 2>/dev/null || true
+          find foodscan/models -name "*.onnx" ! -name "vision_model_quantized.onnx" -delete
+          find foodscan -type f -exec ls -la {} \; | awk '{print $5, $9}' | sort -n | tail -20
+          du -sh foodscan
+      - name: Ergebnisse speichern
+        run: |
+          git config user.name "foodscan-bot"; git config user.email "actions@github.com"
+          git add foodscan tools/foodscan/testimg
+          git commit -m "FoodScan: Modell, Bibliothek, Text-Embeddings, Kalibrierung + Messbericht (Nutrition5k)" || echo "nichts neu"
+          git pull --rebase -X theirs || true
+          git push
+      - name: Bericht
+        run: |
+          { echo "### 📸 FoodScan Messung"; echo '```json'; cat foodscan/eval-report.json; echo '```'; } >> $GITHUB_STEP_SUMMARY

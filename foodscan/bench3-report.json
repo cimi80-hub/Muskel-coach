@@ -1,0 +1,314 @@
+{
+ "split": {
+  "fit": 2194,
+  "val": 549,
+  "series": 368,
+  "test1": 502,
+  "cafe2Final": 0
+ },
+ "validation": {
+  "phase2Approx": {
+   "n": 549,
+   "MAE": 83,
+   "MAPE": 41.2,
+   "MedAPE": 26.5,
+   "WAPE": 31,
+   "P90": 70,
+   "MAX": 1812.2,
+   "bias": -17.2,
+   "lt5": 10.7,
+   "lt10": 21.9,
+   "lt20": 38.3
+  },
+  "top5kcal": [
+   {
+    "combo": "ridge300+krr10_0.3+krr10_0.3",
+    "off": 0.16,
+    "n": 549,
+    "MAE": 76.9,
+    "MAPE": 46,
+    "MedAPE": 25.7,
+    "WAPE": 28.7,
+    "P90": 87,
+    "MAX": 1620.4,
+    "bias": -1.2,
+    "lt5": 10.6,
+    "lt10": 21.3,
+    "lt20": 40.6
+   },
+   {
+    "combo": "ridge300+krr10_0.3+krr10_1",
+    "off": 0.17,
+    "n": 549,
+    "MAE": 77.8,
+    "MAPE": 47.5,
+    "MedAPE": 26.8,
+    "WAPE": 29.1,
+    "P90": 90,
+    "MAX": 1606.7,
+    "bias": -1,
+    "lt5": 10.7,
+    "lt10": 20.6,
+    "lt20": 40.1
+   },
+   {
+    "combo": "ridge300+knn5+krr10_0.3",
+    "off": 0.17,
+    "n": 549,
+    "MAE": 78.2,
+    "MAPE": 48.1,
+    "MedAPE": 25.1,
+    "WAPE": 29.2,
+    "P90": 90.5,
+    "MAX": 2038.4,
+    "bias": -1.7,
+    "lt5": 10.6,
+    "lt10": 19.7,
+    "lt20": 42.1
+   },
+   {
+    "combo": "ridge1000+krr10_0.3+krr10_0.3",
+    "off": 0.17,
+    "n": 549,
+    "MAE": 78.1,
+    "MAPE": 47.4,
+    "MedAPE": 26.7,
+    "WAPE": 29.2,
+    "P90": 91.5,
+    "MAX": 1617.6,
+    "bias": -1.3,
+    "lt5": 10.2,
+    "lt10": 20.6,
+    "lt20": 38.4
+   },
+   {
+    "combo": "ridge300+knn10+krr10_0.3",
+    "off": 0.18,
+    "n": 549,
+    "MAE": 78.5,
+    "MAPE": 49.4,
+    "MedAPE": 25.8,
+    "WAPE": 29.3,
+    "P90": 99.1,
+    "MAX": 1958.6,
+    "bias": -1.6,
+    "lt5": 10.7,
+    "lt10": 20.2,
+    "lt20": 39
+   }
+  ],
+  "chosenMass": {
+   "combo": "ridge300+ridge300+krr10_0.3",
+   "off": 0.08,
+   "n": 549,
+   "MAE": 46.5,
+   "MAPE": 24.5,
+   "MedAPE": 17.4,
+   "WAPE": 21.5,
+   "P90": 50.4,
+   "MAX": 223.8,
+   "bias": -1.2,
+   "lt5": 14.6,
+   "lt10": 29.7,
+   "lt20": 57.9
+  }
+ },
+ "interval80": [
+  {
+   "lo": 0,
+   "hi": 100,
+   "n": 134,
+   "q10": 0.393,
+   "q90": 1.433
+  },
+  {
+   "lo": 100,
+   "hi": 300,
+   "n": 214,
+   "q10": 0.592,
+   "q90": 1.499
+  },
+  {
+   "lo": 300,
+   "hi": 1000000000,
+   "n": 201,
+   "q10": 0.624,
+   "q90": 1.4
+  }
+ ],
+ "test1_cafe1": {
+  "phase2": {
+   "n": 502,
+   "MAE": 64.6,
+   "MAPE": 37,
+   "MedAPE": 23.5,
+   "WAPE": 25,
+   "P90": 66.4,
+   "MAX": 690.3,
+   "bias": -13.1,
+   "lt5": 12.2,
+   "lt10": 24.1,
+   "lt20": 44.6
+  },
+  "phase3kcal": {
+   "n": 502,
+   "MAE": 64.8,
+   "MAPE": 45.2,
+   "MedAPE": 26.5,
+   "WAPE": 25.1,
+   "P90": 80,
+   "MAX": 734.2,
+   "bias": 5.5,
+   "lt5": 12,
+   "lt10": 23.3,
+   "lt20": 42
+  },
+  "phase3mass": {
+   "n": 502,
+   "MAE": 40,
+   "MAPE": 30.3,
+   "MedAPE": 18.8,
+   "WAPE": 20,
+   "P90": 60.1,
+   "MAX": 625.3,
+   "bias": 8.6,
+   "lt5": 14.5,
+   "lt10": 28.1,
+   "lt20": 53.4
+  },
+  "intervalCoverage80": 79.9,
+  "byKcal": {
+   "<100": {
+    "n": 154,
+    "MAE": 27,
+    "MAPE": 88.9,
+    "MedAPE": 46.2,
+    "WAPE": 55.6,
+    "P90": 206.9,
+    "MAX": 734.2,
+    "bias": 49.4,
+    "lt5": 8.4,
+    "lt10": 13.6,
+    "lt20": 25.3
+   },
+   "100-400": {
+    "n": 237,
+    "MAE": 64.3,
+    "MAPE": 28.2,
+    "MedAPE": 24.4,
+    "WAPE": 26.1,
+    "P90": 57.2,
+    "MAX": 147.2,
+    "bias": 10.7,
+    "lt5": 12.2,
+    "lt10": 25.3,
+    "lt20": 46.4
+   },
+   ">=400": {
+    "n": 111,
+    "MAE": 118.4,
+    "MAPE": 20.8,
+    "MedAPE": 17.5,
+    "WAPE": 20.7,
+    "P90": 42.2,
+    "MAX": 73.5,
+    "bias": -4.4,
+    "lt5": 16.2,
+    "lt10": 32.4,
+    "lt20": 55.9
+   }
+  }
+ },
+ "final_cafe2": {
+  "phase2": {
+   "n": 0,
+   "MAE": null,
+   "MAPE": null,
+   "MedAPE": null,
+   "WAPE": null,
+   "P90": null,
+   "MAX": null,
+   "bias": null,
+   "lt5": null,
+   "lt10": null,
+   "lt20": null
+  },
+  "phase3kcal": {
+   "n": 0,
+   "MAE": null,
+   "MAPE": null,
+   "MedAPE": null,
+   "WAPE": null,
+   "P90": null,
+   "MAX": null,
+   "bias": null,
+   "lt5": null,
+   "lt10": null,
+   "lt20": null
+  },
+  "phase3mass": {
+   "n": 0,
+   "MAE": null,
+   "MAPE": null,
+   "MedAPE": null,
+   "WAPE": null,
+   "P90": null,
+   "MAX": null,
+   "bias": null,
+   "lt5": null,
+   "lt10": null,
+   "lt20": null
+  },
+  "intervalCoverage80": null,
+  "byKcal": {
+   "<100": {
+    "n": 0,
+    "MAE": null,
+    "MAPE": null,
+    "MedAPE": null,
+    "WAPE": null,
+    "P90": null,
+    "MAX": null,
+    "bias": null,
+    "lt5": null,
+    "lt10": null,
+    "lt20": null
+   },
+   "100-400": {
+    "n": 0,
+    "MAE": null,
+    "MAPE": null,
+    "MedAPE": null,
+    "WAPE": null,
+    "P90": null,
+    "MAX": null,
+    "bias": null,
+    "lt5": null,
+    "lt10": null,
+    "lt20": null
+   },
+   ">=400": {
+    "n": 0,
+    "MAE": null,
+    "MAPE": null,
+    "MedAPE": null,
+    "WAPE": null,
+    "P90": null,
+    "MAX": null,
+    "bias": null,
+    "lt5": null,
+    "lt10": null,
+    "lt20": null
+   }
+  }
+ },
+ "worst10": {
+  "n": 0,
+  "share_kcal_lt100": null,
+  "overestimated": null,
+  "share_1_2_ingredients": null,
+  "topMainIngredients": [],
+  "examples": []
+ },
+ "robustness": {}
+}

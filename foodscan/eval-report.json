@@ -1,0 +1,58 @@
+{
+ "date": "2026-11-28T13:31:19.982Z",
+ "model": "Xenova/clip-vit-base-patch32 (vision q8)",
+ "dataset": "Nutrition5k cafe1, realsense_overhead rgb (CC BY 4.0)",
+ "dishes": 600,
+ "train": 360,
+ "test": 240,
+ "msPerScanNodeCPU": 494,
+ "best": {
+  "foodMin": 0.6,
+  "topK": 12,
+  "ownMin": 0.4
+ },
+ "M": {
+  "grain": 552.9866999999999,
+  "dish": 390.6,
+  "bread": 205.79999999999998,
+  "potato": 361.47803580000004,
+  "meat": 673.2012000000001,
+  "fish": 516.81,
+  "egg": 355.25070000000005,
+  "veg": 272.7225,
+  "leafy": 320.85,
+  "fruit": 555.4499999999999,
+  "dairy": 381.99,
+  "sauce": 147,
+  "soup": 30,
+  "dessert": 224.595,
+  "nuts": 210
+ },
+ "testResult": {
+  "n": 240,
+  "massMAE_g": 90,
+  "massMAPE": 61.1,
+  "massMedAPE": 33.6,
+  "kcalMAE": 136,
+  "kcalMAPE": 98.8,
+  "kcalMedAPE": 47.7,
+  "within20pct_kcal": 22.5
+ },
+ "baselineMeanGuess": {
+  "n": 240,
+  "massMAPE": 106.9,
+  "kcalMAPE": 244.2
+ },
+ "trainResult": {
+  "n": 360,
+  "massMAE_g": 79,
+  "massMAPE": 48.4,
+  "massMedAPE": 30.9,
+  "kcalMAE": 117,
+  "kcalMAPE": 90.1,
+  "kcalMedAPE": 38.1,
+  "within20pct_kcal": 23.3
+ },
+ "variantsTried": 18,
+ "totalSeconds": 399
+}
