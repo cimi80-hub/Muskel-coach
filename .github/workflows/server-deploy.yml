@@ -17,6 +17,8 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       MC_ADMIN_KEY: ${{ secrets.MC_ADMIN_KEY }}
       FDC_API_KEY: ${{ secrets.FDC_API_KEY }}
+      AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+      AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
       NAME: muskel-coach-server
       DBNAME: muskel-coach-db
     steps:
@@ -85,6 +87,7 @@ jobs:
         if: env.READY == '1'
         run: |
           printf '%s' "$MC_ADMIN_KEY" | wrangler secret put ADMIN_KEY --name "$NAME"
+          if [ -n "$AZURE_SPEECH_KEY" ]; then printf '%s' "$AZURE_SPEECH_KEY" | tr -d ' \r\n' | wrangler secret put AZURE_SPEECH_KEY --name "$NAME"; printf '%s' "${AZURE_SPEECH_REGION:-westeurope}" | tr -d ' \r\n' | tr 'A-Z' 'a-z' | wrangler secret put AZURE_SPEECH_REGION --name "$NAME"; fi
           if [ -n "$FDC_API_KEY" ]; then printf '%s' "$FDC_API_KEY" | tr -d ' \r\n' | wrangler secret put FDC_API_KEY --name "$NAME"; fi
           if ! wrangler secret list --name "$NAME" | grep -q '"SALT"'; then openssl rand -hex 32 | tr -d '\n' | wrangler secret put SALT --name "$NAME"; fi
       - name: Test
@@ -115,3 +118,15 @@ jobs:
           echo "| skyr (Cache) | $(echo "$r" | jq -r '.n') | ${e} ms | cached=$(echo "$r" | jq -r '.cached') |" >> $GITHUB_STEP_SUMMARY
           for c in 3017620422003 4056489190381 5449000000996; do r=$(curl -s "$URL/food/ean/$c"); echo "EAN $c → $(echo "$r" | jq -c '{ok,cached,n:.item.n,kcal:.item.kcal}')"; echo "| EAN $c | $(echo "$r" | jq -r '.item.n // "–"') | | $(echo "$r" | jq -r '.item.kcal // "–"') kcal |" >> $GITHUB_STEP_SUMMARY; done
           [ "$fail" = "0" ]
+      - name: Coach-Stimmen testen
+        if: env.READY == '1'
+        run: |
+          URL="https://$NAME.$SUB.workers.dev"
+          st=$(curl -s "$URL/tts"); echo "Status: $st"; en=$(echo "$st" | jq -r '.enabled')
+          { echo "### 🔊 Coach-Stimmen"; echo "Premium-Stimmen aktiv: **$en**"; } >> $GITHUB_STEP_SUMMARY
+          if [ "$en" = "true" ]; then
+            for v in mia luna leon alex; do
+              for i in 1 2; do s=$(date +%s%3N); code=$(curl -s -o /tmp/$v.mp3 -w '%{http_code} %{size_download}' -X POST "$URL/tts" -H 'Content-Type: application/json' -d "{\"text\":\"Hey, schön, dass du wieder da bist. Heute steht Brusttraining auf deinem Plan.\",\"voice\":\"$v\",\"lang\":\"de\",\"mood\":\"start\"}"); e=$(( $(date +%s%3N) - s ))
+                echo "$v Versuch $i: HTTP/Bytes $code, ${e} ms"; case "$code" in 200*) ;; *) echo "Antwort: $(head -c 200 /tmp/$v.mp3)";; esac; echo "| $v | Versuch $i | $code | ${e} ms |" >> $GITHUB_STEP_SUMMARY; done
+            done
+          fi
