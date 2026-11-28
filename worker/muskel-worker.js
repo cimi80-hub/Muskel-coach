@@ -33,6 +33,7 @@ async function ensureSchema(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS rate (k TEXT NOT NULL, kind TEXT NOT NULL, ts INTEGER NOT NULL)'),
     db.prepare('CREATE INDEX IF NOT EXISTS idx_rate ON rate(k, kind, ts)'),
     db.prepare('CREATE TABLE IF NOT EXISTS counters (k TEXT PRIMARY KEY, v INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID'),
+    db.prepare('CREATE TABLE IF NOT EXISTS food_ean (ean TEXT PRIMARY KEY, ts INTEGER NOT NULL, data TEXT) WITHOUT ROWID'),
   ]);
   schemaReady = true;
 }
@@ -426,8 +427,156 @@ async function redeem(req, env) {
   return json(req, env, { ok: true, months: row.months });
 }
 
+
+/* ===================== Lebensmittel-Suche (Open Food Facts + USDA FoodData Central) =====================
+ * - Open Food Facts: Lizenz ODbL (Datenbank) / Inhalte DbCL – Quellenangabe „© Open Food Facts contributors“.
+ * - USDA FoodData Central: gemeinfrei (CC0). Schlüssel optional als Secret FDC_API_KEY, sonst DEMO_KEY mit Tageslimit.
+ * - Keine Nutzerdaten werden weitergegeben: an die Quellen geht nur der Suchbegriff bzw. der Barcode.
+ * - Zwischenspeicher: Cloudflare-Cache (Suchen, 3 Tage) + D1 (Barcodes, 30 Tage) → wenige Anfragen an die Quellen.
+ * - Fehlende Werte bleiben null (nie 0 erfinden); unplausible Datensätze werden aussortiert.
+ */
+const FOOD_UA = 'DrMuskelCoach/2.0 (https://cimi80-hub.github.io/Muskel-coach/)';
+const OFF_FIELDS = 'code,product_name,product_name_de,generic_name_de,brands,stores,quantity,serving_size,serving_quantity,nutriments,allergens_tags,ingredients_text_de,ingredients_text,categories_tags,last_modified_t,countries_tags';
+const FOOD_UP = { n: 0, t: 0 }; // einfache Drossel je Worker-Instanz für Anfragen an die Quellen
+function upOk(max) { const now = Date.now(); if (now - FOOD_UP.t > 60e3) { FOOD_UP.t = now; FOOD_UP.n = 0; } return ++FOOD_UP.n <= max; }
+const num = (v) => { if (v === undefined || v === null || v === '') return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
+const r1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
+function plausible(f) {
+  if (f.kcal == null) return false;
+  if (f.kcal < 0 || f.kcal > 950) return false;
+  for (const k of ['p', 'c', 'f', 'sug', 'fib', 'sat']) if (f[k] != null && (f[k] < 0 || f[k] > 100)) return false;
+  if (f.salt != null && (f.salt < 0 || f.salt > 100)) return false;
+  if (f.sug != null && f.c != null && f.sug > f.c + 1) return false;
+  if (f.sat != null && f.f != null && f.sat > f.f + 1) return false;
+  if (f.p != null && f.c != null && f.f != null) {
+    if (f.p + f.c + f.f > 105) return false;
+    const calc = 4 * f.p + 4 * f.c + 9 * f.f + 2 * (f.fib || 0);
+    if (Math.abs(calc - f.kcal) > Math.max(60, 0.35 * f.kcal) && !(f.kcal < 30 && calc < 60)) return false; // Alkohol/Polyole ausgenommen bei kleinen Werten
+  }
+  return true;
+}
+const firstStr = (v) => (Array.isArray(v) ? v[0] : v) || '';
+function mapOFF(p) {
+  if (!p) return null; const nu = p.nutriments || {};
+  const g = (k) => num(nu[k + '_100g']);
+  const name = String(p.product_name_de || firstStr(p.product_name) || p.generic_name_de || '').trim(); if (!name) return null;
+  let kcal = g('energy-kcal'); const kj = g('energy-kj') ?? g('energy');
+  if (kcal == null && kj != null) kcal = Math.round(kj / 4.184);
+  const brands = Array.isArray(p.brands) ? p.brands.join(',') : String(p.brands || '');
+  const cats = Array.isArray(p.categories_tags) ? p.categories_tags.join(' ') : '';
+  const liquid = /\d\s*(ml|cl|l)\b/i.test(p.quantity || '') || /beverages|getraenke|drinks/.test(cats);
+  const sq = num(p.serving_quantity);
+  const f = {
+    id: 'off:' + p.code, ean: String(p.code || ''), n: name.slice(0, 140), brand: brands.split(',')[0].trim() || null,
+    store: (Array.isArray(p.stores) ? p.stores.join(', ') : p.stores) || null,
+    src: 'off', q: 'mfr', cat: 'O', unit: liquid ? 'ml' : 'g',
+    kcal: kcal == null ? null : Math.round(kcal), kj: kj == null ? null : Math.round(kj),
+    p: r1(g('proteins')), c: r1(g('carbohydrates')), f: r1(g('fat')), sat: r1(g('saturated-fat')), sug: r1(g('sugars')), fib: r1(g('fiber')),
+    salt: g('salt') == null ? null : Math.round(g('salt') * 100) / 100, na: g('sodium') == null ? null : Math.round(g('sodium') * 1000) / 1000,
+    portion: sq && sq > 0 && sq < 2000 ? { g: sq, label: String(p.serving_size || '1 Portion').slice(0, 40) } : null,
+    allergens: (p.allergens_tags || []).map((a) => String(a).replace(/^\w\w:/, '')).join(', ') || null,
+    ingredients: String(p.ingredients_text_de || p.ingredients_text || '').slice(0, 600) || null,
+    de: Array.isArray(p.countries_tags) ? p.countries_tags.includes('en:germany') : undefined,
+    updated: p.last_modified_t ? new Date(p.last_modified_t * 1000).toISOString().slice(0, 10) : null,
+    license: 'ODbL – © Open Food Facts contributors',
+  };
+  return f.ean && plausible(f) ? f : null;
+}
+const FDC_N = { kcal: [1008, 2047, 2048], p: [1003], c: [1005], f: [1004], sat: [1258], sug: [2000, 1063], fib: [1079], na: [1093] };
+function mapFDC(x) {
+  if (!x || !x.description) return null;
+  const by = {}; for (const n of x.foodNutrients || []) { const id = n.nutrientId || (n.nutrient && n.nutrient.id); const v = num(n.value ?? n.amount); if (id && v != null && by[id] === undefined) by[id] = { v, u: String(n.unitName || (n.nutrient && n.nutrient.unitName) || '').toLowerCase() }; }
+  const pick = (k) => { for (const id of FDC_N[k]) if (by[id]) { const { v, u } = by[id]; if (k === 'kcal' && u === 'kj') return v / 4.184; return v; } return null; };
+  const na = pick('na'); // mg
+  const f = {
+    id: 'fdc:' + x.fdcId, n: x.description.charAt(0) + x.description.slice(1).toLowerCase(), brand: x.brandOwner || x.brandName || null,
+    src: 'usda', q: 'ref', cat: 'O', unit: 'g',
+    kcal: pick('kcal') == null ? null : Math.round(pick('kcal')), kj: pick('kcal') == null ? null : Math.round(pick('kcal') * 4.184),
+    p: r1(pick('p')), c: r1(pick('c')), f: r1(pick('f')), sat: r1(pick('sat')), sug: r1(pick('sug')), fib: r1(pick('fib')),
+    na: na == null ? null : Math.round(na) / 1000, salt: na == null ? null : Math.round(na * 2.5) / 1000,
+    portion: null, allergens: null, ingredients: x.ingredients ? String(x.ingredients).slice(0, 600) : null,
+    updated: x.publishedDate || x.modifiedDate || null, dataType: x.dataType || null,
+    license: 'Public Domain (CC0) – USDA FoodData Central',
+  };
+  return plausible(f) ? f : null;
+}
+async function fetchT(u, opt = {}, ms = 4500) {
+  const ac = new AbortController(); const t = setTimeout(() => ac.abort(), ms);
+  try { return await fetch(u, { ...opt, signal: ac.signal, headers: { 'User-Agent': FOOD_UA, 'Accept': 'application/json', ...(opt.headers || {}) } }); }
+  finally { clearTimeout(t); }
+}
+async function offSearch(q) {
+  // 1. Search-a-licious (schnelle neue OFF-Suche), 2. Ersatz: klassische OFF-Suche
+  try {
+    const r = await fetchT(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=de,en&page_size=40&fields=${OFF_FIELDS}`);
+    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) return { list: hits.map(mapOFF).filter(Boolean), via: 'sal' }; }
+  } catch (e) {}
+  const r = await fetchT(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=40&sort_by=unique_scans_n&fields=${OFF_FIELDS}`, {}, 7000);
+  if (!r.ok) throw new Error('off ' + r.status);
+  const j = await r.json(); return { list: (j.products || []).map(mapOFF).filter(Boolean), via: 'cgi' };
+}
+async function fdcSearch(q, env) {
+  let key = env.FDC_API_KEY;
+  if (!key) { // DEMO_KEY: höchstens 40 Anfragen pro Tag über alle Nutzer
+    const k = 'fdc-' + new Date().toISOString().slice(0, 10);
+    const row = await env.DB.prepare('SELECT v FROM counters WHERE k = ?').bind(k).first();
+    if (row && row.v >= 40) return [];
+    await env.DB.prepare('INSERT INTO counters (k, v) VALUES (?, 1) ON CONFLICT(k) DO UPDATE SET v = v + 1').bind(k).run();
+    key = 'DEMO_KEY';
+  }
+  const r = await fetchT(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${encodeURIComponent(key)}&query=${encodeURIComponent(q)}&dataType=${encodeURIComponent('Foundation,SR Legacy')}&pageSize=15`);
+  if (!r.ok) return [];
+  const j = await r.json(); return (j.foods || []).map(mapFDC).filter(Boolean);
+}
+const ENGLISHISH = /\b(chicken|beef|pork|rice|oats?|egg|eggs|milk|cheese|bread|apple|banana|potato|salmon|tuna|breast|raw|cooked|boiled|fried|butter|yogurt|beans?|peanut|almonds?|nuts?|turkey|fish|oil|sugar|flour|pasta|steak|bacon|ham|spinach|broccoli|avocado|whey|protein)\b/i;
+function rankFood(list, q) {
+  const words = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+  const sc = (f) => { const n = (f.n + ' ' + (f.brand || '')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let s = 0; for (const w of words) { if (new RegExp('\\b' + w).test(n)) s += 2; else if (n.includes(w)) s += 1; else s -= 2; }
+    if (f.de) s += 1.5; if (f.src === 'usda') s += 0.5; if (f.p != null && f.c != null && f.f != null) s += 0.5; if (f.sat != null && f.sug != null && f.salt != null) s += 0.3;
+    s -= Math.min(1.5, f.n.length / 60); return s; };
+  const seen = new Set(); const out = [];
+  for (const f of list.map((f) => [sc(f), f]).sort((a, b) => b[0] - a[0]).map((x) => x[1])) {
+    const k = f.ean ? 'e' + f.ean : 'n' + f.n.toLowerCase() + '|' + (f.brand || '').toLowerCase() + '|' + f.kcal;
+    const k2 = 'n' + f.n.toLowerCase().replace(/\s+/g, ' ') + '|' + (f.brand || '').toLowerCase() + '|' + f.kcal + '|' + Math.round(f.p || 0);
+    if (seen.has(k) || seen.has(k2)) continue; seen.add(k); seen.add(k2); out.push(f);
+  }
+  return out;
+}
+async function foodSearch(req, env, url, ctx) {
+  const q = String(url.searchParams.get('q') || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+  if (q.length < 2) return json(req, env, { ok: false, error: 'short' }, 400);
+  const cacheKey = new Request('https://food-cache.local/s/v1/' + encodeURIComponent(q.toLowerCase()));
+  const cache = caches.default; const hit = await cache.match(cacheKey);
+  if (hit) { const d = await hit.json(); return foodJson(req, env, { ...d, cached: true }); }
+  if (!upOk(40)) return json(req, env, { ok: false, error: 'busy' }, 429);
+  const t0 = Date.now();
+  const useFdc = ENGLISHISH.test(q) || !!env.FDC_API_KEY;
+  const [off, fdc] = await Promise.allSettled([offSearch(q), useFdc ? fdcSearch(q, env) : Promise.resolve([])]);
+  const list = rankFood([...(off.status === 'fulfilled' ? off.value.list : []), ...(fdc.status === 'fulfilled' ? fdc.value : [])], q).slice(0, 40);
+  const src = { off: off.status === 'fulfilled' ? off.value.via : 'error', usda: !useFdc ? 'skip' : fdc.status === 'fulfilled' ? 'ok' : 'error' };
+  const d = { ok: true, q, n: list.length, ms: Date.now() - t0, src, items: list };
+  if (off.status === 'fulfilled' || list.length) ctx && ctx.waitUntil(cache.put(cacheKey, new Response(JSON.stringify(d), { headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${list.length ? 259200 : 3600}` } })));
+  else return json(req, env, { ok: false, error: 'upstream', src }, 502);
+  return foodJson(req, env, d);
+}
+async function foodEan(req, env, code) {
+  code = String(code).replace(/\D/g, '');
+  if (code.length < 6 || code.length > 14) return json(req, env, { ok: false, error: 'code' }, 400);
+  const row = await env.DB.prepare('SELECT ts, data FROM food_ean WHERE ean = ?').bind(code).first();
+  const now = Date.now();
+  if (row && now - row.ts < (row.data ? 30 : 3) * 864e5) return foodJson(req, env, { ok: true, cached: true, item: row.data ? JSON.parse(row.data) : null });
+  if (!upOk(60)) return json(req, env, { ok: false, error: 'busy' }, 429);
+  const r = await fetchT(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=${OFF_FIELDS}&lc=de`);
+  if (!r.ok && r.status !== 404) return json(req, env, { ok: false, error: 'upstream' }, 502);
+  const j = await r.json(); const item = j.status === 1 ? mapOFF(j.product) : null;
+  await env.DB.prepare('INSERT OR REPLACE INTO food_ean (ean, ts, data) VALUES (?, ?, ?)').bind(code, now, item ? JSON.stringify(item) : null).run();
+  return foodJson(req, env, { ok: true, item });
+}
+const foodJson = (req, env, d) => new Response(JSON.stringify(d), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=3600', ...cors(req, env) } });
+
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req, env) });
     if (!env.DB) return json(req, env, { ok: false, error: 'no_db' }, 500);
@@ -449,6 +598,13 @@ export default {
         if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
         return await redeem(req, env);
       }
+      if (url.pathname.startsWith('/food/')) {
+        const o = req.headers.get('Origin');
+        if (o && !origins(env).includes(o) && !/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(o)) return json(req, env, { ok: false, error: 'origin' }, 403);
+      }
+      if (url.pathname === '/food/search' && req.method === 'GET') return await foodSearch(req, env, url, ctx);
+      const fe = url.pathname.match(/^\/food\/ean\/(\d{6,14})$/);
+      if (fe && req.method === 'GET') return await foodEan(req, env, fe[1]);
       if (url.pathname.startsWith('/f/')) {
         const o = req.headers.get('Origin');
         if (o && !origins(env).includes(o)) return json(req, env, { ok: false, error: 'origin' }, 403);

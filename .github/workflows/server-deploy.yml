@@ -16,6 +16,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       MC_ADMIN_KEY: ${{ secrets.MC_ADMIN_KEY }}
+      FDC_API_KEY: ${{ secrets.FDC_API_KEY }}
       NAME: muskel-coach-server
       DBNAME: muskel-coach-db
     steps:
@@ -84,6 +85,7 @@ jobs:
         if: env.READY == '1'
         run: |
           printf '%s' "$MC_ADMIN_KEY" | wrangler secret put ADMIN_KEY --name "$NAME"
+          if [ -n "$FDC_API_KEY" ]; then printf '%s' "$FDC_API_KEY" | tr -d ' \r\n' | wrangler secret put FDC_API_KEY --name "$NAME"; fi
           if ! wrangler secret list --name "$NAME" | grep -q '"SALT"'; then openssl rand -hex 32 | tr -d '\n' | wrangler secret put SALT --name "$NAME"; fi
       - name: Test
         if: env.READY == '1'
@@ -96,3 +98,20 @@ jobs:
           echo "Ohne Schlüssel: HTTP $code (erwartet 401) · mit Schlüssel: ok=$ok"
           { echo "### ✅ Server läuft"; echo "Adresse: **$URL**"; echo "Antwort: $t · ohne Schlüssel HTTP $code · mit Schlüssel ok=$ok"; } >> $GITHUB_STEP_SUMMARY
           [ "$t" = "Dr. Muskel Coach Server läuft" ] && [ "$code" = "401" ] && [ "$ok" = "true" ]
+      - name: Lebensmittel-Suche testen
+        if: env.READY == '1'
+        run: |
+          URL="https://$NAME.$SUB.workers.dev"
+          { echo "### 🍎 Lebensmittel-Suche"; echo "| Anfrage | Treffer | Zeit | Quellen |"; echo "|---|---|---|---|"; } >> $GITHUB_STEP_SUMMARY
+          fail=0
+          for q in "skyr" "haferflocken" "chicken breast" "lidl protein pudding" "döner" "tavuk göğsü"; do
+            s=$(date +%s%3N); r=$(curl -s -G "$URL/food/search" --data-urlencode "q=$q"); e=$(( $(date +%s%3N) - s ))
+            n=$(echo "$r" | jq -r '.n // "FEHLER"'); src=$(echo "$r" | jq -c '.src // .error'); first=$(echo "$r" | jq -r '[.items[:2][]? | "\(.n) (\(.kcal) kcal, \(.src))"] | join("; ")')
+            echo "$q → $n Treffer, ${e} ms, $src | $first"
+            echo "| $q | $n | ${e} ms | $src |" >> $GITHUB_STEP_SUMMARY
+            [ "$q" = "skyr" ] && [ "$n" = "FEHLER" ] && fail=1
+          done
+          s=$(date +%s%3N); r=$(curl -s -G "$URL/food/search" --data-urlencode "q=skyr"); e=$(( $(date +%s%3N) - s )); echo "skyr (2. Mal, Cache) → $(echo "$r" | jq -r '.cached') ${e} ms"
+          echo "| skyr (Cache) | $(echo "$r" | jq -r '.n') | ${e} ms | cached=$(echo "$r" | jq -r '.cached') |" >> $GITHUB_STEP_SUMMARY
+          for c in 3017620422003 4056489190381 5449000000996; do r=$(curl -s "$URL/food/ean/$c"); echo "EAN $c → $(echo "$r" | jq -c '{ok,cached,n:.item.n,kcal:.item.kcal}')"; echo "| EAN $c | $(echo "$r" | jq -r '.item.n // "–"') | | $(echo "$r" | jq -r '.item.kcal // "–"') kcal |" >> $GITHUB_STEP_SUMMARY; done
+          [ "$fail" = "0" ]
