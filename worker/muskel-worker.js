@@ -619,9 +619,12 @@ function ttsSsml(text, voiceName, lang, persona, mood, rate) {
   const body = xmlEsc(text).replace(/([.!?])\s+/g, '$1 <break time="180ms"/>').replace(/:\s+/g, ': <break time="120ms"/>');
   return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="${lang === 'en' ? 'en-US' : 'de-DE'}"><voice name="${voiceName}"><lang xml:lang="${lang === 'en' ? 'en-US' : 'de-DE'}"><prosody rate="${r >= 0 ? '+' : ''}${r}%" pitch="${p >= 0 ? '+' : ''}${p}%">${body}</prosody></lang></voice></speak>`;
 }
+const AZ_REGIONS = ['germanywestcentral', 'germanynorth', 'westeurope', 'northeurope', 'swedencentral', 'francecentral', 'switzerlandnorth', 'uksouth', 'norwayeast', 'italynorth', 'polandcentral', 'eastus', 'eastus2', 'westus', 'westus2', 'westus3', 'centralus'];
+function azRegion(env) { const r = String(env.AZURE_SPEECH_REGION || '').toLowerCase().replace(/[^a-z0-9]/g, ''); return AZ_REGIONS.includes(r) ? r : 'germanywestcentral'; }
 async function ttsHandler(req, env, ctx) {
-  const enabled = !!(env.AZURE_SPEECH_KEY && env.AZURE_SPEECH_REGION);
-  if (req.method === 'GET') return json(req, env, { ok: true, enabled, voices: Object.keys(TTS_VOICES.de) });
+  const enabled = !!env.AZURE_SPEECH_KEY;
+  if (req.method === 'GET') return json(req, env, { ok: true, enabled, voices: Object.keys(TTS_VOICES.de),
+    check: { regionGiven: AZ_REGIONS.includes(String(env.AZURE_SPEECH_REGION || '').toLowerCase().replace(/[^a-z0-9]/g, '')), keyLen: String(env.AZURE_SPEECH_KEY || '').trim().length } });
   if (!enabled) return json(req, env, { ok: false, error: 'off' }, 503);
   let b; try { b = await req.json(); } catch (e) { return json(req, env, { ok: false, error: 'json' }, 400); }
   const text = String(b.text || '').replace(/\s+/g, ' ').trim().slice(0, 600);
@@ -646,8 +649,8 @@ async function ttsHandler(req, env, ctx) {
   const ssml = ttsSsml(text, voiceName, lang, persona, mood, rate);
   const ac = new AbortController(); const to = setTimeout(() => ac.abort(), 8000);
   let r; try {
-    r = await fetch(`https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, { method: 'POST', signal: ac.signal,
-      headers: { 'Ocp-Apim-Subscription-Key': env.AZURE_SPEECH_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3', 'User-Agent': 'DrMuskelCoach' }, body: ssml });
+    r = await fetch(`https://${azRegion(env)}.tts.speech.microsoft.com/cognitiveservices/v1`, { method: 'POST', signal: ac.signal,
+      headers: { 'Ocp-Apim-Subscription-Key': String(env.AZURE_SPEECH_KEY).trim(), 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3', 'User-Agent': 'DrMuskelCoach' }, body: ssml });
   } catch (e) { return json(req, env, { ok: false, error: 'upstream' }, 502); } finally { clearTimeout(to); }
   if (!r.ok) return json(req, env, { ok: false, error: 'azure_' + r.status }, r.status === 429 ? 429 : 502);
   const audio = await r.arrayBuffer();
