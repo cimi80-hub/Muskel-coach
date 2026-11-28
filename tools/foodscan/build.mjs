@@ -40,6 +40,7 @@ const T = { model: MODEL, dim, labels: labels.map((l) => ({ k: l.k, de: l.de, en
 fs.writeFileSync('foodscan/text-emb.json', JSON.stringify(T));
 log('Text-Embeddings:', labels.length, 'Klassen,', Math.round(fs.statSync('foodscan/text-emb.json').size / 1024), 'KB');
 
+if (N_DISH === 0) { log('Nur Text-Embeddings (N_DISH=0).'); process.exit(0); }
 // ---------- 2. Bildmodell (genau die Datei, die das Handy lädt) ----------
 const proc = await AutoProcessor.from_pretrained(MODEL);
 const vmodel = await CLIPVisionModelWithProjection.from_pretrained(MODEL, { dtype: 'q8' });

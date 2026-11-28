@@ -2070,6 +2070,528 @@
 }
 },
 {
+"k": "currywurst",
+"en": "currywurst sausage with curry ketchup",
+"de": "Currywurst",
+"q": "Currywurst mit Curryketchup",
+"cat": "dish",
+"db": {
+"fid": "bls:Y943032",
+"n": "Currywurst mit Curryketchup",
+"src": "bls",
+"kcal": 202,
+"p": 8.8,
+"c": 8.2,
+"f": 14.7,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "pretzel",
+"en": "soft pretzel",
+"de": "Brezel",
+"q": "Laugenbrezel",
+"cat": "bread",
+"db": {
+"fid": "bls:X061410",
+"n": "Laugenbrezel mit Butter",
+"src": "bls",
+"kcal": 403,
+"p": 7,
+"c": 36,
+"f": 24.9,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "spaetzle",
+"en": "spaetzle egg noodles",
+"de": "Spätzle",
+"q": "Eierteigwaren gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:E432032",
+"n": "Eierteigwaren gekocht",
+"src": "bls",
+"kcal": 130,
+"p": 5.2,
+"c": 24.7,
+"f": 0.9,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "roulade",
+"en": "beef roulade with gravy",
+"de": "Rinderroulade",
+"q": "Rinderroulade geschmort",
+"cat": "dish",
+"db": {
+"fid": "bls:Y151112",
+"n": "Rinderroulade geschmort, mit Sauce",
+"src": "bls",
+"kcal": 133,
+"p": 12,
+"c": 1.8,
+"f": 8.5,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "potato_salad",
+"en": "potato salad",
+"de": "Kartoffelsalat",
+"q": "Kartoffelsalat mit Mayonnaise",
+"cat": "potato",
+"db": {
+"fid": "bls:X1A2020",
+"n": "Kartoffelsalat mit Mayonnaise",
+"src": "bls",
+"kcal": 154,
+"p": 1.6,
+"c": 10.1,
+"f": 11.4,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "leberkaese",
+"en": "leberkaese meatloaf slice",
+"de": "Leberkäse",
+"q": "Leberkäse",
+"cat": "meat",
+"db": {
+"fid": "bls:W256100",
+"n": "Leberkäse",
+"src": "bls",
+"kcal": 295,
+"p": 11.8,
+"c": 0.2,
+"f": 27.4,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "sauerkraut",
+"en": "sauerkraut",
+"de": "Sauerkraut",
+"q": "Sauerkraut abgetropft, gedünstet",
+"cat": "veg",
+"db": {
+"fid": "bls:G345152",
+"n": "Sauerkraut abgetropft, gedünstet",
+"src": "bls",
+"kcal": 22,
+"p": 1.1,
+"c": 1,
+"f": 0.3,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "strudel",
+"en": "apple strudel",
+"de": "Apfelstrudel",
+"q": "Apfelstrudel (Strudelteig)",
+"cat": "dessert",
+"db": {
+"fid": "bls:D540200",
+"n": "Apfelstrudel (Strudelteig)",
+"src": "bls",
+"kcal": 220,
+"p": 3.3,
+"c": 30.4,
+"f": 8.6,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "kaiserschmarrn",
+"en": "kaiserschmarrn shredded pancake",
+"de": "Kaiserschmarrn",
+"q": "Kaiserschmarren",
+"cat": "dessert",
+"db": {
+"fid": "bls:Y890342",
+"n": "Kaiserschmarren (mit Milch 3,5 % Fett) gebraten",
+"src": "bls",
+"kcal": 250,
+"p": 8.1,
+"c": 23.4,
+"f": 13.2,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "doner_plate",
+"en": "doner kebab plate with rice and salad",
+"de": "Dönerteller",
+"q": "Dönerteller",
+"cat": "dish",
+"db": {
+"fid": "est:012",
+"n": "Dönerteller Hähnchen mit Reis und Salat (Schätzung)",
+"src": "est",
+"kcal": 155,
+"p": 10.5,
+"c": 9.7,
+"f": 8.1,
+"unit": "g",
+"portion": 570
+}
+},
+{
+"k": "durum",
+"en": "durum wrap kebab",
+"de": "Dürüm",
+"q": "Dürüm Döner",
+"cat": "dish",
+"db": {
+"fid": "est:010",
+"n": "Dürüm Döner Hähnchen (Schätzung)",
+"src": "est",
+"kcal": 207,
+"p": 12.2,
+"c": 14.3,
+"f": 10.9,
+"unit": "g",
+"portion": 395
+}
+},
+{
+"k": "sis_kebab",
+"en": "shish kebab skewer",
+"de": "Şiş Kebap",
+"q": "Şiş kebap (kuzu)",
+"cat": "meat",
+"db": {
+"fid": "tr:sis-kebap-kuzu",
+"n": "Şiş kebap (kuzu) · Lammspieß",
+"src": "tr",
+"kcal": 192,
+"p": 25.1,
+"c": 0.6,
+"f": 9.7,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "adana",
+"en": "adana kebab minced meat skewer",
+"de": "Adana Kebap",
+"q": "Adana-Kebap (Spieß, nur Fleisch)",
+"cat": "meat",
+"db": {
+"fid": "tr:adana-kebap",
+"n": "Adana-Kebap (Spieß, nur Fleisch)",
+"src": "tr",
+"kcal": 260,
+"p": 22.3,
+"c": 0.7,
+"f": 18.6,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "pide",
+"en": "turkish pide flatbread with filling",
+"de": "Pide",
+"q": "Kıymalı pide",
+"cat": "dish",
+"db": {
+"fid": "tr:kiymali-pide",
+"n": "Kıymalı pide · Pide mit Hackfleisch",
+"src": "tr",
+"kcal": 216,
+"p": 9.9,
+"c": 26.8,
+"f": 7.1,
+"unit": "g",
+"portion": 300
+}
+},
+{
+"k": "borek",
+"en": "borek pastry",
+"de": "Börek",
+"q": "Ispanaklı börek",
+"cat": "dish",
+"db": {
+"fid": "tr:ispanakli-borek",
+"n": "Ispanaklı börek · Spinat-Börek",
+"src": "tr",
+"kcal": 189,
+"p": 6.1,
+"c": 15.7,
+"f": 10.8,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "manti",
+"en": "manti dumplings with yogurt",
+"de": "Mantı",
+"q": "Mantı Kayseri-Art",
+"cat": "dish",
+"db": {
+"fid": "tr:manti-kayseri",
+"n": "Mantı Kayseri-Art (Joghurt, Butter-Sauce)",
+"src": "tr",
+"kcal": 178,
+"p": 7.7,
+"c": 18.8,
+"f": 7.5,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "lentil_soup",
+"en": "red lentil soup",
+"de": "Linsensuppe (Mercimek)",
+"q": "Mercimek çorbası",
+"cat": "soup",
+"db": {
+"fid": "tr:mercimek-corbasi",
+"n": "Mercimek çorbası · Rote-Linsen-Suppe",
+"src": "tr",
+"kcal": 64,
+"p": 2.9,
+"c": 6.9,
+"f": 2.5,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "menemen",
+"en": "menemen scrambled eggs with tomato and pepper",
+"de": "Menemen",
+"q": "Menemen (Rührei mit Tomate und Paprika)",
+"cat": "egg",
+"db": {
+"fid": "tr:menemen",
+"n": "Menemen (Rührei mit Tomate und Paprika)",
+"src": "tr",
+"kcal": 118,
+"p": 4.9,
+"c": 3.4,
+"f": 9,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "baklava",
+"en": "baklava",
+"de": "Baklava",
+"q": "Baklava (fıstıklı)",
+"cat": "dessert",
+"db": {
+"fid": "tr:baklava-fistikli",
+"n": "Baklava (fıstıklı) · Baklava mit Pistazien",
+"src": "tr",
+"kcal": 396,
+"p": 5,
+"c": 46.8,
+"f": 20.6,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "iskender",
+"en": "iskender kebab with tomato sauce and yogurt",
+"de": "İskender",
+"q": "İskender (Döner, Pide",
+"cat": "dish",
+"db": {
+"fid": "tr:iskender",
+"n": "İskender (Döner, Pide, Tomatensauce, Butter, Joghurt)",
+"src": "tr",
+"kcal": 203,
+"p": 10.1,
+"c": 11,
+"f": 12.7,
+"unit": "g",
+"portion": 400
+}
+},
+{
+"k": "spring_rolls",
+"en": "spring rolls",
+"de": "Frühlingsrollen",
+"q": "Frühlingsrollen vegetarisch",
+"cat": "dish",
+"db": {
+"fid": "bls:X9A3030",
+"n": "Frühlingsrollen vegetarisch gefüllt mit Gemüse, frittiert",
+"src": "bls",
+"kcal": 280,
+"p": 6.2,
+"c": 28.8,
+"f": 14.6,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "noodle_soup",
+"en": "noodle soup ramen",
+"de": "Nudelsuppe",
+"q": "Nudelsuppe",
+"cat": "soup",
+"db": {
+"fid": "tr:eriste-corbasi",
+"n": "Erişte çorbası · Nudelsuppe mit Erişte",
+"src": "tr",
+"kcal": 37,
+"p": 1.3,
+"c": 3.7,
+"f": 1.8,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "hot_dog",
+"en": "hot dog",
+"de": "Hot Dog",
+"q": "Hot Dog",
+"cat": "dish",
+"db": {
+"fid": "bls:Y021512",
+"n": "Hot Dog",
+"src": "bls",
+"kcal": 231,
+"p": 9.6,
+"c": 17.1,
+"f": 13.3,
+"unit": "g",
+"portion": 130
+}
+},
+{
+"k": "nachos",
+"en": "nachos tortilla chips",
+"de": "Nachos",
+"q": "Tortillachips (Nachos)",
+"cat": "dish",
+"db": {
+"fid": "bls:C546000",
+"n": "Tortillachips (Nachos)",
+"src": "bls",
+"kcal": 471,
+"p": 6,
+"c": 61.9,
+"f": 21.2,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "waffles",
+"en": "waffles",
+"de": "Waffeln",
+"q": "Waffeln, einfache (Rührmasse)",
+"cat": "dessert",
+"db": {
+"fid": "bls:D621000",
+"n": "Waffeln, einfache (Rührmasse)",
+"src": "bls",
+"kcal": 459,
+"p": 8.2,
+"c": 49.8,
+"f": 24.8,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "donut",
+"en": "donut",
+"de": "Donut",
+"q": "Donut (Hefeteig) frittiert",
+"cat": "dessert",
+"db": {
+"fid": "bls:D741600",
+"n": "Donut (Hefeteig) frittiert",
+"src": "bls",
+"kcal": 336,
+"p": 7.3,
+"c": 41.9,
+"f": 14.8,
+"unit": "g",
+"portion": 70
+}
+},
+{
+"k": "fried_chicken",
+"en": "fried chicken",
+"de": "Brathähnchen",
+"q": "Brathähnchen gebraten im Ofen",
+"cat": "meat",
+"db": {
+"fid": "bls:Y560322",
+"n": "Brathähnchen gebraten im Ofen",
+"src": "bls",
+"kcal": 230,
+"p": 22.7,
+"c": 0,
+"f": 15.4,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "fish_chips",
+"en": "fish and chips",
+"de": "Fish and Chips",
+"q": "Fish and Chips",
+"cat": "dish",
+"db": {
+"fid": "bls:Y693932",
+"n": "Fish and Chips (mit Rotbarsch)",
+"src": "bls",
+"kcal": 221,
+"p": 10.7,
+"c": 17.7,
+"f": 11.6,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "chili",
+"en": "chili con carne",
+"de": "Chili con carne",
+"q": "Chili con carne (mit Rinderhackfleisch)",
+"cat": "dish",
+"db": {
+"fid": "bls:X469753",
+"n": "Chili con carne (mit Rinderhackfleisch)",
+"src": "bls",
+"kcal": 158,
+"p": 9.9,
+"c": 9,
+"f": 7.9,
+"unit": "g",
+"portion": 350
+}
+},
+{
 "k": "plate",
 "en": "empty white plate",
 "de": "–",

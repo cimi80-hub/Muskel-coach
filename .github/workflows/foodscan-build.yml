@@ -4,7 +4,7 @@ name: FoodScan bauen & messen
 on:
   push:
     branches: [foodscan]
-    paths: ['tools/foodscan/**', '.github/workflows/foodscan-build.yml']
+    paths: ['.github/workflows/foodscan-build.yml']
   workflow_dispatch:
     inputs:
       n_dish: { description: 'Anzahl Nutrition5k-Gerichte', default: '400' }
