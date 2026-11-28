@@ -1,0 +1,2120 @@
+[
+{
+"k": "rice",
+"en": "white rice",
+"de": "Reis (gekocht)",
+"q": "Reis gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:X820162",
+"n": "Reis gekocht",
+"src": "bls",
+"kcal": 112,
+"p": 2.5,
+"c": 24.6,
+"f": 0.2,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "brownrice",
+"en": "brown rice",
+"de": "Naturreis (gekocht)",
+"q": "Reis unpoliert gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:C351032",
+"n": "Reis unpoliert, gekocht",
+"src": "bls",
+"kcal": 128,
+"p": 3,
+"c": 26.3,
+"f": 0.9,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "pasta",
+"en": "pasta noodles",
+"de": "Nudeln (gekocht)",
+"q": "Teigwaren eifrei gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:E401032",
+"n": "Teigwaren eifrei, gekocht",
+"src": "bls",
+"kcal": 146,
+"p": 5.4,
+"c": 28.7,
+"f": 0.7,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "spaghetti_tomato",
+"en": "spaghetti with tomato sauce",
+"de": "Spaghetti mit Tomatensoße",
+"q": "Spaghetti Tomatensauce",
+"cat": "dish",
+"db": {
+"fid": "bls:X740833",
+"n": "Teigwaren eifrei, mit Tomatensauce (aus frischen Tomaten) mit Sardellen",
+"src": "bls",
+"kcal": 135,
+"p": 4.3,
+"c": 18.7,
+"f": 4.4,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "quinoa",
+"en": "cooked quinoa",
+"de": "Quinoa (gekocht)",
+"q": "Quinoa gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:C118122",
+"n": "Quinoa tricolore, gekocht",
+"src": "bls",
+"kcal": 104,
+"p": 3.8,
+"c": 17.1,
+"f": 1.7,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "couscous",
+"en": "couscous",
+"de": "Couscous (gekocht)",
+"q": "Couscous gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:C119232",
+"n": "Couscous (Hartweizen) gekocht",
+"src": "bls",
+"kcal": 156,
+"p": 4.9,
+"c": 31.1,
+"f": 0.7,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "bulgur",
+"en": "bulgur pilaf",
+"de": "Bulgur (gekocht)",
+"q": "Bulgur gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:X987612",
+"n": "Bulgur gekocht (mit Fett und Salz)",
+"src": "bls",
+"kcal": 171,
+"p": 5.1,
+"c": 28.2,
+"f": 3.6,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "oatmeal",
+"en": "oatmeal porridge",
+"de": "Haferbrei",
+"q": "Haferflocken gekocht",
+"cat": "grain",
+"db": {
+"fid": "bls:C133032",
+"n": "Hafer Flocken, gekocht",
+"src": "bls",
+"kcal": 66,
+"p": 2.5,
+"c": 10,
+"f": 1.3,
+"unit": "g",
+"portion": 50
+}
+},
+{
+"k": "bread",
+"en": "slice of bread",
+"de": "Brot",
+"q": "Mischbrot",
+"cat": "bread",
+"db": {
+"fid": "bls:B271000",
+"n": "Roggenmischbrot",
+"src": "bls",
+"kcal": 218,
+"p": 7.4,
+"c": 42,
+"f": 1,
+"unit": "g",
+"portion": 50
+}
+},
+{
+"k": "bread_roll",
+"en": "bread roll",
+"de": "Brötchen",
+"q": "Weizenbrötchen",
+"cat": "bread",
+"db": {
+"fid": "bls:B511000",
+"n": "Weizenbrötchen",
+"src": "bls",
+"kcal": 280,
+"p": 10.1,
+"c": 54,
+"f": 1.8,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "toast",
+"en": "toast",
+"de": "Toastbrot",
+"q": "Weizentoastbrot/Buttertoastbrot",
+"cat": "bread",
+"db": {
+"fid": "bls:B314000",
+"n": "Weizentoastbrot/Buttertoastbrot",
+"src": "bls",
+"kcal": 261,
+"p": 8.3,
+"c": 46.8,
+"f": 3.6,
+"unit": "g",
+"portion": 28
+}
+},
+{
+"k": "pita",
+"en": "pita flatbread",
+"de": "Fladenbrot",
+"q": "Weizenfladenbrot",
+"cat": "bread",
+"db": {
+"fid": "bls:B782100",
+"n": "Weizenfladenbrot",
+"src": "bls",
+"kcal": 248,
+"p": 8.2,
+"c": 47,
+"f": 2.3,
+"unit": "g",
+"portion": 100
+}
+},
+{
+"k": "tortilla",
+"en": "tortilla wrap",
+"de": "Wrap / Tortilla",
+"q": "Weizentortilla",
+"cat": "bread",
+"db": {
+"fid": "bls:B783012",
+"n": "Weizentortilla",
+"src": "bls",
+"kcal": 296,
+"p": 8.8,
+"c": 46.6,
+"f": 7.8,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "croissant",
+"en": "croissant",
+"de": "Croissant",
+"q": "Croissant",
+"cat": "bread",
+"db": {
+"fid": "bls:D771600",
+"n": "Croissant (Hefeblätterteig/Plunderteig)",
+"src": "bls",
+"kcal": 426,
+"p": 8,
+"c": 44,
+"f": 23.6,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "pancakes",
+"en": "pancakes",
+"de": "Pfannkuchen",
+"q": "Eierkuchen",
+"cat": "bread",
+"db": {
+"fid": "bls:X925012",
+"n": "Pfannkuchen/Eierkuchen, ungesüßt, mit Milch 1,5 % Fett, gebraten",
+"src": "bls",
+"kcal": 211,
+"p": 8.8,
+"c": 31.6,
+"f": 5,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "potato_boiled",
+"en": "boiled potatoes",
+"de": "Kartoffeln (gekocht)",
+"q": "Kartoffel gekocht",
+"cat": "potato",
+"db": {
+"fid": "bls:K110132",
+"n": "Kartoffel geschält, gekocht",
+"src": "bls",
+"kcal": 76,
+"p": 2,
+"c": 15.8,
+"f": 0.1,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "mashed",
+"en": "mashed potatoes",
+"de": "Kartoffelpüree",
+"q": "Kartoffelpüree",
+"cat": "potato",
+"db": {
+"fid": "bls:X634012",
+"n": "Kartoffelpüree mit Milch 3,5 % Fett",
+"src": "bls",
+"kcal": 88,
+"p": 2.4,
+"c": 12.4,
+"f": 3,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "fries",
+"en": "french fries",
+"de": "Pommes frites",
+"q": "Pommes frites",
+"cat": "potato",
+"db": {
+"fid": "bls:X654042",
+"n": "Pommes frites",
+"src": "bls",
+"kcal": 239,
+"p": 3.4,
+"c": 31.1,
+"f": 10.7,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "roast_potato",
+"en": "roasted potatoes",
+"de": "Bratkartoffeln",
+"q": "Bratkartoffeln aus Pellkartoffeln, mit Zwiebeln",
+"cat": "potato",
+"db": {
+"fid": "bls:X651043",
+"n": "Bratkartoffeln aus Pellkartoffeln, mit Zwiebeln",
+"src": "bls",
+"kcal": 194,
+"p": 2.8,
+"c": 18.3,
+"f": 11.5,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "sweet_potato",
+"en": "sweet potato",
+"de": "Süßkartoffel",
+"q": "Süßkartoffel gebacken",
+"cat": "potato",
+"db": {
+"fid": "bls:K420162",
+"n": "Batate/Süßkartoffel, gebacken",
+"src": "bls",
+"kcal": 152,
+"p": 2.1,
+"c": 32.4,
+"f": 0.8,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "chicken_breast",
+"en": "grilled chicken breast",
+"de": "Hähnchenbrust (gegrillt)",
+"q": "Hähnchen Brustfilet gegrillt",
+"cat": "meat",
+"db": {
+"fid": "bls:V416172",
+"n": "Hähnchen Brustfilet, gegrillt",
+"src": "bls",
+"kcal": 140,
+"p": 30.3,
+"c": 0,
+"f": 2,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "chicken_pieces",
+"en": "chicken pieces",
+"de": "Hähnchenfleisch",
+"q": "Hähnchen Brustfilet gebraten",
+"cat": "meat",
+"db": {
+"fid": "bls:V416162",
+"n": "Hähnchen Brustfilet, gebraten ohne Fett (Ofen)",
+"src": "bls",
+"kcal": 144,
+"p": 31.9,
+"c": 0,
+"f": 1.9,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "chicken_wings",
+"en": "chicken wings",
+"de": "Hähnchenflügel",
+"q": "Hähnchen Flügel, mit Haut, gegrillt",
+"cat": "meat",
+"db": {
+"fid": "bls:V417172",
+"n": "Hähnchen Flügel, mit Haut, gegrillt",
+"src": "bls",
+"kcal": 286,
+"p": 28.8,
+"c": 0,
+"f": 19,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "turkey",
+"en": "sliced turkey",
+"de": "Pute",
+"q": "Pute Brust, ohne Haut, gebraten ohne Fett (Pfanne)",
+"cat": "meat",
+"db": {
+"fid": "bls:V486182",
+"n": "Pute Brust, ohne Haut, gebraten ohne Fett (Pfanne)",
+"src": "bls",
+"kcal": 148,
+"p": 33.7,
+"c": 0,
+"f": 1.4,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "beef_steak",
+"en": "beef steak",
+"de": "Rindersteak",
+"q": "Rinderrumpsteak gebraten",
+"cat": "meat",
+"db": {
+"fid": "bls:Y134022",
+"n": "Rinderrumpsteak gebraten",
+"src": "bls",
+"kcal": 180,
+"p": 28.7,
+"c": 0,
+"f": 7.3,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "ground_beef",
+"en": "ground beef",
+"de": "Hackfleisch (gebraten)",
+"q": "Rind Hackfleisch gebraten",
+"cat": "meat",
+"db": {
+"fid": "bls:U010162",
+"n": "Rind Hackfleisch, gebraten ohne Fett (Ofen)",
+"src": "bls",
+"kcal": 281,
+"p": 27,
+"c": 0,
+"f": 19.3,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "meatballs",
+"en": "meatballs",
+"de": "Frikadellen / Köfte",
+"q": "Frikadelle",
+"cat": "meat",
+"db": {
+"fid": "bls:Y036122",
+"n": "Frikadellen gebraten",
+"src": "bls",
+"kcal": 269,
+"p": 18.6,
+"c": 4.5,
+"f": 19.5,
+"unit": "g",
+"portion": 100
+}
+},
+{
+"k": "pork",
+"en": "pork chop",
+"de": "Schweinefleisch",
+"q": "Schweinekotelett gebraten",
+"cat": "meat",
+"db": {
+"fid": "bls:Y321222",
+"n": "Schweinekotelett natur, gebraten",
+"src": "bls",
+"kcal": 230,
+"p": 26.9,
+"c": 0,
+"f": 13.6,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "schnitzel",
+"en": "breaded schnitzel",
+"de": "Schnitzel (paniert)",
+"q": "Schnitzel paniert",
+"cat": "meat",
+"db": {
+"fid": "bls:U952000",
+"n": "Schwein Schnitzel, paniert, gebraten ohne Fett (Pfanne)",
+"src": "bls",
+"kcal": 178,
+"p": 26.7,
+"c": 9.2,
+"f": 3.7,
+"unit": "g",
+"portion": 160
+}
+},
+{
+"k": "bacon",
+"en": "bacon strips",
+"de": "Speck / Bacon",
+"q": "Schwein Bauchspeck, Rohpökelware, geräuchert",
+"cat": "meat",
+"db": {
+"fid": "bls:W411300",
+"n": "Schwein Bauchspeck, Rohpökelware, geräuchert",
+"src": "bls",
+"kcal": 304,
+"p": 16.6,
+"c": 0.5,
+"f": 26.2,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "sausage",
+"en": "sausage",
+"de": "Wurst / Bratwurst",
+"q": "Bratwurst gebraten",
+"cat": "meat",
+"db": {
+"fid": "bls:Y021312",
+"n": "Bratwurst gebraten",
+"src": "bls",
+"kcal": 252,
+"p": 12.6,
+"c": 0.1,
+"f": 22.3,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "ham",
+"en": "sliced ham",
+"de": "Kochschinken",
+"q": "Kochschinken",
+"cat": "meat",
+"db": {
+"fid": "bls:W424000",
+"n": "Schwein Kochschinken, Kochpökelware",
+"src": "bls",
+"kcal": 130,
+"p": 22.5,
+"c": 0.7,
+"f": 3.7,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "doner",
+"en": "doner kebab meat",
+"de": "Dönerfleisch",
+"q": "Döner Kebab",
+"cat": "dish",
+"db": {
+"fid": "bls:Y921162",
+"n": "Döner Kebab, Fladenbrot gefüllt mit Grillfleisch (Geflügel), Rohkost und Sauce",
+"src": "bls",
+"kcal": 199,
+"p": 13.1,
+"c": 18,
+"f": 7.9,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "salmon",
+"en": "salmon fillet",
+"de": "Lachs",
+"q": "Lachs gebraten",
+"cat": "fish",
+"db": {
+"fid": "bls:T410082",
+"n": "Lachs gebraten ohne Fett (Pfanne)",
+"src": "bls",
+"kcal": 208,
+"p": 23.6,
+"c": 0,
+"f": 12.6,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "white_fish",
+"en": "white fish fillet",
+"de": "Fischfilet",
+"q": "Seelachs gebraten",
+"cat": "fish",
+"db": {
+"fid": "bls:T931262",
+"n": "Seelachs paniert, tiefgefroren, gebraten ohne Fett (Ofen)",
+"src": "bls",
+"kcal": 194,
+"p": 16.7,
+"c": 16.2,
+"f": 6.7,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "tuna",
+"en": "tuna",
+"de": "Thunfisch",
+"q": "Thunfisch roh",
+"cat": "fish",
+"db": {
+"fid": "bls:T121100",
+"n": "Thunfisch roh",
+"src": "bls",
+"kcal": 139,
+"p": 22.4,
+"c": 0,
+"f": 5.5,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "shrimp",
+"en": "shrimp",
+"de": "Garnelen",
+"q": "Garnelen gekocht",
+"cat": "fish",
+"db": {
+"fid": "bls:T753132",
+"n": "Garnele/Granat/Krabbe, gekocht",
+"src": "bls",
+"kcal": 94,
+"p": 19.1,
+"c": 0,
+"f": 2,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "sushi",
+"en": "sushi",
+"de": "Sushi",
+"q": "Sushi",
+"cat": "dish",
+"db": {
+"fid": "bls:X8A1100",
+"n": "Sushi-Reis (Grundrezept)",
+"src": "bls",
+"kcal": 104,
+"p": 2.3,
+"c": 22.7,
+"f": 0.2,
+"unit": "g",
+"portion": 240
+}
+},
+{
+"k": "egg_fried",
+"en": "fried egg",
+"de": "Spiegelei",
+"q": "Spiegelei",
+"cat": "egg",
+"db": {
+"fid": "bls:Y710142",
+"n": "Spiegelei gebraten",
+"src": "bls",
+"kcal": 210,
+"p": 13.4,
+"c": 0.4,
+"f": 17.2,
+"unit": "g",
+"portion": 55
+}
+},
+{
+"k": "egg_scrambled",
+"en": "scrambled eggs",
+"de": "Rührei",
+"q": "Rührei",
+"cat": "egg",
+"db": {
+"fid": "bls:Y720143",
+"n": "Rührei gebraten",
+"src": "bls",
+"kcal": 203,
+"p": 12.9,
+"c": 0.4,
+"f": 16.6,
+"unit": "g",
+"portion": 55
+}
+},
+{
+"k": "egg_boiled",
+"en": "boiled egg",
+"de": "Gekochtes Ei",
+"q": "Hühnerei gekocht",
+"cat": "egg",
+"db": {
+"fid": "bls:E111132",
+"n": "Hühnerei gekocht",
+"src": "bls",
+"kcal": 144,
+"p": 14.1,
+"c": 0.3,
+"f": 9.6,
+"unit": "g",
+"portion": 55
+}
+},
+{
+"k": "omelette",
+"en": "omelette",
+"de": "Omelett",
+"q": "Omelett",
+"cat": "egg",
+"db": {
+"fid": "bls:Y730163",
+"n": "Omelett gebraten",
+"src": "bls",
+"kcal": 197,
+"p": 12.2,
+"c": 0.7,
+"f": 16.2,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "tofu",
+"en": "tofu",
+"de": "Tofu",
+"q": "Tofu",
+"cat": "meat",
+"db": {
+"fid": "bls:H861000",
+"n": "Tofu",
+"src": "bls",
+"kcal": 115,
+"p": 15.5,
+"c": 0,
+"f": 5.6,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "beans",
+"en": "beans",
+"de": "Bohnen",
+"q": "Bohnen weiß gekocht",
+"cat": "veg",
+"db": {
+"fid": "tr:kuru-fasulye-haslanmis",
+"n": "Kuru fasulye (haşlanmış) · Weiße Bohnen gekocht (ohne Fett)",
+"src": "tr",
+"kcal": 148,
+"p": 9.7,
+"c": 19.7,
+"f": 0.7,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "chickpeas",
+"en": "chickpeas",
+"de": "Kichererbsen",
+"q": "Kichererbsen gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:X574212",
+"n": "Kichererbsen gekocht (mit Fett und Salz)",
+"src": "bls",
+"kcal": 128,
+"p": 6,
+"c": 13.1,
+"f": 4.6,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "lentils",
+"en": "lentils",
+"de": "Linsen",
+"q": "Linsen gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:X5A8030",
+"n": "Linsen gekocht, mit gedünstetem Suppengemüse",
+"src": "bls",
+"kcal": 121,
+"p": 7.2,
+"c": 13.6,
+"f": 2.9,
+"unit": "g",
+"portion": 300
+}
+},
+{
+"k": "green_beans",
+"en": "green beans",
+"de": "Grüne Bohnen",
+"q": "Bohnen grün gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:G710132",
+"n": "Bohne grün, gekocht",
+"src": "bls",
+"kcal": 34,
+"p": 2.1,
+"c": 4.1,
+"f": 0.3,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "broccoli",
+"en": "broccoli",
+"de": "Brokkoli",
+"q": "Broccoli gedünstet",
+"cat": "veg",
+"db": {
+"fid": "bls:G312152",
+"n": "Broccoli gedünstet",
+"src": "bls",
+"kcal": 39,
+"p": 3.9,
+"c": 2.5,
+"f": 0.6,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "cauliflower",
+"en": "cauliflower",
+"de": "Blumenkohl",
+"q": "Blumenkohl gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:G311132",
+"n": "Blumenkohl gekocht",
+"src": "bls",
+"kcal": 37,
+"p": 1.9,
+"c": 5.1,
+"f": 0.9,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "carrots",
+"en": "carrots",
+"de": "Karotten",
+"q": "Karotte gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:G620132",
+"n": "Karotte/Möhre, gekocht",
+"src": "bls",
+"kcal": 34,
+"p": 0.5,
+"c": 5.4,
+"f": 0.5,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "peas",
+"en": "green peas",
+"de": "Erbsen",
+"q": "Erbsen grün gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:G760132",
+"n": "Erbse grün, gekocht",
+"src": "bls",
+"kcal": 87,
+"p": 5.6,
+"c": 12,
+"f": 0.5,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "corn",
+"en": "sweet corn",
+"de": "Mais",
+"q": "Mais gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:C341032",
+"n": "Mais gekocht",
+"src": "bls",
+"kcal": 88,
+"p": 2.3,
+"c": 16.6,
+"f": 0.9,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "spinach",
+"en": "cooked spinach",
+"de": "Spinat",
+"q": "Spinat gedünstet",
+"cat": "veg",
+"db": {
+"fid": "bls:G211152",
+"n": "Spinat gedünstet",
+"src": "bls",
+"kcal": 22,
+"p": 2.5,
+"c": 1.1,
+"f": 0.4,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "zucchini",
+"en": "zucchini",
+"de": "Zucchini",
+"q": "Zucchini gedünstet",
+"cat": "veg",
+"db": {
+"fid": "bls:G582152",
+"n": "Zucchini gedünstet",
+"src": "bls",
+"kcal": 23,
+"p": 1.4,
+"c": 3,
+"f": 0.3,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "bell_pepper",
+"en": "bell pepper",
+"de": "Paprika",
+"q": "Gemüsepaprika rot roh",
+"cat": "veg",
+"db": {
+"fid": "bls:G543100",
+"n": "Gemüsepaprika rot, roh",
+"src": "bls",
+"kcal": 36,
+"p": 1,
+"c": 6.2,
+"f": 0.2,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "mushrooms",
+"en": "mushrooms",
+"de": "Champignons",
+"q": "Champignons gedünstet",
+"cat": "veg",
+"db": {
+"fid": "bls:X5A2000",
+"n": "Champignons gedünstet in Essig, eingelegt in Rapsöl",
+"src": "bls",
+"kcal": 159,
+"p": 3.9,
+"c": 4.2,
+"f": 13.7,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "asparagus",
+"en": "asparagus",
+"de": "Spargel",
+"q": "Spargel gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:G450132",
+"n": "Spargel gekocht",
+"src": "bls",
+"kcal": 16,
+"p": 1.7,
+"c": 1.3,
+"f": 0.1,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "brussels",
+"en": "brussels sprouts",
+"de": "Rosenkohl",
+"q": "Rosenkohl gekocht",
+"cat": "veg",
+"db": {
+"fid": "bls:G332132",
+"n": "Rosenkohl gekocht",
+"src": "bls",
+"kcal": 47,
+"p": 3.8,
+"c": 5,
+"f": 0.4,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "eggplant",
+"en": "eggplant",
+"de": "Aubergine",
+"q": "Aubergine gebraten",
+"cat": "veg",
+"db": {
+"fid": "bls:G510182",
+"n": "Aubergine gebraten ohne Fett (Pfanne)",
+"src": "bls",
+"kcal": 32,
+"p": 1,
+"c": 5.1,
+"f": 0.3,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "mixed_veg",
+"en": "mixed vegetables",
+"de": "Gemischtes Gemüse",
+"q": "Gemüsemischung Kaisergemüse",
+"cat": "veg",
+"db": {
+"fid": "bls:G090100",
+"n": "Gemüsemischung Kaisergemüse, roh",
+"src": "bls",
+"kcal": 37,
+"p": 2.3,
+"c": 4.7,
+"f": 0.4,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "salad",
+"en": "green salad leaves",
+"de": "Blattsalat",
+"q": "Kopfsalat roh",
+"cat": "leafy",
+"db": {
+"fid": "bls:G105100",
+"n": "Kopfsalat roh",
+"src": "bls",
+"kcal": 18,
+"p": 1.5,
+"c": 1.7,
+"f": 0.2,
+"unit": "g",
+"portion": 50
+}
+},
+{
+"k": "mixed_salad",
+"en": "mixed salad",
+"de": "Gemischter Salat",
+"q": "Mevsim salatası",
+"cat": "leafy",
+"db": {
+"fid": "tr:mevsim-salatasi",
+"n": "Mevsim salatası · Gemischter Salat (Saison)",
+"src": "tr",
+"kcal": 72,
+"p": 1,
+"c": 2.6,
+"f": 5.9,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "tomato",
+"en": "tomato",
+"de": "Tomate",
+"q": "Tomate roh",
+"cat": "veg",
+"db": {
+"fid": "bls:G561100",
+"n": "Tomate roh",
+"src": "bls",
+"kcal": 22,
+"p": 0.9,
+"c": 3.2,
+"f": 0.1,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "cucumber",
+"en": "cucumber",
+"de": "Gurke",
+"q": "Gurke roh",
+"cat": "veg",
+"db": {
+"fid": "bls:G520100",
+"n": "Gurke roh",
+"src": "bls",
+"kcal": 16,
+"p": 1.1,
+"c": 2,
+"f": 0.2,
+"unit": "g",
+"portion": 100
+}
+},
+{
+"k": "onion",
+"en": "onions",
+"de": "Zwiebeln",
+"q": "Speisezwiebel roh",
+"cat": "veg",
+"db": {
+"fid": "bls:G480100",
+"n": "Speisezwiebel roh",
+"src": "bls",
+"kcal": 34,
+"p": 1.2,
+"c": 6,
+"f": 0.1,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "avocado",
+"en": "avocado",
+"de": "Avocado",
+"q": "Avocado roh",
+"cat": "veg",
+"db": {
+"fid": "bls:F502100",
+"n": "Avocado roh",
+"src": "bls",
+"kcal": 132,
+"p": 1.4,
+"c": 1.4,
+"f": 12.5,
+"unit": "g",
+"portion": 140
+}
+},
+{
+"k": "olives",
+"en": "olives",
+"de": "Oliven",
+"q": "Oliven grün",
+"cat": "veg",
+"db": {
+"fid": "bls:H510802",
+"n": "Oliven grün, gesäuert, abgetropft",
+"src": "bls",
+"kcal": 132,
+"p": 1.2,
+"c": 0,
+"f": 13.6,
+"unit": "g",
+"portion": 15
+}
+},
+{
+"k": "apple",
+"en": "apple",
+"de": "Apfel",
+"q": "Apfel roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F110100",
+"n": "Apfel roh",
+"src": "bls",
+"kcal": 58,
+"p": 0.4,
+"c": 11.7,
+"f": 0.5,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "banana",
+"en": "banana",
+"de": "Banane",
+"q": "Banane roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F503100",
+"n": "Banane roh",
+"src": "bls",
+"kcal": 79,
+"p": 1.3,
+"c": 15.9,
+"f": 0.4,
+"unit": "g",
+"portion": 120
+}
+},
+{
+"k": "orange",
+"en": "orange",
+"de": "Orange",
+"q": "Orange roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F603100",
+"n": "Orange roh",
+"src": "bls",
+"kcal": 49,
+"p": 1,
+"c": 8.8,
+"f": 0.2,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "strawberries",
+"en": "strawberries",
+"de": "Erdbeeren",
+"q": "Erdbeere roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F301100",
+"n": "Erdbeere roh",
+"src": "bls",
+"kcal": 38,
+"p": 0.8,
+"c": 5.9,
+"f": 0.4,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "blueberries",
+"en": "blueberries",
+"de": "Heidelbeeren",
+"q": "Heidelbeere roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F304100",
+"n": "Heidelbeere roh",
+"src": "bls",
+"kcal": 61,
+"p": 0.5,
+"c": 9.7,
+"f": 0.6,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "raspberries",
+"en": "raspberries",
+"de": "Himbeeren",
+"q": "Himbeere roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F302100",
+"n": "Himbeere roh",
+"src": "bls",
+"kcal": 43,
+"p": 1,
+"c": 5.2,
+"f": 0.3,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "grapes",
+"en": "grapes",
+"de": "Weintrauben",
+"q": "Weintraube roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F310100",
+"n": "Weintraube roh",
+"src": "bls",
+"kcal": 61,
+"p": 0.8,
+"c": 12.2,
+"f": 0.3,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "melon",
+"en": "melon",
+"de": "Melone",
+"q": "Honigmelone roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F533100",
+"n": "Honigmelone roh",
+"src": "bls",
+"kcal": 46,
+"p": 0.5,
+"c": 10.1,
+"f": 0.1,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "watermelon",
+"en": "watermelon",
+"de": "Wassermelone",
+"q": "Wassermelone roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F535100",
+"n": "Wassermelone roh",
+"src": "bls",
+"kcal": 35,
+"p": 0.6,
+"c": 7,
+"f": 0.4,
+"unit": "g",
+"portion": 300
+}
+},
+{
+"k": "pineapple",
+"en": "pineapple",
+"de": "Ananas",
+"q": "Ananas roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F501100",
+"n": "Ananas roh",
+"src": "bls",
+"kcal": 46,
+"p": 0.5,
+"c": 9.4,
+"f": 0.1,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "mango",
+"en": "mango",
+"de": "Mango",
+"q": "Mango roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F516100",
+"n": "Mango roh",
+"src": "bls",
+"kcal": 60,
+"p": 0.7,
+"c": 12,
+"f": 0.5,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "kiwi",
+"en": "kiwi",
+"de": "Kiwi",
+"q": "Kiwi roh",
+"cat": "fruit",
+"db": {
+"fid": "bls:F514100",
+"n": "Kiwi roh",
+"src": "bls",
+"kcal": 61,
+"p": 0.9,
+"c": 10.1,
+"f": 0.5,
+"unit": "g",
+"portion": 75
+}
+},
+{
+"k": "cheese",
+"en": "cheese",
+"de": "Käse",
+"q": "Gouda",
+"cat": "dairy",
+"db": {
+"fid": "bls:M402600",
+"n": "Gouda 48 % Fett i. Tr.",
+"src": "bls",
+"kcal": 379,
+"p": 22.5,
+"c": 0,
+"f": 31.6,
+"unit": "g",
+"portion": 25
+}
+},
+{
+"k": "feta",
+"en": "feta cheese",
+"de": "Feta",
+"q": "Feta",
+"cat": "dairy",
+"db": {
+"fid": "bls:M012200",
+"n": "Feta mind. 45 % Fett i. Tr.",
+"src": "bls",
+"kcal": 284,
+"p": 15.7,
+"c": 0,
+"f": 24.1,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "mozzarella",
+"en": "mozzarella",
+"de": "Mozzarella",
+"q": "Mozzarella",
+"cat": "dairy",
+"db": {
+"fid": "off:4306188390565",
+"n": "Mozzarella",
+"src": "off",
+"kcal": 249,
+"p": 18,
+"c": 1.5,
+"f": 19,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "yogurt",
+"en": "yogurt",
+"de": "Joghurt",
+"q": "Joghurt",
+"cat": "dairy",
+"db": {
+"fid": "bls:M141300",
+"n": "Joghurt mild, mind. 3,5 % Fett",
+"src": "bls",
+"kcal": 67,
+"p": 4,
+"c": 4.1,
+"f": 3.5,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "quark",
+"en": "quark curd",
+"de": "Quark",
+"q": "Magerquark",
+"cat": "dairy",
+"db": {
+"fid": "bls:M713100",
+"n": "Speisequark Magerstufe, Magerquark < 10 % Fett i. Tr.",
+"src": "bls",
+"kcal": 66,
+"p": 11.8,
+"c": 3.7,
+"f": 0.2,
+"unit": "g",
+"portion": 125
+}
+},
+{
+"k": "cottage",
+"en": "cottage cheese",
+"de": "Hüttenkäse",
+"q": "Körniger Frischkäse 10",
+"cat": "dairy",
+"db": {
+"fid": "bls:M711100",
+"n": "Körniger Frischkäse < 10 % Fett i. Tr.",
+"src": "bls",
+"kcal": 73,
+"p": 11.8,
+"c": 3,
+"f": 1.2,
+"unit": "g",
+"portion": 50
+}
+},
+{
+"k": "hummus",
+"en": "hummus",
+"de": "Hummus",
+"q": "Hummus",
+"cat": "sauce",
+"db": {
+"fid": "bls:H960000",
+"n": "Hummus/Kichererbsenmus",
+"src": "bls",
+"kcal": 324,
+"p": 5.9,
+"c": 8,
+"f": 28.5,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "tomato_sauce",
+"en": "tomato sauce",
+"de": "Tomatensoße",
+"q": "Tomatensauce",
+"cat": "sauce",
+"db": {
+"fid": "bls:X321163",
+"n": "Tomatensauce aus Tomatenmark",
+"src": "bls",
+"kcal": 107,
+"p": 0.5,
+"c": 2.3,
+"f": 10.4,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "gravy",
+"en": "brown gravy",
+"de": "Bratensoße",
+"q": "Bratensoße dunkel Konserve",
+"cat": "sauce",
+"db": {
+"fid": "bls:U990100",
+"n": "Bratensoße dunkel, Konserve",
+"src": "bls",
+"kcal": 43,
+"p": 1.3,
+"c": 5.7,
+"f": 1.6,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "cream_sauce",
+"en": "cream sauce",
+"de": "Rahmsoße",
+"q": "Sahnesauce von dunkler Grundsauce",
+"cat": "sauce",
+"db": {
+"fid": "bls:X330563",
+"n": "Sahnesauce von dunkler/brauner Grundsauce",
+"src": "bls",
+"kcal": 97,
+"p": 1.2,
+"c": 5.3,
+"f": 7.7,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "dressing",
+"en": "salad dressing",
+"de": "Dressing",
+"q": "Rotweinmarinade, Salatsauce",
+"cat": "sauce",
+"db": {
+"fid": "bls:X359540",
+"n": "Rotweinmarinade, Salatsauce",
+"src": "bls",
+"kcal": 99,
+"p": 0.4,
+"c": 8.2,
+"f": 5.5,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "ketchup",
+"en": "ketchup",
+"de": "Ketchup",
+"q": "Tomatenketchup",
+"cat": "sauce",
+"db": {
+"fid": "bls:R141100",
+"n": "Tomatenketchup",
+"src": "bls",
+"kcal": 98,
+"p": 1.4,
+"c": 21.2,
+"f": 0.1,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "mayo",
+"en": "mayonnaise",
+"de": "Mayonnaise",
+"q": "Mayonnaise",
+"cat": "sauce",
+"db": {
+"fid": "bls:Q991000",
+"n": "Mayonnaise (Fertigprodukt)",
+"src": "bls",
+"kcal": 750,
+"p": 1.5,
+"c": 2.3,
+"f": 81.2,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "guacamole",
+"en": "guacamole",
+"de": "Guacamole",
+"q": "Guacamole",
+"cat": "sauce",
+"db": {
+"fid": "bls:X389000",
+"n": "Avocadocreme (Guacamole)",
+"src": "bls",
+"kcal": 113,
+"p": 1.4,
+"c": 2,
+"f": 10.2,
+"unit": "g",
+"portion": 140
+}
+},
+{
+"k": "pizza",
+"en": "pizza slice",
+"de": "Pizza",
+"q": "Pizza Salami",
+"cat": "dish",
+"db": {
+"fid": "est:013",
+"n": "Pizza Salami (Schätzung)",
+"src": "est",
+"kcal": 253,
+"p": 9.5,
+"c": 17.8,
+"f": 15.5,
+"unit": "g",
+"portion": 370
+}
+},
+{
+"k": "burger",
+"en": "hamburger",
+"de": "Burger",
+"q": "Hamburger",
+"cat": "dish",
+"db": {
+"fid": "bls:Y911060",
+"n": "Hamburger",
+"src": "bls",
+"kcal": 190,
+"p": 10,
+"c": 19.7,
+"f": 7.3,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "sandwich",
+"en": "sandwich",
+"de": "Sandwich",
+"q": "Sandwich Schinken",
+"cat": "dish",
+"db": {
+"fid": "bls:X070060",
+"n": "Clubsandwich mit Mozzarella, Tomaten und Kochschinken",
+"src": "bls",
+"kcal": 190,
+"p": 10.9,
+"c": 12,
+"f": 10.4,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "lasagna",
+"en": "lasagna",
+"de": "Lasagne",
+"q": "Lasagne al forno",
+"cat": "dish",
+"db": {
+"fid": "bls:X730033",
+"n": "Lasagne al forno, Teigwaren geschichtet mit Bechamel- und Bologneser Sauce, mit Käse überbacken",
+"src": "bls",
+"kcal": 197,
+"p": 9.7,
+"c": 8.9,
+"f": 13.3,
+"unit": "g",
+"portion": 20
+}
+},
+{
+"k": "curry",
+"en": "curry with sauce",
+"de": "Curry",
+"q": "Hähnchen Curry",
+"cat": "dish",
+"db": {
+"fid": "bls:Y569523",
+"n": "Hähnchenschenkel gekocht, in Currysauce",
+"src": "bls",
+"kcal": 124,
+"p": 10.9,
+"c": 1.8,
+"f": 8.2,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "stew",
+"en": "meat stew",
+"de": "Eintopf / Gulasch",
+"q": "Gulasch",
+"cat": "dish",
+"db": {
+"fid": "bls:Y341023",
+"n": "Gulasch (mit Schweinefleisch)",
+"src": "bls",
+"kcal": 150,
+"p": 18.2,
+"c": 0.6,
+"f": 8.3,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "soup",
+"en": "soup",
+"de": "Suppe",
+"q": "Gemüsesuppe",
+"cat": "soup",
+"db": {
+"fid": "bls:X416713",
+"n": "Gemüsesuppe",
+"src": "bls",
+"kcal": 25,
+"p": 0.9,
+"c": 1.9,
+"f": 1.3,
+"unit": "g",
+"portion": 300
+}
+},
+{
+"k": "burrito",
+"en": "burrito",
+"de": "Burrito",
+"q": "Burrito",
+"cat": "dish",
+"db": {
+"fid": "bls:X9A4010",
+"n": "Burrito gefüllt mit Gemüse, Pilzen und Käse",
+"src": "bls",
+"kcal": 241,
+"p": 8.1,
+"c": 33,
+"f": 8.1,
+"unit": "g",
+"portion": 280
+}
+},
+{
+"k": "falafel",
+"en": "falafel",
+"de": "Falafel",
+"q": "Falafel",
+"cat": "dish",
+"db": {
+"fid": "bls:Y9A1050",
+"n": "Falafel (Kichererbsenbällchen) frittiert",
+"src": "bls",
+"kcal": 193,
+"p": 8.9,
+"c": 17,
+"f": 8,
+"unit": "g",
+"portion": 350
+}
+},
+{
+"k": "lahmacun",
+"en": "lahmacun turkish pizza",
+"de": "Lahmacun",
+"q": "Lahmacun",
+"cat": "dish",
+"db": {
+"fid": "tr:lahmacun",
+"n": "Lahmacun",
+"src": "tr",
+"kcal": 194,
+"p": 9,
+"c": 24.7,
+"f": 5.9,
+"unit": "g",
+"portion": 150
+}
+},
+{
+"k": "dumplings",
+"en": "dumplings",
+"de": "Teigtaschen",
+"q": "Maultaschen",
+"cat": "dish",
+"db": {
+"fid": "bls:X4B3010",
+"n": "Maultaschen (mit Schweinebrät), Suppeneinlage",
+"src": "bls",
+"kcal": 119,
+"p": 5.2,
+"c": 11.9,
+"f": 5.4,
+"unit": "g",
+"portion": 300
+}
+},
+{
+"k": "fried_rice",
+"en": "fried rice",
+"de": "Gebratener Reis",
+"q": "gebratener Reis",
+"cat": "dish",
+"db": {
+"fid": "bls:C352082",
+"n": "Reis poliert, gekocht, gebraten ohne Fett (Pfanne)",
+"src": "bls",
+"kcal": 124,
+"p": 3.5,
+"c": 26.4,
+"f": 0.4,
+"unit": "g",
+"portion": 200
+}
+},
+{
+"k": "noodles_asian",
+"en": "stir fried noodles",
+"de": "Gebratene Nudeln",
+"q": "gebratene Nudeln",
+"cat": "dish",
+"db": {
+"fid": "bls:E401082",
+"n": "Teigwaren eifrei, gekocht, gebraten ohne Fett (Pfanne)",
+"src": "bls",
+"kcal": 149,
+"p": 5.5,
+"c": 29.3,
+"f": 0.7,
+"unit": "g",
+"portion": 250
+}
+},
+{
+"k": "cake",
+"en": "cake",
+"de": "Kuchen",
+"q": "Rührkuchen",
+"cat": "dessert",
+"db": {
+"fid": "bls:D422600",
+"n": "Kuchen aus Rührmasse/Rührkuchen",
+"src": "bls",
+"kcal": 393,
+"p": 7.4,
+"c": 48.4,
+"f": 18.4,
+"unit": "g",
+"portion": 100
+}
+},
+{
+"k": "chocolate",
+"en": "chocolate",
+"de": "Schokolade",
+"q": "Vollmilchschokolade",
+"cat": "dessert",
+"db": {
+"fid": "bls:S539900",
+"n": "Vollmilchschokolade",
+"src": "bls",
+"kcal": 555,
+"p": 6.3,
+"c": 52,
+"f": 35.1,
+"unit": "g",
+"portion": 25
+}
+},
+{
+"k": "cookies",
+"en": "cookies",
+"de": "Kekse",
+"q": "Butterkeks",
+"cat": "dessert",
+"db": {
+"fid": "bls:D630400",
+"n": "Butterkekse/Butterplätzchen (Mürbeteig)",
+"src": "bls",
+"kcal": 456,
+"p": 7.5,
+"c": 68.9,
+"f": 16.1,
+"unit": "g",
+"portion": 10
+}
+},
+{
+"k": "ice_cream",
+"en": "ice cream",
+"de": "Eis",
+"q": "Speiseeis Vanille",
+"cat": "dessert",
+"db": {
+"fid": "bls:S211500",
+"n": "Speiseeis Vanille, in Waffeltüte",
+"src": "bls",
+"kcal": 221,
+"p": 3.2,
+"c": 26.8,
+"f": 10.9,
+"unit": "g",
+"portion": 120
+}
+},
+{
+"k": "muffin",
+"en": "muffin",
+"de": "Muffin",
+"q": "Muffin",
+"cat": "dessert",
+"db": {
+"fid": "bls:D7A3100",
+"n": "Muffins vegan (Rührmasse)",
+"src": "bls",
+"kcal": 387,
+"p": 4.6,
+"c": 55.3,
+"f": 15.8,
+"unit": "g",
+"portion": 80
+}
+},
+{
+"k": "nuts",
+"en": "nuts",
+"de": "Nüsse",
+"q": "Haselnuss",
+"cat": "nuts",
+"db": {
+"fid": "bls:H130100",
+"n": "Haselnuss",
+"src": "bls",
+"kcal": 667,
+"p": 16.2,
+"c": 4.2,
+"f": 63.3,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "almonds",
+"en": "almonds",
+"de": "Mandeln",
+"q": "Mandeln",
+"cat": "nuts",
+"db": {
+"fid": "bls:S465000",
+"n": "Mandeln gebrannt, dragiert",
+"src": "bls",
+"kcal": 472,
+"p": 10.3,
+"c": 51.4,
+"f": 21.9,
+"unit": "g",
+"portion": 30
+}
+},
+{
+"k": "granola",
+"en": "granola muesli",
+"de": "Müsli",
+"q": "Müsli Basismischung",
+"cat": "grain",
+"db": {
+"fid": "bls:C512000",
+"n": "Müsli Basismischung (ohne Trockenfrüchte) ungesüßt",
+"src": "bls",
+"kcal": 376,
+"p": 14.8,
+"c": 45.6,
+"f": 12.3,
+"unit": "g",
+"portion": 60
+}
+},
+{
+"k": "butter",
+"en": "butter",
+"de": "Butter",
+"q": "Butter",
+"cat": "sauce",
+"db": {
+"fid": "bls:Q6A4000",
+"n": "Butter gesalzen",
+"src": "bls",
+"kcal": 732,
+"p": 1.2,
+"c": 0.6,
+"f": 80.6,
+"unit": "g",
+"portion": 10
+}
+},
+{
+"k": "plate",
+"en": "empty white plate",
+"de": "–",
+"q": "",
+"cat": "nonfood",
+"db": null
+},
+{
+"k": "bowl",
+"en": "empty bowl",
+"de": "–",
+"q": "",
+"cat": "nonfood",
+"db": null
+},
+{
+"k": "table",
+"en": "table surface",
+"de": "–",
+"q": "",
+"cat": "nonfood",
+"db": null
+},
+{
+"k": "cutlery",
+"en": "fork and knife",
+"de": "–",
+"q": "",
+"cat": "nonfood",
+"db": null
+},
+{
+"k": "napkin",
+"en": "napkin",
+"de": "–",
+"q": "",
+"cat": "nonfood",
+"db": null
+},
+{
+"k": "cup",
+"en": "cup or glass",
+"de": "–",
+"q": "",
+"cat": "nonfood",
+"db": null
+}
+]
