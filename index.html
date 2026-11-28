@@ -2724,7 +2724,7 @@ function vcRec(o){ const SR=vcSR(); if(!SR){ o.onError('unsupported'); return; }
 /* iPhone: Nach der Sprachausgabe bleibt die Audio-Sitzung auf „Wiedergabe“ – die nächste Spracherkennung hört dann nichts.
    Kurzer stiller Ton direkt im Tipp setzt die Audio-Sitzung zurück. */
 let vcAC=null, vcSil=null;
-function vcAudioKick(){ try{ const ss=window.speechSynthesis; if(ss){ ss.cancel(); } }catch(e){}
+function vcAudioKick(){ try{ const ss=window.speechSynthesis; if(ss){ ss.cancel(); if(!vcAudioKick.ss){ vcAudioKick.ss=1; const u=new SpeechSynthesisUtterance(' '); u.volume=0; ss.speak(u); } } }catch(e){}
   try{ const AC=window.AudioContext||window.webkitAudioContext; if(AC){ vcAC=vcAC||new AC(); if(vcAC.state!=='running') vcAC.resume(); const b=vcAC.createBuffer(1,1,22050), src=vcAC.createBufferSource(); src.buffer=b; src.connect(vcAC.destination); src.start(0); } }catch(e){}
   VCV.seq++;
   try{ if(!vcSil){ vcSil=new Audio(); vcSil.setAttribute('playsinline',''); } vcSil.onended=vcSil.onerror=null; vcSil.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
