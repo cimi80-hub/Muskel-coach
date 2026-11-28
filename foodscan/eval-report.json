@@ -1,11 +1,11 @@
 {
- "date": "2026-11-28T13:14:42.061Z",
+ "date": "2026-11-28T13:31:19.982Z",
  "model": "Xenova/clip-vit-base-patch32 (vision q8)",
  "dataset": "Nutrition5k cafe1, realsense_overhead rgb (CC BY 4.0)",
  "dishes": 600,
  "train": 360,
  "test": 240,
- "msPerScanNodeCPU": 504,
+ "msPerScanNodeCPU": 494,
  "best": {
   "foodMin": 0.6,
   "topK": 12,
@@ -54,5 +54,5 @@
   "within20pct_kcal": 23.3
  },
  "variantsTried": 18,
- "totalSeconds": 410
+ "totalSeconds": 399
 }
