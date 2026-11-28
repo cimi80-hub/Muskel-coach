@@ -4960,7 +4960,7 @@ statProfBtn();
 .cogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0}.cogrid code{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center;font-size:15px;letter-spacing:1px}
 .cogrid code.u{opacity:.45;text-decoration:line-through}
 .coit{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}.coit:first-child{border-top:0}.coit div{flex:1}.coit small{display:block;color:var(--mut);font-size:12px}
-.cobar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:5px}.cobar i{display:block;height:100%;background:var(--acc)}
+.coopbar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:5px}.coopbar i{display:block;height:100%;background:var(--acc)}
 </style>
 <script>
 /* ===== Kooperationen / Influencer: viele Codes auf einmal ===== */
@@ -4994,7 +4994,7 @@ function coRender(){ const box=$('coBox'); if(!box) return; const key=(typeof ap
     coRender(); coShow(coGroups().find(G=>G.batch===batch)); toast2(`${j.codes.length} Codes erzeugt ✓`); }; }
 function coList(){ const el=$('coList'); if(!el) return; const gs=coGroups();
   el.innerHTML=gs.length?`<div style="margin-top:14px"><b>Deine Kooperationen</b>${gs.map((G,i)=>{ const u=G.codes.filter(c=>c.used).length, ex=G.exp&&Date.now()>G.exp;
-      return `<div class="coit"><div><b>${esc(G.tag)}</b>${G.mail?`<small>✉️ ${esc(G.mail)}</small>`:''}<small>${G.codes.length} Codes · ${coDur(G.m)} · ${fmtD(parseD(G.date))}${G.exp?` · ${ex?'abgelaufen':'bis '+coExpTxt(G.exp)}`:''}</small><small><b style="color:var(--acc)">${u} von ${G.codes.length} eingelöst</b></small><div class="cobar"><i style="width:${Math.round(100*u/G.codes.length)}%"></i></div></div><button class="iconbtn" data-cos="${i}">Codes</button></div>`; }).join('')}</div>`:'';
+      return `<div class="coit"><div><b>${esc(G.tag)}</b>${G.mail?`<small>✉️ ${esc(G.mail)}</small>`:''}<small>${G.codes.length} Codes · ${coDur(G.m)} · ${fmtD(parseD(G.date))}${G.exp?` · ${ex?'abgelaufen':'bis '+coExpTxt(G.exp)}`:''}</small><small><b style="color:var(--acc)">${u} von ${G.codes.length} eingelöst</b></small><div class="coopbar"><i style="width:${Math.round(100*u/G.codes.length)}%"></i></div></div><button class="iconbtn" data-cos="${i}">Codes</button></div>`; }).join('')}</div>`:'';
   el.querySelectorAll('[data-cos]').forEach(b=>b.onclick=()=>coShow(gs[+b.dataset.cos])); }
 function coShow(G){ const out=$('coOut'); if(!out||!G) return; const txt=coText(G);
   out.innerHTML=`<div class="pc frinv" style="margin-top:12px"><b>${esc(G.tag)} · ${G.codes.length} Codes · ${coDur(G.m)}${G.exp?' · bis '+coExpTxt(G.exp):''}</b>
