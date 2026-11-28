@@ -462,13 +462,13 @@ function mapOFF(p) {
   const name = String(p.product_name_de || firstStr(p.product_name) || p.generic_name_de || '').trim(); if (!name) return null;
   let kcal = g('energy-kcal'); const kj = g('energy-kj') ?? g('energy');
   if (kcal == null && kj != null) kcal = Math.round(kj / 4.184);
-  const brands = Array.isArray(p.brands) ? p.brands.join(',') : String(p.brands || '');
+  const brands = (Array.isArray(p.brands) ? p.brands.join(',') : String(p.brands || '')).replace(/(^|,)\s*\w\w:/g, '$1');
   const cats = Array.isArray(p.categories_tags) ? p.categories_tags.join(' ') : '';
   const liquid = /\d\s*(ml|cl|l)\b/i.test(p.quantity || '') || /beverages|getraenke|drinks/.test(cats);
   const sq = num(p.serving_quantity);
   const f = {
     id: 'off:' + p.code, ean: String(p.code || ''), n: name.slice(0, 140), brand: brands.split(',')[0].trim() || null,
-    store: (Array.isArray(p.stores) ? p.stores.join(', ') : p.stores) || null,
+    store: ((Array.isArray(p.stores) ? p.stores.join(', ') : p.stores) || '').replace(/(^|, )\w\w:/g, '$1') || null,
     src: 'off', q: 'mfr', cat: 'O', unit: liquid ? 'ml' : 'g',
     kcal: kcal == null ? null : Math.round(kcal), kj: kj == null ? null : Math.round(kj),
     p: r1(g('proteins')), c: r1(g('carbohydrates')), f: r1(g('fat')), sat: r1(g('saturated-fat')), sug: r1(g('sugars')), fib: r1(g('fiber')),
@@ -511,7 +511,13 @@ async function offSearch(q) {
   try {
     const r = await fetchT(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=de,en&page_size=50&fields=${OFF_FIELDS}`);
     dbg.sal = r.status;
-    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) { sal = hits.map(mapOFF).filter(Boolean); dbg.salRaw = hits.length; dbg.salOk = sal.length; } }
+    if (r.ok) { const j = await r.json(); const hits = j.hits || j.products || []; if (Array.isArray(hits)) { sal = hits.map(mapOFF).filter(Boolean); dbg.salRaw = hits.length; dbg.salOk = sal.length;
+      // Treffer ohne Nährwerte im Suchindex: Nährwerte gesammelt in EINER Anfrage nachladen
+      const miss = hits.filter((h) => h && h.code && !(h.nutriments && Object.keys(h.nutriments).length)).slice(0, 24).map((h) => h.code);
+      if (miss.length && sal.length < 15) { try {
+        const r2 = await fetchT(`https://world.openfoodfacts.org/api/v2/search?code=${miss.join(',')}&fields=${OFF_FIELDS}&page_size=24`, {}, 5000);
+        dbg.fill = r2.status; if (r2.ok) { const j2 = await r2.json(); const add = (j2.products || []).map(mapOFF).filter(Boolean); const ord = new Map(miss.map((c, i) => [c, i])); add.sort((a, b) => (ord.get(a.ean) ?? 99) - (ord.get(b.ean) ?? 99)); sal = sal.concat(add); dbg.fillOk = add.length; }
+      } catch (e) { dbg.fill = 'err'; } } } }
   } catch (e) { dbg.sal = 'err'; }
   if (sal && sal.length >= 6) return { list: sal, via: 'sal', dbg };
   // wenige/keine Treffer: zusätzlich die klassische Suche (deutscher Katalog zuerst)
@@ -562,7 +568,7 @@ async function foodSearch(req, env, url, ctx) {
     const j = await r.json(); const h = (j.hits || []).slice(0, 2).map((x) => ({ ...x, ingredients_text: undefined, ingredients_text_de: undefined }));
     return json(req, env, { ok: true, keys: Object.keys(j), hits: h, mapped: h.map(mapOFF) });
   }
-  const cacheKey = new Request('https://food-cache.local/s/v3/' + encodeURIComponent(q.toLowerCase()));
+  const cacheKey = new Request('https://food-cache.local/s/v4/' + encodeURIComponent(q.toLowerCase()));
   const cache = caches.default; const hit = await cache.match(cacheKey);
   if (hit) { const d = await hit.json(); return foodJson(req, env, { ...d, cached: true }); }
   if (!upOk(40)) return json(req, env, { ok: false, error: 'busy' }, 429);
