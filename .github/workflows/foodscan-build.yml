@@ -2,6 +2,9 @@ name: FoodScan bauen & messen
 # Lädt CLIP ViT-B/32 (MIT) und transformers.js, berechnet Text-Embeddings, misst die Genauigkeit
 # auf Nutrition5k (CC BY 4.0) und legt Modell + Bibliothek im Repo ab (selbst gehostet, offline-fähig).
 on:
+  push:
+    branches: [foodscan]
+    paths: ['tools/foodscan/**', '.github/workflows/foodscan-build.yml']
   workflow_dispatch:
     inputs:
       n_dish: { description: 'Anzahl Nutrition5k-Gerichte', default: '400' }
@@ -22,7 +25,7 @@ jobs:
           ls /tmp/fs/node_modules/@huggingface/transformers/dist/ | head -30
           ls -la /tmp/fs/node_modules/onnxruntime-web/dist/ | grep -E "wasm|mjs" | head -30
       - name: Bauen & messen
-        env: { N_DISH: '${{ github.event.inputs.n_dish }}', NODE_PATH: /tmp/fs/node_modules }
+        env: { N_DISH: "${{ github.event.inputs.n_dish || '30' }}", NODE_PATH: /tmp/fs/node_modules }
         run: |
           ln -s /tmp/fs/node_modules node_modules
           node tools/foodscan/build.mjs 2>&1 | tee /tmp/build.log | grep -v "^\s*$" | tail -60
